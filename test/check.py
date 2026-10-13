@@ -14,7 +14,9 @@ Checks:
                var(--x) is defined
   tokens       shadcn's names exist in light and dark; the two dark blocks agree
   contrast     WCAG AA for each text pairing (4.5:1) and control edge (3:1),
-               light and dark, computed from tokens.css
+               light and dark, computed from tokens.css; al-button's pairs
+               (resting and hover, color-mix evaluated in sRGB) are derived
+               from its CSS
   demos        each page links ../al.css, uses only declared attributes, values
                and slots, shows every variant/size/state of its element;
                index.html links every page
@@ -41,7 +43,8 @@ def fail(section, msg):
 # ---------------------------------------------------------------- manifest
 
 # The API Alder's checker was built against. Names, attribute types and slots
-# may not change; attributes may only be added (listed in ADDED).
+# may not change; attributes may only be added (listed in ADDED, in their
+# manifest positions after the original ones).
 API = {
     "al-button": ([("variant", '"primary" | "secondary" | "outline" | "ghost" | "destructive"'), ("size", '"sm" | "md" | "lg"'), ("disabled", "boolean"), ("type", '"button" | "submit"')], [""]),
     "al-input": ([("label", "string"), ("placeholder", "string"), ("disabled", "boolean"), ("invalid", "boolean"), ("help", "string")], []),
@@ -51,14 +54,16 @@ API = {
     "al-table": ([("striped", "boolean"), ("dense", "boolean")], [""]),
     "al-card": ([], ["header", "", "footer", "actions"]),
     "al-badge": ([("variant", '"default" | "secondary" | "outline" | "destructive"')], [""]),
-    "al-alert": ([("variant", '"info" | "success" | "warning" | "destructive"'), ("title", "string"), ("dismissible", "boolean")], [""]),
-    "al-pagination": ([("page", "number"), ("pages", "number")], ["prev", "next"]),
+    # al-alert's `title` became `heading` in v0.1.1 by ruling (the global
+    # title attribute drew a tooltip and doubled the accessible name).
+    "al-alert": ([("variant", '"info" | "success" | "warning" | "destructive"'), ("heading", "string"), ("dismissible", "boolean")], [""]),
+    "al-pagination": ([("page", "number"), ("pages", "number")], ["prev", "", "next"]),
     "al-stack": ([("gap", '"sm" | "md" | "lg"'), ("direction", '"row" | "column"')], [""]),
     "al-page": ([("width", '"narrow" | "normal" | "wide"')], [""]),
 }
 ADDED = {
     "al-select": [("help", "string")],
-    "al-checkbox": [("help", "string")],
+    "al-checkbox": [("invalid", "boolean"), ("help", "string")],
 }
 
 # Attributes the stylesheet deliberately does not draw: the framework copies
@@ -124,7 +129,10 @@ def check_manifest(m, els):
         for a in d.get("attributes", []):
             if not a.get("description"):
                 fail("manifest", "%s[%s] has no description" % (tag, a["name"]))
-            if "default" in a:
+            if a["type"]["text"] == "boolean":
+                if a.get("default") != "false":
+                    fail("manifest", "%s[%s] is boolean; its default must be false" % (tag, a["name"]))
+            elif "default" in a:
                 vals = union_values(a["type"]["text"])
                 if vals is None or json.loads(a["default"]) not in vals:
                     fail("manifest", "%s[%s] default %s not in its type" % (tag, a["name"], a["default"]))
@@ -350,31 +358,105 @@ def load_tokens():
 HSL = re.compile(r"hsl\(\s*([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\s*\)")
 
 
-def luminance(value):
-    m = HSL.fullmatch(value.strip())
-    if not m:
-        raise ValueError("not an hsl() colour: %r" % value)
-    h, s, l = (float(x) for x in m.groups())
-    rgb = colorsys.hls_to_rgb(h / 360, l / 100, s / 100)
-    lin = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in rgb]
+def colour(expr, env):
+    """Evaluate a CSS colour to (r, g, b, alpha) in sRGB, 0..1. Understands
+    hsl(h s% l%), transparent, var(--x) (looked up in env) and
+    color-mix(in srgb, A [p%], B [q%])."""
+    expr = expr.strip()
+    m = re.fullmatch(r"var\((--[\w-]+)\)", expr)
+    if m:
+        if m.group(1) not in env:
+            raise ValueError("undefined %s" % m.group(1))
+        return colour(env[m.group(1)], env)
+    if expr == "transparent":
+        return (0.0, 0.0, 0.0, 0.0)
+    m = HSL.fullmatch(expr)
+    if m:
+        h, s, l = (float(x) for x in m.groups())
+        return colorsys.hls_to_rgb(h / 360, l / 100, s / 100) + (1.0,)
+    m = re.fullmatch(r"color-mix\((.*)\)", expr)
+    if m:
+        args = split_top(m.group(1))
+        if args[0].split() != ["in", "srgb"]:
+            raise ValueError("only color-mix in srgb: %r" % expr)
+        parts = []
+        for a in args[1:]:
+            pm = re.fullmatch(r"(.*?)\s+([\d.]+)%", a)
+            parts.append((pm.group(1), float(pm.group(2)) / 100) if pm else (a, None))
+        (c1, p1), (c2, p2) = parts
+        if p1 is None and p2 is None:
+            p1 = p2 = 0.5
+        elif p1 is None:
+            p1 = 1 - p2
+        elif p2 is None:
+            p2 = 1 - p1
+        total = p1 + p2
+        w1, w2 = p1 / total, p2 / total
+        a1, a2 = colour(c1, env), colour(c2, env)
+        alpha = a1[3] * w1 + a2[3] * w2
+        if alpha == 0:
+            return (0.0, 0.0, 0.0, 0.0)
+        rgb = tuple((a1[i] * a1[3] * w1 + a2[i] * a2[3] * w2) / alpha for i in range(3))
+        return rgb + (alpha * min(total, 1.0),)
+    raise ValueError("cannot evaluate colour %r" % expr)
+
+
+def over(top, bottom):
+    a = top[3]
+    return tuple(top[i] * a + bottom[i] * (1 - a) for i in range(3)) + (1.0,)
+
+
+def luminance_rgb(rgb):
+    lin = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in rgb[:3]]
     return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
 
 
-def ratio(a, b):
-    la, lb = luminance(a), luminance(b)
+def ratio_rgb(a, b):
+    la, lb = luminance_rgb(a), luminance_rgb(b)
     hi, lo = max(la, lb), min(la, lb)
     return (hi + 0.05) / (lo + 0.05)
+
+
+def ratio(fg, bg, env):
+    """Contrast of fg on bg, both CSS colours; translucent colours are
+    composited over the theme's --background first."""
+    base = colour("var(--background)", env)
+    b = over(colour(bg, env), base)
+    return ratio_rgb(over(colour(fg, env), b), b)
+
+
+def button_pairs():
+    """al-button's text/background pairs, derived from its CSS: for every
+    variant (primary is the base rule) the text on the resting background and
+    on the hover background."""
+    css = (ROOT / "components" / "al-button.css").read_text()
+    base, variants = {}, {}
+    for head, body in rules(css):
+        head = " ".join(head.split())
+        d = {k: v.strip() for k, v in decls(body + ";").items() if k.startswith("--_al-")}
+        if head == "al-button":
+            base = d
+        else:
+            m = re.fullmatch(r'al-button\[variant="(\w+)"\]', head)
+            if m:
+                variants[m.group(1)] = d
+    out = []
+    for v in ["primary"] + [k for k in variants if k != "primary"]:
+        d = dict(base, **variants.get(v, {}))
+        out.append(("al-button %s" % v, d["--_al-fg"], d["--_al-bg"], 4.5))
+        out.append(("al-button %s hover" % v, d["--_al-fg"], d["--_al-hover"], 4.5))
+    return out
 
 
 # (where it is used, foreground token, background token, minimum)
 PAIRS = [
     ("body text", "foreground", "background", 4.5),
     ("al-card", "card-foreground", "card", 4.5),
-    ("al-button primary, al-badge default", "primary-foreground", "primary", 4.5),
-    ("al-button secondary, al-badge secondary", "secondary-foreground", "secondary", 4.5),
-    ("al-button outline/ghost, al-badge outline", "foreground", "background", 4.5),
-    ("al-button outline/ghost hover, pagination hover", "accent-foreground", "accent", 4.5),
-    ("al-button destructive, al-badge destructive", "destructive-foreground", "destructive", 4.5),
+    ("al-badge default", "primary-foreground", "primary", 4.5),
+    ("al-badge secondary", "secondary-foreground", "secondary", 4.5),
+    ("al-badge outline", "foreground", "background", 4.5),
+    ("al-badge destructive", "destructive-foreground", "destructive", 4.5),
+    ("al-pagination link hover", "accent-foreground", "accent", 4.5),
     ("help, placeholder, th, card footer, page N of M", "muted-foreground", "background", 4.5),
     ("muted text on card", "muted-foreground", "card", 4.5),
     ("al-table striped row", "foreground", "muted", 4.5),
@@ -391,7 +473,9 @@ PAIRS = [
 
 
 def tok(name):
-    return name if name.startswith("--") else "--" + name
+    if name.startswith("var(") or name.startswith("color-mix(") or name == "transparent":
+        return name
+    return "var(%s)" % (name if name.startswith("--") else "--" + name)
 
 
 def check_tokens(light, dark, media, common):
@@ -409,11 +493,11 @@ def check_tokens(light, dark, media, common):
 
 def contrast_table(light, dark):
     rows = []
-    for use, fg, bg, need in PAIRS:
+    for use, fg, bg, need in button_pairs() + PAIRS:
         row = [use, tok(fg), tok(bg), need]
         for theme, vals in (("light", light), ("dark", dark)):
             try:
-                r = ratio(vals[tok(fg)], vals[tok(bg)])
+                r = ratio(tok(fg), tok(bg), vals)
             except (KeyError, ValueError) as e:
                 fail("contrast", "%s (%s): %s" % (use, theme, e))
                 r = 0.0
@@ -551,7 +635,7 @@ def main(argv):
         print("%d failure(s)" % len(FAILURES))
         return 1
     print("ok: manifest, css, tokens-only, tokens, contrast (%d pairs x 2 themes), demos (%d pages), bundle"
-          % (len(PAIRS), len(list((ROOT / "demo").glob("*.html")))))
+          % (len(rows), len(list((ROOT / "demo").glob("*.html")))))
     return 0
 
 
