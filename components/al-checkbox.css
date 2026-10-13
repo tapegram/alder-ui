@@ -5,6 +5,8 @@
  *     <ul class="errors" data-errors="done"></ul>
  *   </al-checkbox>
  * The box is drawn before the text (row-reverse), whatever the source order.
+ * invalid (set by Alder when the field has errors) outlines the box in the
+ * destructive colour.
  */
 
 al-checkbox {
@@ -42,10 +44,22 @@ al-checkbox input[type="checkbox"]:focus-visible {
   outline-offset: var(--al-ring-offset);
 }
 
-al-checkbox[disabled] label,
-al-checkbox label:has(input:disabled) {
+/* Dim once: the whole field, or just the label holding a disabled box. */
+al-checkbox[disabled],
+al-checkbox:not([disabled]) label:has(input:disabled) {
   cursor: not-allowed;
   opacity: var(--al-disabled-opacity);
+}
+
+al-checkbox[invalid] input[type="checkbox"] {
+  outline: var(--al-border-width) solid var(--al-destructive-text);
+  outline-offset: var(--al-border-width);
+  accent-color: var(--al-destructive-text);
+}
+
+al-checkbox[invalid] input[type="checkbox"]:focus-visible {
+  outline: var(--al-ring-width) solid var(--al-destructive-text);
+  outline-offset: var(--al-ring-offset);
 }
 
 al-checkbox[help]::after {

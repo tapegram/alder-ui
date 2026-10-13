@@ -58,8 +58,10 @@ al-input[invalid] input:focus-visible {
   outline-color: var(--al-destructive-text);
 }
 
-al-input[disabled] label,
-al-input input:disabled {
+/* Dim once: the whole field when the element is disabled, or just the
+   control when only it is. */
+al-input[disabled],
+al-input:not([disabled]) input:disabled {
   cursor: not-allowed;
   opacity: var(--al-disabled-opacity);
 }
