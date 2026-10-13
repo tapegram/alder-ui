@@ -1,19 +1,23 @@
 /*
- * al-button. Two forms, one look:
- *   <al-button variant="primary">Save</al-button>
- *     the element is the button (give it role="button" tabindex="0", or let
- *     your framework attach the click);
+ * al-button. One look, three forms:
  *   <al-button variant="primary"><button type="submit">Save</button></al-button>
- *     the native button inside takes the look and works with no JavaScript;
- *     the element itself then draws nothing, so there is no double border.
- * The variant sets private colour properties; both forms read them.
+ *     the native button inside takes the look and works with no JavaScript
+ *     (the element itself then draws nothing, so there is no double border);
+ *   <al-button variant="outline"><a href="/posts">All posts</a></al-button>
+ *     a link that looks like a button;
+ *   <al-button variant="primary">Save</al-button>
+ *     presentational: the element draws the look, but it is not a button
+ *     until a framework adds the role, focus and Enter/Space handling.
+ * The variant sets private colour properties; every form reads them.
+ * Hovers mix the background toward a theme colour (never toward
+ * transparent), so the text keeps its contrast; test/check.py computes it.
  */
 
 al-button {
   --_al-bg: var(--primary);
   --_al-fg: var(--primary-foreground);
   --_al-border: var(--primary);
-  --_al-hover: color-mix(in srgb, var(--primary) 90%, transparent);
+  --_al-hover: color-mix(in srgb, var(--primary) 90%, var(--primary-foreground));
   --_al-h: var(--al-control-h-md);
   --_al-px: var(--al-space-4);
   --_al-text: var(--al-text-sm);
@@ -23,7 +27,7 @@ al-button[variant="secondary"] {
   --_al-bg: var(--secondary);
   --_al-fg: var(--secondary-foreground);
   --_al-border: var(--secondary);
-  --_al-hover: color-mix(in srgb, var(--secondary), var(--foreground) 6%);
+  --_al-hover: color-mix(in srgb, var(--secondary) 94%, var(--foreground));
 }
 
 al-button[variant="outline"] {
@@ -44,7 +48,7 @@ al-button[variant="destructive"] {
   --_al-bg: var(--destructive);
   --_al-fg: var(--destructive-foreground);
   --_al-border: var(--destructive);
-  --_al-hover: color-mix(in srgb, var(--destructive) 90%, transparent);
+  --_al-hover: color-mix(in srgb, var(--destructive) 90%, var(--foreground));
 }
 
 al-button[size="sm"] {
@@ -64,8 +68,9 @@ al-button[size="lg"] {
 }
 
 al-button,
-al-button > button {
+al-button > :is(button, a) {
   display: inline-flex;
+  inline-size: fit-content;
   align-items: center;
   justify-content: center;
   gap: var(--al-space-2);
@@ -88,12 +93,16 @@ al-button > button {
   transition: background-color var(--al-duration);
 }
 
-al-button > button {
+al-button > :is(button, a) {
   appearance: none;
 }
 
-/* The native-button form: the element only holds the button. */
-al-button:has(> button) {
+al-button > a:any-link {
+  color: var(--_al-fg);
+}
+
+/* The native forms: the element only holds the button or link. */
+al-button:has(> :is(button, a)) {
   min-height: 0;
   padding: 0;
   border: 0;
@@ -101,26 +110,26 @@ al-button:has(> button) {
   cursor: auto;
 }
 
-al-button:not(:has(> button)):hover,
-al-button > button:hover {
+al-button:not(:has(> :is(button, a))):hover,
+al-button > :is(button, a):hover {
   background: var(--_al-hover);
 }
 
 al-button:focus-visible,
-al-button > button:focus-visible {
+al-button > :is(button, a):focus-visible {
   outline: var(--al-ring-width) solid var(--ring);
   outline-offset: var(--al-ring-offset);
 }
 
 al-button[disabled],
-al-button[disabled] > button,
+al-button[disabled] > :is(button, a),
 al-button > button:disabled {
   opacity: var(--al-disabled-opacity);
   cursor: not-allowed;
   pointer-events: none;
 }
 
-/* In the native-button form only the button dims, not the element too. */
-al-button:has(> button)[disabled] {
+/* In the native forms only the child dims, not the element too. */
+al-button:has(> :is(button, a))[disabled] {
   opacity: 1;
 }
