@@ -8,7 +8,8 @@ Checks:
   manifest     the twelve elements, their attributes and slots are exactly the
                published API (no rename, no drop); version looks like a tag
   css          every selector names a declared element, attribute, value and
-               slot (and every class is al- prefixed); every element, attribute,
+               slot (and every class is al- prefixed, or one of the classes
+               Alder renders: errors, help, _alder-click); every element, attribute,
                value and slot in the manifest is styled
   tokens-only  no hard-coded colours, lengths or fonts in components/; every
                var(--x) is defined
@@ -209,7 +210,18 @@ def compounds(selector):
     return out
 
 
+# Selectors for markup Alder renders round an element rather than inside one:
+# the no-JavaScript click form (al-button.css).
+ALDER_MARKUP = {"form._alder-click"}
+
+# Classes Alder's rendered markup carries: the errors list and the help text
+# of the input elements, and the click form.
+ALDER_CLASSES = {"errors", "help", "_alder-click"}
+
+
 def check_selector(sel, els, file_tag, seen):
+    if sel in ALDER_MARKUP:
+        return
     if file_tag not in sel:
         fail("css", "%s.css: selector %r does not name <%s>" % (file_tag, sel, file_tag))
     last = None
@@ -227,7 +239,7 @@ def check_selector(sel, els, file_tag, seen):
                 return
             last = tag
         for cls in re.findall(r"\.([\w-]+)", bare):
-            if not (cls.startswith("al-") or cls == "errors"):
+            if not (cls.startswith("al-") or cls in ALDER_CLASSES):
                 fail("css", "%s.css: class .%s is not al- prefixed" % (file_tag, cls))
         for name, op, val in ATTR_RE.findall(bare):
             if tag and tag.startswith("al-"):
@@ -556,7 +568,7 @@ def check_demos(els):
             fail("demos", "%s does not link ../al.css" % where)
         for tag, cls, line in d.classes:
             for c in cls.split():
-                if not (c.startswith("al-") or (c == "errors" and tag == "ul")):
+                if not (c.startswith("al-") or (c == "errors" and tag == "ul") or (c == "help" and tag == "small")):
                     fail("demos", "%s:%d: class %r (no demo-only classes)" % (where, line, c))
         for tag, attrs, parent, line in d.elements:
             if any(n == "style" for n, _ in attrs):

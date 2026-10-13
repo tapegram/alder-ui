@@ -133,3 +133,12 @@ al-button > button:disabled {
 al-button:has(> :is(button, a))[disabled] {
   opacity: 1;
 }
+
+/* Alder's click form: without JavaScript, a `click` button is submitted by a
+   <form class="_alder-click" method="post"> that Alder wraps round the
+   <al-button>. The form must not take part in layout (a row of buttons stays
+   a row; a grid or flex parent places the button, not the form). The class
+   is Alder's; on any other page the rule matches nothing. */
+form._alder-click {
+  display: contents;
+}

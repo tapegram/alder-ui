@@ -25,6 +25,9 @@ function toggleTheme() { var r = document.documentElement, dark = r.dataset.them
 
 <section>
 <h2>With help</h2>
+<p>The markup Alder renders: a <code>&lt;small class="help"&gt;</code> after the label, named by the control's <code>aria-describedby</code> so a screen reader reads it.</p>
+<al-select label="Priority" help="High wakes someone up."><label>Priority<select name="priority" required aria-describedby="help-priority"><option value="Low">Low</option><option value="High">High</option></select></label><small class="help" id="help-priority">High wakes someone up.</small><ul class="errors" data-errors="priority"></ul></al-select>
+<p>The attribute alone also draws the text (but it is not announced):</p>
 <al-select label="Priority" help="High wakes someone up."><label>Priority<select name="priority" required><option value="Low">Low</option><option value="High">High</option></select></label><ul class="errors" data-errors="priority"></ul></al-select>
 </section>
 

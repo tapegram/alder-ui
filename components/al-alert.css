@@ -86,3 +86,10 @@ al-alert > .al-alert-dismiss:focus-visible {
   outline: var(--al-ring-width) solid var(--ring);
   outline-offset: var(--al-ring-offset);
 }
+
+/* An alert that holds only an empty errors list (Alder's
+   <al-alert variant="destructive"><Errors form /></al-alert>, before any
+   error) is not drawn: no empty coloured box. */
+al-alert:has(> ul.errors:empty) {
+  display: none;
+}

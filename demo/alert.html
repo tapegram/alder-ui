@@ -30,6 +30,15 @@ function toggleTheme() { var r = document.documentElement, dark = r.dataset.them
 </section>
 
 <section>
+<h2>Holding a form's errors</h2>
+<p>An alert whose only child is an empty <code>ul.errors</code> is not drawn (Alder's <code>&lt;al-alert variant="destructive"&gt;&lt;Errors form /&gt;&lt;/al-alert&gt;</code> before any error). Below: the empty one (hidden), then one with an error.</p>
+<al-stack gap="sm">
+  <al-alert variant="destructive" role="alert"><ul class="errors" data-errors=""></ul></al-alert>
+  <al-alert variant="destructive" role="alert"><ul class="errors" data-errors=""><li>That slug is taken.</li></ul></al-alert>
+</al-stack>
+</section>
+
+<section>
 <h2>Without a heading</h2>
 <al-alert role="status">The default variant is info.</al-alert>
 </section>

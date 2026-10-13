@@ -17,7 +17,7 @@ function toggleTheme() { var r = document.documentElement, dark = r.dataset.them
   <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
 </al-stack>
 <h1>al-input</h1>
-<p>The markup Alder renders for <code>&lt;al-input field="title" label="Title" /&gt;</code>: a real <code>&lt;label&gt;</code> around the input, then the <code>ul.errors</code> list. <code>help</code> is drawn from the attribute; <code>invalid</code> colours the border.</p>
+<p>The markup Alder renders for <code>&lt;al-input field="title" label="Title" /&gt;</code>: a real <code>&lt;label&gt;</code> around the input, then the help text (when given) and the <code>ul.errors</code> list. <code>help</code> is a <code>&lt;small class="help"&gt;</code>; <code>invalid</code> colours the border.</p>
 <section>
 <h2>Default</h2>
 <al-input label="Title" placeholder="A short title"><label>Title<input name="title" type="text" required placeholder="A short title"></label><ul class="errors" data-errors="title"></ul></al-input>
@@ -25,6 +25,9 @@ function toggleTheme() { var r = document.documentElement, dark = r.dataset.them
 
 <section>
 <h2>With help</h2>
+<p>The markup Alder renders: a <code>&lt;small class="help"&gt;</code> after the label, named by the control's <code>aria-describedby</code> so a screen reader reads it.</p>
+<al-input label="Email" help="We never share it."><label>Email<input name="email" type="email" required aria-describedby="help-email"></label><small class="help" id="help-email">We never share it.</small><ul class="errors" data-errors="email"></ul></al-input>
+<p>The attribute alone also draws the text (but it is not announced):</p>
 <al-input label="Email" help="We never share it."><label>Email<input name="email" type="email" required></label><ul class="errors" data-errors="email"></ul></al-input>
 </section>
 

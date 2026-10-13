@@ -2,6 +2,7 @@
  * al-checkbox. Alder renders
  *   <al-checkbox label="Done">
  *     <label>Done<input type="checkbox" name="done" value="True"></label>
+ *     <small class="help" id="help-done">…</small>   (when help is given)
  *     <ul class="errors" data-errors="done"></ul>
  *   </al-checkbox>
  * The box is drawn before the text (row-reverse), whatever the source order.
@@ -67,6 +68,19 @@ al-checkbox[help]::after {
   order: 1;
   color: var(--muted-foreground);
   font-size: var(--al-text-sm);
+}
+
+/* The markup form, which Alder renders: <small class="help" id="help-…">
+   after the label, named by the control's aria-describedby so a screen
+   reader announces it. The attribute's text is then not drawn again. */
+al-checkbox > .help {
+  order: 1;
+  color: var(--muted-foreground);
+  font-size: var(--al-text-sm);
+}
+
+al-checkbox:has(> .help)::after {
+  content: none;
 }
 
 al-checkbox ul.errors {

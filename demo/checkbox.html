@@ -30,6 +30,9 @@ function toggleTheme() { var r = document.documentElement, dark = r.dataset.them
 
 <section>
 <h2>With help</h2>
+<p>The markup Alder renders: a <code>&lt;small class="help"&gt;</code> after the label, named by the control's <code>aria-describedby</code> so a screen reader reads it.</p>
+<al-checkbox label="Subscribe" help="One email a month."><label>Subscribe<input name="subscribe" type="checkbox" value="True" aria-describedby="help-subscribe"></label><small class="help" id="help-subscribe">One email a month.</small><ul class="errors" data-errors="subscribe"></ul></al-checkbox>
+<p>The attribute alone also draws the text (but it is not announced):</p>
 <al-checkbox label="Subscribe" help="One email a month."><label>Subscribe<input name="subscribe" type="checkbox" value="True"></label><ul class="errors" data-errors="subscribe"></ul></al-checkbox>
 </section>
 

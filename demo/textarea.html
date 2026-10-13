@@ -25,6 +25,9 @@ function toggleTheme() { var r = document.documentElement, dark = r.dataset.them
 
 <section>
 <h2>With help</h2>
+<p>The markup Alder renders: a <code>&lt;small class="help"&gt;</code> after the label, named by the control's <code>aria-describedby</code> so a screen reader reads it.</p>
+<al-textarea label="Bio" help="Markdown is not supported."><label>Bio<textarea name="bio" aria-describedby="help-bio"></textarea></label><small class="help" id="help-bio">Markdown is not supported.</small><ul class="errors" data-errors="bio"></ul></al-textarea>
+<p>The attribute alone also draws the text (but it is not announced):</p>
 <al-textarea label="Bio" help="Markdown is not supported."><label>Bio<textarea name="bio"></textarea></label><ul class="errors" data-errors="bio"></ul></al-textarea>
 </section>
 

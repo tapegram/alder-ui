@@ -2,6 +2,7 @@
  * al-select. Alder renders
  *   <al-select label="Kind" invalid>
  *     <label>Kind<select name="kind">…</select></label>
+ *     <small class="help" id="help-kind">…</small>   (when help is given)
  *     <ul class="errors" data-errors="kind"><li>…</li></ul>
  *   </al-select>
  * The native <select> keeps its own arrow and keyboard behaviour.
@@ -64,6 +65,19 @@ al-select[help]::after {
   order: 1;
   color: var(--muted-foreground);
   font-size: var(--al-text-sm);
+}
+
+/* The markup form, which Alder renders: <small class="help" id="help-…">
+   after the label, named by the control's aria-describedby so a screen
+   reader announces it. The attribute's text is then not drawn again. */
+al-select > .help {
+  order: 1;
+  color: var(--muted-foreground);
+  font-size: var(--al-text-sm);
+}
+
+al-select:has(> .help)::after {
+  content: none;
 }
 
 al-select ul.errors {

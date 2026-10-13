@@ -37,7 +37,7 @@ README is the short version.
 `al.css` is the whole library (tokens and every component, inside
 `@layer al`). Copy it from a tagged release. Once this repository is public,
 you can also link the raw file at a tag
-(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.1.1/al.css`). Open
+(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.1.2/al.css`). Open
 `demo/index.html` to see every element, variant and state in both themes.
 
 ## Elements
@@ -78,7 +78,10 @@ Notes:
 - **The input elements** wrap a real `<label>` around the control, then a
   `<ul class="errors">` list (shown in the destructive colour). `invalid`
   colours the border (on `al-checkbox`, an outline round the box); `help` is
-  drawn from the attribute under the control. The `label` attribute is not
+  a `<small class="help" id="help-<field>">` after the label, which Alder
+  renders and names in the control's `aria-describedby`, so a screen reader
+  reads it; without that markup the `help` attribute's text is drawn under
+  the control (seen, not announced). The `label` attribute is not
   drawn: the `<label>` is. `disabled` dims the whole field once.
 - **`al-alert`**: write `role="alert"` (warning, destructive) or
   `role="status"` (info, success) yourself (Alder adds it for you from a
@@ -87,6 +90,13 @@ Notes:
   (`<script type="module" src="al-alert.js">`; `al.css` does not load it).
   A DOM morph (Datastar, htmx, Turbo) that replaces the alert's children
   removes the added button; Alder renders its own dismiss control instead.
+- **Empty errors alert**: an `al-alert` whose only child is an empty
+  `ul.errors` (`al-alert:has(> ul.errors:empty)`) is hidden, so an alert
+  round a form's errors list shows only when there is an error.
+- **`form._alder-click { display: contents }`**: `form._alder-click` is
+  the class of the form Alder wraps round a `click` button so it works with
+  no JavaScript; the rule keeps that form out of layout. It matches nothing
+  on other pages.
 - **`al-pagination`** draws "Page N of M" between the links from `page` and
   `pages`. Children without a slot go in the middle and replace that text.
 
