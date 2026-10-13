@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>al-checkbox · alder-ui</title>
+<title>al-checkbox</title>
 <link rel="stylesheet" href="../al.css">
 <script>
 function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
@@ -34,8 +34,8 @@ function toggleTheme() { var r = document.documentElement, dark = r.dataset.them
 </section>
 
 <section>
-<h2>With an error</h2>
-<al-checkbox label="I agree to the terms"><label>I agree to the terms<input name="agree" type="checkbox" value="True"></label><ul class="errors" data-errors="agree"><li>must be checked</li></ul></al-checkbox>
+<h2>Invalid</h2>
+<al-checkbox label="I agree to the terms" invalid><label>I agree to the terms<input name="agree" type="checkbox" value="True"></label><ul class="errors" data-errors="agree"><li>must be checked</li></ul></al-checkbox>
 </section>
 
 <section>

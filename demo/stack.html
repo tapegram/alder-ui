@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>al-stack · alder-ui</title>
+<title>al-stack</title>
 <link rel="stylesheet" href="../al.css">
 <script>
 function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
@@ -33,6 +33,15 @@ function toggleTheme() { var r = document.documentElement, dark = r.dataset.them
   <al-badge variant="outline">One</al-badge>
   <al-badge variant="outline">Two</al-badge>
   <al-badge variant="outline">Three</al-badge>
+</al-stack>
+</section>
+
+<section>
+<h2>A form column: fields stretch, buttons and badges do not</h2>
+<al-stack>
+  <al-input label="Name"><label>Name<input name="name" type="text"></label><ul class="errors" data-errors="name"></ul></al-input>
+  <al-badge variant="secondary">Optional</al-badge>
+  <al-button variant="primary"><button type="submit">Save</button></al-button>
 </al-stack>
 </section>
 
