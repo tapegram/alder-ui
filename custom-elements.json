@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "version": "v0.1.0",
+  "version": "v0.1.1",
   "modules": [
     {
       "kind": "javascript-module",
@@ -11,7 +11,7 @@
           "name": "AlButton",
           "tagName": "al-button",
           "customElement": true,
-          "description": "A button, styled by variant and size: either the element itself (`<al-button>Save</al-button>`) or the native `<button>` inside it, which works with no JavaScript.",
+          "description": "A button, styled by variant and size. Put a native `<button>` (or an `<a>`) inside it: that works with no JavaScript. The element alone (`<al-button>Save</al-button>`) is presentational: it looks like a button but needs a framework to give it a role, focus and Enter/Space handling.",
           "attributes": [
             {
               "name": "variant",
@@ -34,14 +34,16 @@
               "type": {
                 "text": "boolean"
               },
-              "description": "Shows the button as disabled and stops pointer clicks. In the native-button form, also put `disabled` on the `<button>` so the keyboard and forms skip it."
+              "description": "Shows the button as disabled and stops pointer clicks. In the native-button form, also put `disabled` on the `<button>` so the keyboard and forms skip it.",
+              "default": "false"
             },
             {
               "name": "type",
               "type": {
                 "text": "\"button\" | \"submit\""
               },
-              "description": "The kind of the button, for frameworks that render the native `<button>` from it (Alder: `submit` inside a form). It does not change the look."
+              "description": "The kind of the button, for frameworks that render the native `<button>` from it (Alder: `submit` inside a form). It does not change the look.",
+              "default": "\"button\""
             }
           ],
           "slots": [
@@ -83,14 +85,16 @@
               "type": {
                 "text": "boolean"
               },
-              "description": "Disables the input (copied onto the `<input>`) and dims the field."
+              "description": "Disables the input (copied onto the `<input>`) and dims the field.",
+              "default": "false"
             },
             {
               "name": "invalid",
               "type": {
                 "text": "boolean"
               },
-              "description": "Marks the field as having errors: the border and focus ring take the destructive colour. Alder's renderer sets it when the field has errors."
+              "description": "Marks the field as having errors: the border and focus ring take the destructive colour. Alder's renderer sets it when the field has errors.",
+              "default": "false"
             },
             {
               "name": "help",
@@ -133,14 +137,16 @@
               "type": {
                 "text": "boolean"
               },
-              "description": "Disables the textarea (copied onto the `<textarea>`) and dims the field."
+              "description": "Disables the textarea (copied onto the `<textarea>`) and dims the field.",
+              "default": "false"
             },
             {
               "name": "invalid",
               "type": {
                 "text": "boolean"
               },
-              "description": "Marks the field as having errors: the border and focus ring take the destructive colour. Alder's renderer sets it when the field has errors."
+              "description": "Marks the field as having errors: the border and focus ring take the destructive colour. Alder's renderer sets it when the field has errors.",
+              "default": "false"
             },
             {
               "name": "help",
@@ -176,14 +182,16 @@
               "type": {
                 "text": "boolean"
               },
-              "description": "Disables the select (copied onto the `<select>`) and dims the field."
+              "description": "Disables the select (copied onto the `<select>`) and dims the field.",
+              "default": "false"
             },
             {
               "name": "invalid",
               "type": {
                 "text": "boolean"
               },
-              "description": "Marks the field as having errors: the border and focus ring take the destructive colour. Alder's renderer sets it when the field has errors."
+              "description": "Marks the field as having errors: the border and focus ring take the destructive colour. Alder's renderer sets it when the field has errors.",
+              "default": "false"
             },
             {
               "name": "help",
@@ -219,7 +227,16 @@
               "type": {
                 "text": "boolean"
               },
-              "description": "Disables the checkbox (copied onto the `<input>`) and dims it."
+              "description": "Disables the checkbox (copied onto the `<input>`) and dims it.",
+              "default": "false"
+            },
+            {
+              "name": "invalid",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Marks the field as having errors: the box is outlined in the destructive colour. Alder's renderer sets it when the field has errors. Added in v0.1.1.",
+              "default": "false"
             },
             {
               "name": "help",
@@ -248,14 +265,16 @@
               "type": {
                 "text": "boolean"
               },
-              "description": "Shades every other body row in the muted colour."
+              "description": "Shades every other body row in the muted colour.",
+              "default": "false"
             },
             {
               "name": "dense",
               "type": {
                 "text": "boolean"
               },
-              "description": "Tightens the cell padding."
+              "description": "Tightens the cell padding.",
+              "default": "false"
             }
           ],
           "slots": [
@@ -348,18 +367,19 @@
               "default": "\"info\""
             },
             {
-              "name": "title",
+              "name": "heading",
               "type": {
                 "text": "string"
               },
-              "description": "The alert's heading, drawn in bold above the message. (It is also the HTML `title` attribute, so browsers show it as a tooltip.)"
+              "description": "The alert's heading, drawn in bold above the message. (Renamed from `title` in v0.1.1: `title` is the global tooltip attribute.)"
             },
             {
               "name": "dismissible",
               "type": {
                 "text": "boolean"
               },
-              "description": "Makes room for a dismiss button; the optional `al-alert.js` module adds the button."
+              "description": "Makes room for a dismiss button; the optional `al-alert.js` module adds the button.",
+              "default": "false"
             }
           ],
           "slots": [
@@ -400,11 +420,15 @@
           "slots": [
             {
               "name": "prev",
-              "description": "The link to the previous page."
+              "description": "The link to the previous page (or a `<span aria-disabled=\"true\">` on the first page)."
+            },
+            {
+              "name": "",
+              "description": "Optional middle content, such as your own \"Page 2 of 5\" text or page links; when present it replaces the generated text. Added in v0.1.1."
             },
             {
               "name": "next",
-              "description": "The link to the next page."
+              "description": "The link to the next page (or a `<span aria-disabled=\"true\">` on the last page)."
             }
           ]
         }

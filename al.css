@@ -1,5 +1,7 @@
-/*! alder-ui v0.1.0 | Apache-2.0 | https://github.com/tapegram/alder-ui
+/*! alder-ui v0.1.1 | Apache-2.0 | https://github.com/tapegram/alder-ui
  * Built by scripts/build.py from tokens.css and components/; do not edit. */
+
+@layer al {
 
 /* ---- tokens.css ---- */
 
@@ -17,6 +19,13 @@
  *
  * Themes: light by default; dark when the OS asks for it, unless the page (or
  * a subtree) says data-theme="light"; data-theme="dark" forces dark.
+ *
+ * In al.css everything sits in @layer al, so any unlayered CSS of yours wins
+ * whatever its specificity. To re-theme:
+ *   :root { --primary: …; }                 both themes
+ *   [data-theme="dark"] { --primary: …; }   the forced dark theme; for the
+ *   OS-driven one, repeat it in
+ *   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { … } }
  */
 
 :root,
@@ -56,6 +65,7 @@
   --al-destructive-soft: hsl(0 86% 97%);
   --al-destructive-soft-foreground: hsl(0 70% 35%);
   --al-destructive-border: hsl(0 96% 89%);
+  --al-shadow-sm: 0 1px 2px 0 hsl(222.2 84% 4.9% / 0.06);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -95,6 +105,7 @@
     --al-destructive-soft: hsl(0 50% 12%);
     --al-destructive-soft-foreground: hsl(0 94% 82%);
     --al-destructive-border: hsl(0 55% 32%);
+    --al-shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.5);
   }
 }
 
@@ -134,6 +145,7 @@
   --al-destructive-soft: hsl(0 50% 12%);
   --al-destructive-soft-foreground: hsl(0 94% 82%);
   --al-destructive-border: hsl(0 55% 32%);
+  --al-shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.5);
 }
 
 /* Theme-independent tokens. */
@@ -177,7 +189,6 @@
   --al-ring-width: 2px;
   --al-ring-offset: 2px;
   --al-disabled-opacity: 0.5;
-  --al-shadow-sm: 0 1px 2px 0 color-mix(in srgb, var(--foreground) 6%, transparent);
   --al-duration: 150ms;
 }
 
@@ -196,21 +207,25 @@
 /* ---- components/al-button.css ---- */
 
 /*
- * al-button. Two forms, one look:
- *   <al-button variant="primary">Save</al-button>
- *     the element is the button (give it role="button" tabindex="0", or let
- *     your framework attach the click);
+ * al-button. One look, three forms:
  *   <al-button variant="primary"><button type="submit">Save</button></al-button>
- *     the native button inside takes the look and works with no JavaScript;
- *     the element itself then draws nothing, so there is no double border.
- * The variant sets private colour properties; both forms read them.
+ *     the native button inside takes the look and works with no JavaScript
+ *     (the element itself then draws nothing, so there is no double border);
+ *   <al-button variant="outline"><a href="/posts">All posts</a></al-button>
+ *     a link that looks like a button;
+ *   <al-button variant="primary">Save</al-button>
+ *     presentational: the element draws the look, but it is not a button
+ *     until a framework adds the role, focus and Enter/Space handling.
+ * The variant sets private colour properties; every form reads them.
+ * Hovers mix the background toward a theme colour (never toward
+ * transparent), so the text keeps its contrast; test/check.py computes it.
  */
 
 al-button {
   --_al-bg: var(--primary);
   --_al-fg: var(--primary-foreground);
   --_al-border: var(--primary);
-  --_al-hover: color-mix(in srgb, var(--primary) 90%, transparent);
+  --_al-hover: color-mix(in srgb, var(--primary) 90%, var(--primary-foreground));
   --_al-h: var(--al-control-h-md);
   --_al-px: var(--al-space-4);
   --_al-text: var(--al-text-sm);
@@ -220,7 +235,7 @@ al-button[variant="secondary"] {
   --_al-bg: var(--secondary);
   --_al-fg: var(--secondary-foreground);
   --_al-border: var(--secondary);
-  --_al-hover: color-mix(in srgb, var(--secondary), var(--foreground) 6%);
+  --_al-hover: color-mix(in srgb, var(--secondary) 94%, var(--foreground));
 }
 
 al-button[variant="outline"] {
@@ -241,7 +256,7 @@ al-button[variant="destructive"] {
   --_al-bg: var(--destructive);
   --_al-fg: var(--destructive-foreground);
   --_al-border: var(--destructive);
-  --_al-hover: color-mix(in srgb, var(--destructive) 90%, transparent);
+  --_al-hover: color-mix(in srgb, var(--destructive) 90%, var(--foreground));
 }
 
 al-button[size="sm"] {
@@ -261,8 +276,9 @@ al-button[size="lg"] {
 }
 
 al-button,
-al-button > button {
+al-button > :is(button, a) {
   display: inline-flex;
+  inline-size: fit-content;
   align-items: center;
   justify-content: center;
   gap: var(--al-space-2);
@@ -285,12 +301,16 @@ al-button > button {
   transition: background-color var(--al-duration);
 }
 
-al-button > button {
+al-button > :is(button, a) {
   appearance: none;
 }
 
-/* The native-button form: the element only holds the button. */
-al-button:has(> button) {
+al-button > a:any-link {
+  color: var(--_al-fg);
+}
+
+/* The native forms: the element only holds the button or link. */
+al-button:has(> :is(button, a)) {
   min-height: 0;
   padding: 0;
   border: 0;
@@ -298,27 +318,27 @@ al-button:has(> button) {
   cursor: auto;
 }
 
-al-button:not(:has(> button)):hover,
-al-button > button:hover {
+al-button:not(:has(> :is(button, a))):hover,
+al-button > :is(button, a):hover {
   background: var(--_al-hover);
 }
 
 al-button:focus-visible,
-al-button > button:focus-visible {
+al-button > :is(button, a):focus-visible {
   outline: var(--al-ring-width) solid var(--ring);
   outline-offset: var(--al-ring-offset);
 }
 
 al-button[disabled],
-al-button[disabled] > button,
+al-button[disabled] > :is(button, a),
 al-button > button:disabled {
   opacity: var(--al-disabled-opacity);
   cursor: not-allowed;
   pointer-events: none;
 }
 
-/* In the native-button form only the button dims, not the element too. */
-al-button:has(> button)[disabled] {
+/* In the native forms only the child dims, not the element too. */
+al-button:has(> :is(button, a))[disabled] {
   opacity: 1;
 }
 
@@ -384,8 +404,10 @@ al-input[invalid] input:focus-visible {
   outline-color: var(--al-destructive-text);
 }
 
-al-input[disabled] label,
-al-input input:disabled {
+/* Dim once: the whole field when the element is disabled, or just the
+   control when only it is. */
+al-input[disabled],
+al-input:not([disabled]) input:disabled {
   cursor: not-allowed;
   opacity: var(--al-disabled-opacity);
 }
@@ -474,8 +496,10 @@ al-textarea[invalid] textarea:focus-visible {
   outline-color: var(--al-destructive-text);
 }
 
-al-textarea[disabled] label,
-al-textarea textarea:disabled {
+/* Dim once: the whole field when the element is disabled, or just the
+   control when only it is. */
+al-textarea[disabled],
+al-textarea:not([disabled]) textarea:disabled {
   cursor: not-allowed;
   opacity: var(--al-disabled-opacity);
 }
@@ -556,8 +580,10 @@ al-select[invalid] select:focus-visible {
   outline-color: var(--al-destructive-text);
 }
 
-al-select[disabled] label,
-al-select select:disabled {
+/* Dim once: the whole field when the element is disabled, or just the
+   control when only it is. */
+al-select[disabled],
+al-select:not([disabled]) select:disabled {
   cursor: not-allowed;
   opacity: var(--al-disabled-opacity);
 }
@@ -592,6 +618,8 @@ al-select ul.errors:empty {
  *     <ul class="errors" data-errors="done"></ul>
  *   </al-checkbox>
  * The box is drawn before the text (row-reverse), whatever the source order.
+ * invalid (set by Alder when the field has errors) outlines the box in the
+ * destructive colour.
  */
 
 al-checkbox {
@@ -629,10 +657,22 @@ al-checkbox input[type="checkbox"]:focus-visible {
   outline-offset: var(--al-ring-offset);
 }
 
-al-checkbox[disabled] label,
-al-checkbox label:has(input:disabled) {
+/* Dim once: the whole field, or just the label holding a disabled box. */
+al-checkbox[disabled],
+al-checkbox:not([disabled]) label:has(input:disabled) {
   cursor: not-allowed;
   opacity: var(--al-disabled-opacity);
+}
+
+al-checkbox[invalid] input[type="checkbox"] {
+  outline: var(--al-border-width) solid var(--al-destructive-text);
+  outline-offset: var(--al-border-width);
+  accent-color: var(--al-destructive-text);
+}
+
+al-checkbox[invalid] input[type="checkbox"]:focus-visible {
+  outline: var(--al-ring-width) solid var(--al-destructive-text);
+  outline-offset: var(--al-ring-offset);
 }
 
 al-checkbox[help]::after {
@@ -762,6 +802,7 @@ al-card > [slot="actions"] {
 
 al-badge {
   display: inline-flex;
+  inline-size: fit-content;
   align-items: center;
   padding: var(--al-space-0-5) var(--al-space-2);
   border: var(--al-border-width) solid var(--primary);
@@ -802,7 +843,7 @@ al-badge[variant="destructive"] {
 /* ---- components/al-alert.css ---- */
 
 /*
- * al-alert: a message box. The title attribute is drawn as the heading.
+ * al-alert: a message box. The heading attribute is drawn as its heading.
  * Write role="alert" (warning, destructive) or role="status" (info,
  * success) on the element yourself: CSS cannot add a role. dismissible
  * makes room for the close button that the optional al-alert.js adds.
@@ -845,8 +886,8 @@ al-alert[variant="destructive"] {
   color: var(--al-destructive-soft-foreground);
 }
 
-al-alert[title]::before {
-  content: attr(title);
+al-alert[heading]::before {
+  content: attr(heading);
   display: block;
   margin-bottom: var(--al-space-1);
   font-weight: var(--al-weight-semibold);
@@ -899,7 +940,9 @@ al-alert > .al-alert-dismiss:focus-visible {
  *     <a slot="next" href="?page=3">Next</a>
  *   </al-pagination>
  * prev, then "Page 2 of 5" (from the attributes), then next. A slot with no
- * page to go to can be <span slot="prev" aria-disabled="true">.
+ * page to go to can be <span slot="prev" aria-disabled="true">. Children
+ * without a slot (your own "Page 2 of 5", page links) go in the middle and
+ * replace the generated text.
  */
 
 al-pagination {
@@ -920,6 +963,14 @@ al-pagination[page][pages]::after {
   content: "Page " attr(page) " of " attr(pages);
   order: 1;
   color: var(--muted-foreground);
+}
+
+al-pagination > :not([slot]) {
+  order: 1;
+}
+
+al-pagination:has(> :not([slot]))::after {
+  content: none;
 }
 
 al-pagination > [slot="next"] {
@@ -1011,4 +1062,6 @@ al-page[width="normal"] {
 
 al-page[width="wide"] {
   max-width: var(--al-width-wide);
+}
+
 }

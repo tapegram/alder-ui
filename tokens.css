@@ -12,6 +12,13 @@
  *
  * Themes: light by default; dark when the OS asks for it, unless the page (or
  * a subtree) says data-theme="light"; data-theme="dark" forces dark.
+ *
+ * In al.css everything sits in @layer al, so any unlayered CSS of yours wins
+ * whatever its specificity. To re-theme:
+ *   :root { --primary: …; }                 both themes
+ *   [data-theme="dark"] { --primary: …; }   the forced dark theme; for the
+ *   OS-driven one, repeat it in
+ *   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { … } }
  */
 
 :root,
@@ -51,6 +58,7 @@
   --al-destructive-soft: hsl(0 86% 97%);
   --al-destructive-soft-foreground: hsl(0 70% 35%);
   --al-destructive-border: hsl(0 96% 89%);
+  --al-shadow-sm: 0 1px 2px 0 hsl(222.2 84% 4.9% / 0.06);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -90,6 +98,7 @@
     --al-destructive-soft: hsl(0 50% 12%);
     --al-destructive-soft-foreground: hsl(0 94% 82%);
     --al-destructive-border: hsl(0 55% 32%);
+    --al-shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.5);
   }
 }
 
@@ -129,6 +138,7 @@
   --al-destructive-soft: hsl(0 50% 12%);
   --al-destructive-soft-foreground: hsl(0 94% 82%);
   --al-destructive-border: hsl(0 55% 32%);
+  --al-shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.5);
 }
 
 /* Theme-independent tokens. */
@@ -172,7 +182,6 @@
   --al-ring-width: 2px;
   --al-ring-offset: 2px;
   --al-disabled-opacity: 0.5;
-  --al-shadow-sm: 0 1px 2px 0 color-mix(in srgb, var(--foreground) 6%, transparent);
   --al-duration: 150ms;
 }
 

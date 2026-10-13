@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Build al.css: tokens.css, then every component's CSS in manifest order.
+"""Build al.css: tokens.css, then every component's CSS in manifest order,
+all inside one cascade layer, @layer al, so a page's own (unlayered) CSS
+always wins over alder-ui's whatever the specificity.
 
     python3 scripts/build.py          # write al.css
     python3 scripts/build.py --check  # exit 1 if al.css is out of date
@@ -21,11 +23,13 @@ def build():
     parts = [
         "/*! alder-ui %s | Apache-2.0 | https://github.com/tapegram/alder-ui\n"
         " * Built by scripts/build.py from tokens.css and components/; do not edit. */\n"
+        "\n@layer al {\n"
         % manifest["version"]
     ]
     for rel in ["tokens.css"] + component_paths():
         parts.append("\n/* ---- %s ---- */\n\n" % rel)
         parts.append((ROOT / rel).read_text().rstrip("\n") + "\n")
+    parts.append("\n}\n")
     return "".join(parts)
 
 
