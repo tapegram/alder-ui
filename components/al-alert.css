@@ -1,5 +1,5 @@
 /*
- * al-alert: a message box. The title attribute is drawn as the heading.
+ * al-alert: a message box. The heading attribute is drawn as its heading.
  * Write role="alert" (warning, destructive) or role="status" (info,
  * success) on the element yourself: CSS cannot add a role. dismissible
  * makes room for the close button that the optional al-alert.js adds.
@@ -42,8 +42,8 @@ al-alert[variant="destructive"] {
   color: var(--al-destructive-soft-foreground);
 }
 
-al-alert[title]::before {
-  content: attr(title);
+al-alert[heading]::before {
+  content: attr(heading);
   display: block;
   margin-bottom: var(--al-space-1);
   font-weight: var(--al-weight-semibold);

@@ -5,7 +5,9 @@
  *     <a slot="next" href="?page=3">Next</a>
  *   </al-pagination>
  * prev, then "Page 2 of 5" (from the attributes), then next. A slot with no
- * page to go to can be <span slot="prev" aria-disabled="true">.
+ * page to go to can be <span slot="prev" aria-disabled="true">. Children
+ * without a slot (your own "Page 2 of 5", page links) go in the middle and
+ * replace the generated text.
  */
 
 al-pagination {
@@ -26,6 +28,14 @@ al-pagination[page][pages]::after {
   content: "Page " attr(page) " of " attr(pages);
   order: 1;
   color: var(--muted-foreground);
+}
+
+al-pagination > :not([slot]) {
+  order: 1;
+}
+
+al-pagination:has(> :not([slot]))::after {
+  content: none;
 }
 
 al-pagination > [slot="next"] {
