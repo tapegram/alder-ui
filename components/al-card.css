@@ -1,0 +1,42 @@
+/*
+ * al-card: a bordered surface. Children are placed by slot, whatever their
+ * source order: header, the body (no slot), footer, then actions.
+ */
+
+al-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--al-space-4);
+  padding: var(--al-space-6);
+  border: var(--al-border-width) solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--card-foreground);
+  box-shadow: var(--al-shadow-sm);
+  font-family: var(--al-font-sans);
+}
+
+al-card > * {
+  margin-block: 0;
+}
+
+al-card > [slot="header"] {
+  order: -1;
+  font-size: var(--al-text-lg);
+  font-weight: var(--al-weight-semibold);
+  line-height: var(--al-leading-tight);
+}
+
+al-card > [slot="footer"] {
+  order: 1;
+  color: var(--muted-foreground);
+  font-size: var(--al-text-sm);
+}
+
+al-card > [slot="actions"] {
+  order: 2;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--al-space-2);
+}

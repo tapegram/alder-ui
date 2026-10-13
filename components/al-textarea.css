@@ -1,0 +1,87 @@
+/*
+ * al-textarea. Alder renders
+ *   <al-textarea label="Title" help="…" invalid>
+ *     <label>Title<textarea name="title" …></label>
+ *     <ul class="errors" data-errors="title"><li>…</li></ul>
+ *   </al-textarea>
+ * The label text is the real <label> (not attr(label)); help comes from the
+ * attribute; the errors list shows in the destructive colour. A label beside
+ * the control (<label for> + <textarea id>) works too.
+ */
+
+al-textarea {
+  display: grid;
+  gap: var(--al-space-1-5);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-sm);
+  color: var(--foreground);
+}
+
+al-textarea label {
+  display: grid;
+  gap: var(--al-space-1-5);
+  order: 0;
+  font-weight: var(--al-weight-medium);
+  line-height: var(--al-leading-tight);
+}
+
+al-textarea textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: calc(var(--al-control-h-md) * 2);
+  padding: var(--al-space-2) var(--al-space-3);
+  resize: vertical;
+  margin: 0;
+  border: var(--al-border-width) solid var(--input);
+  border-radius: var(--radius);
+  background: var(--background);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: var(--al-text-sm);
+  font-weight: var(--al-weight-normal);
+  line-height: var(--al-leading);
+}
+
+al-textarea textarea::placeholder {
+  color: var(--muted-foreground);
+}
+
+al-textarea textarea:focus-visible {
+  outline: var(--al-ring-width) solid var(--ring);
+  outline-offset: var(--al-ring-offset);
+}
+
+al-textarea[invalid] textarea {
+  border-color: var(--al-destructive-text);
+}
+
+al-textarea[invalid] textarea:focus-visible {
+  outline-color: var(--al-destructive-text);
+}
+
+al-textarea[disabled] label,
+al-textarea textarea:disabled {
+  cursor: not-allowed;
+  opacity: var(--al-disabled-opacity);
+}
+
+al-textarea[help]::after {
+  content: attr(help);
+  order: 1;
+  color: var(--muted-foreground);
+  font-size: var(--al-text-sm);
+}
+
+al-textarea ul.errors {
+  order: 2;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--al-destructive-text);
+  font-size: var(--al-text-sm);
+  font-weight: var(--al-weight-medium);
+}
+
+al-textarea ul.errors:empty {
+  display: none;
+}

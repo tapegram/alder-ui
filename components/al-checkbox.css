@@ -1,0 +1,70 @@
+/*
+ * al-checkbox. Alder renders
+ *   <al-checkbox label="Done">
+ *     <label>Done<input type="checkbox" name="done" value="True"></label>
+ *     <ul class="errors" data-errors="done"></ul>
+ *   </al-checkbox>
+ * The box is drawn before the text (row-reverse), whatever the source order.
+ */
+
+al-checkbox {
+  display: grid;
+  gap: var(--al-space-1-5);
+  justify-items: start;
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-sm);
+  color: var(--foreground);
+}
+
+al-checkbox label {
+  display: inline-flex;
+  order: 0;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--al-space-2);
+  font-weight: var(--al-weight-medium);
+  line-height: var(--al-leading-tight);
+  cursor: pointer;
+}
+
+al-checkbox input[type="checkbox"] {
+  flex: none;
+  width: var(--al-checkbox-size);
+  height: var(--al-checkbox-size);
+  margin: 0;
+  accent-color: var(--primary);
+  cursor: inherit;
+}
+
+al-checkbox input[type="checkbox"]:focus-visible {
+  outline: var(--al-ring-width) solid var(--ring);
+  outline-offset: var(--al-ring-offset);
+}
+
+al-checkbox[disabled] label,
+al-checkbox label:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: var(--al-disabled-opacity);
+}
+
+al-checkbox[help]::after {
+  content: attr(help);
+  order: 1;
+  color: var(--muted-foreground);
+  font-size: var(--al-text-sm);
+}
+
+al-checkbox ul.errors {
+  order: 2;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--al-destructive-text);
+  font-size: var(--al-text-sm);
+  font-weight: var(--al-weight-medium);
+}
+
+al-checkbox ul.errors:empty {
+  display: none;
+}

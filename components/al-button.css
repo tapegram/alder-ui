@@ -1,0 +1,126 @@
+/*
+ * al-button. Two forms, one look:
+ *   <al-button variant="primary">Save</al-button>
+ *     the element is the button (give it role="button" tabindex="0", or let
+ *     your framework attach the click);
+ *   <al-button variant="primary"><button type="submit">Save</button></al-button>
+ *     the native button inside takes the look and works with no JavaScript;
+ *     the element itself then draws nothing, so there is no double border.
+ * The variant sets private colour properties; both forms read them.
+ */
+
+al-button {
+  --_al-bg: var(--primary);
+  --_al-fg: var(--primary-foreground);
+  --_al-border: var(--primary);
+  --_al-hover: color-mix(in srgb, var(--primary) 90%, transparent);
+  --_al-h: var(--al-control-h-md);
+  --_al-px: var(--al-space-4);
+  --_al-text: var(--al-text-sm);
+}
+
+al-button[variant="secondary"] {
+  --_al-bg: var(--secondary);
+  --_al-fg: var(--secondary-foreground);
+  --_al-border: var(--secondary);
+  --_al-hover: color-mix(in srgb, var(--secondary), var(--foreground) 6%);
+}
+
+al-button[variant="outline"] {
+  --_al-bg: var(--background);
+  --_al-fg: var(--foreground);
+  --_al-border: var(--input);
+  --_al-hover: var(--accent);
+}
+
+al-button[variant="ghost"] {
+  --_al-bg: transparent;
+  --_al-fg: var(--foreground);
+  --_al-border: transparent;
+  --_al-hover: var(--accent);
+}
+
+al-button[variant="destructive"] {
+  --_al-bg: var(--destructive);
+  --_al-fg: var(--destructive-foreground);
+  --_al-border: var(--destructive);
+  --_al-hover: color-mix(in srgb, var(--destructive) 90%, transparent);
+}
+
+al-button[size="sm"] {
+  --_al-h: var(--al-control-h-sm);
+  --_al-px: var(--al-space-3);
+}
+
+al-button[size="md"] {
+  --_al-h: var(--al-control-h-md);
+  --_al-px: var(--al-space-4);
+}
+
+al-button[size="lg"] {
+  --_al-h: var(--al-control-h-lg);
+  --_al-px: var(--al-space-8);
+  --_al-text: var(--al-text-base);
+}
+
+al-button,
+al-button > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--al-space-2);
+  box-sizing: border-box;
+  min-height: var(--_al-h);
+  margin: 0;
+  padding: 0 var(--_al-px);
+  border: var(--al-border-width) solid var(--_al-border);
+  border-radius: var(--radius);
+  background: var(--_al-bg);
+  color: var(--_al-fg);
+  font-family: var(--al-font-sans);
+  font-size: var(--_al-text);
+  font-weight: var(--al-weight-medium);
+  line-height: var(--al-leading-tight);
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color var(--al-duration);
+}
+
+al-button > button {
+  appearance: none;
+}
+
+/* The native-button form: the element only holds the button. */
+al-button:has(> button) {
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: auto;
+}
+
+al-button:not(:has(> button)):hover,
+al-button > button:hover {
+  background: var(--_al-hover);
+}
+
+al-button:focus-visible,
+al-button > button:focus-visible {
+  outline: var(--al-ring-width) solid var(--ring);
+  outline-offset: var(--al-ring-offset);
+}
+
+al-button[disabled],
+al-button[disabled] > button,
+al-button > button:disabled {
+  opacity: var(--al-disabled-opacity);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* In the native-button form only the button dims, not the element too. */
+al-button:has(> button)[disabled] {
+  opacity: 1;
+}

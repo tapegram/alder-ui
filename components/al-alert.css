@@ -1,0 +1,88 @@
+/*
+ * al-alert: a message box. The title attribute is drawn as the heading.
+ * Write role="alert" (warning, destructive) or role="status" (info,
+ * success) on the element yourself: CSS cannot add a role. dismissible
+ * makes room for the close button that the optional al-alert.js adds.
+ */
+
+al-alert {
+  display: block;
+  position: relative;
+  padding: var(--al-space-4);
+  border: var(--al-border-width) solid var(--al-info-border);
+  border-radius: var(--radius);
+  background: var(--al-info-soft);
+  color: var(--al-info-soft-foreground);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-sm);
+  line-height: var(--al-leading);
+}
+
+al-alert[variant="info"] {
+  border-color: var(--al-info-border);
+  background: var(--al-info-soft);
+  color: var(--al-info-soft-foreground);
+}
+
+al-alert[variant="success"] {
+  border-color: var(--al-success-border);
+  background: var(--al-success-soft);
+  color: var(--al-success-soft-foreground);
+}
+
+al-alert[variant="warning"] {
+  border-color: var(--al-warning-border);
+  background: var(--al-warning-soft);
+  color: var(--al-warning-soft-foreground);
+}
+
+al-alert[variant="destructive"] {
+  border-color: var(--al-destructive-border);
+  background: var(--al-destructive-soft);
+  color: var(--al-destructive-soft-foreground);
+}
+
+al-alert[title]::before {
+  content: attr(title);
+  display: block;
+  margin-bottom: var(--al-space-1);
+  font-weight: var(--al-weight-semibold);
+  line-height: var(--al-leading-tight);
+}
+
+al-alert > :first-child {
+  margin-top: 0;
+}
+
+al-alert > :last-child {
+  margin-bottom: 0;
+}
+
+al-alert[dismissible] {
+  padding-inline-end: var(--al-space-10);
+}
+
+al-alert > .al-alert-dismiss {
+  position: absolute;
+  top: var(--al-space-2);
+  inset-inline-end: var(--al-space-2);
+  margin: 0;
+  padding: var(--al-space-1) var(--al-space-2);
+  border: 0;
+  border-radius: var(--al-radius-sm);
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: var(--al-text-base);
+  line-height: var(--al-leading-tight);
+  cursor: pointer;
+}
+
+al-alert > .al-alert-dismiss:hover {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+al-alert > .al-alert-dismiss:focus-visible {
+  outline: var(--al-ring-width) solid var(--ring);
+  outline-offset: var(--al-ring-offset);
+}

@@ -1,0 +1,40 @@
+/* al-badge: a small pill for a status or a count. */
+
+al-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--al-space-0-5) var(--al-space-2);
+  border: var(--al-border-width) solid var(--primary);
+  border-radius: var(--al-radius-full);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-xs);
+  font-weight: var(--al-weight-semibold);
+  line-height: var(--al-leading);
+  white-space: nowrap;
+}
+
+al-badge[variant="default"] {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+al-badge[variant="secondary"] {
+  border-color: var(--secondary);
+  background: var(--secondary);
+  color: var(--secondary-foreground);
+}
+
+al-badge[variant="outline"] {
+  border-color: var(--border);
+  background: transparent;
+  color: var(--foreground);
+}
+
+al-badge[variant="destructive"] {
+  border-color: var(--destructive);
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+}

@@ -1,0 +1,22 @@
+/* al-page: the content frame, a centred column of a set maximum width. */
+
+al-page {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--al-width-normal);
+  margin-inline: auto;
+  padding: var(--al-space-8) var(--al-space-4);
+}
+
+al-page[width="narrow"] {
+  max-width: var(--al-width-narrow);
+}
+
+al-page[width="normal"] {
+  max-width: var(--al-width-normal);
+}
+
+al-page[width="wide"] {
+  max-width: var(--al-width-wide);
+}

@@ -1,0 +1,79 @@
+/*
+ * al-select. Alder renders
+ *   <al-select label="Kind" invalid>
+ *     <label>Kind<select name="kind">…</select></label>
+ *     <ul class="errors" data-errors="kind"><li>…</li></ul>
+ *   </al-select>
+ * The native <select> keeps its own arrow and keyboard behaviour.
+ */
+
+al-select {
+  display: grid;
+  gap: var(--al-space-1-5);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-sm);
+  color: var(--foreground);
+}
+
+al-select label {
+  display: grid;
+  gap: var(--al-space-1-5);
+  order: 0;
+  font-weight: var(--al-weight-medium);
+  line-height: var(--al-leading-tight);
+}
+
+al-select select {
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--al-control-h-md);
+  margin: 0;
+  padding: 0 var(--al-space-3);
+  border: var(--al-border-width) solid var(--input);
+  border-radius: var(--radius);
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: var(--al-text-sm);
+  font-weight: var(--al-weight-normal);
+}
+
+al-select select:focus-visible {
+  outline: var(--al-ring-width) solid var(--ring);
+  outline-offset: var(--al-ring-offset);
+}
+
+al-select[invalid] select {
+  border-color: var(--al-destructive-text);
+}
+
+al-select[invalid] select:focus-visible {
+  outline-color: var(--al-destructive-text);
+}
+
+al-select[disabled] label,
+al-select select:disabled {
+  cursor: not-allowed;
+  opacity: var(--al-disabled-opacity);
+}
+
+al-select[help]::after {
+  content: attr(help);
+  order: 1;
+  color: var(--muted-foreground);
+  font-size: var(--al-text-sm);
+}
+
+al-select ul.errors {
+  order: 2;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--al-destructive-text);
+  font-size: var(--al-text-sm);
+  font-weight: var(--al-weight-medium);
+}
+
+al-select ul.errors:empty {
+  display: none;
+}

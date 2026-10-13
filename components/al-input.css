@@ -1,0 +1,86 @@
+/*
+ * al-input. Alder renders
+ *   <al-input label="Title" help="…" invalid>
+ *     <label>Title<input name="title" …></label>
+ *     <ul class="errors" data-errors="title"><li>…</li></ul>
+ *   </al-input>
+ * The label text is the real <label> (not attr(label)); help comes from the
+ * attribute; the errors list shows in the destructive colour. A label beside
+ * the control (<label for> + <input id>) works too.
+ */
+
+al-input {
+  display: grid;
+  gap: var(--al-space-1-5);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-sm);
+  color: var(--foreground);
+}
+
+al-input label {
+  display: grid;
+  gap: var(--al-space-1-5);
+  order: 0;
+  font-weight: var(--al-weight-medium);
+  line-height: var(--al-leading-tight);
+}
+
+al-input input {
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--al-control-h-md);
+  padding: 0 var(--al-space-3);
+  margin: 0;
+  border: var(--al-border-width) solid var(--input);
+  border-radius: var(--radius);
+  background: var(--background);
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: var(--al-text-sm);
+  font-weight: var(--al-weight-normal);
+  line-height: var(--al-leading);
+}
+
+al-input input::placeholder {
+  color: var(--muted-foreground);
+}
+
+al-input input:focus-visible {
+  outline: var(--al-ring-width) solid var(--ring);
+  outline-offset: var(--al-ring-offset);
+}
+
+al-input[invalid] input {
+  border-color: var(--al-destructive-text);
+}
+
+al-input[invalid] input:focus-visible {
+  outline-color: var(--al-destructive-text);
+}
+
+al-input[disabled] label,
+al-input input:disabled {
+  cursor: not-allowed;
+  opacity: var(--al-disabled-opacity);
+}
+
+al-input[help]::after {
+  content: attr(help);
+  order: 1;
+  color: var(--muted-foreground);
+  font-size: var(--al-text-sm);
+}
+
+al-input ul.errors {
+  order: 2;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--al-destructive-text);
+  font-size: var(--al-text-sm);
+  font-weight: var(--al-weight-medium);
+}
+
+al-input ul.errors:empty {
+  display: none;
+}

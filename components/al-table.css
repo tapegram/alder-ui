@@ -1,0 +1,52 @@
+/*
+ * al-table styles the <table> you put inside it:
+ *   <al-table striped><table>…</table></al-table>
+ * The element scrolls sideways when the table is wider than the page.
+ */
+
+al-table {
+  display: block;
+  overflow-x: auto;
+  border: var(--al-border-width) solid var(--border);
+  border-radius: var(--radius);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-sm);
+  color: var(--foreground);
+}
+
+al-table table {
+  width: 100%;
+  border-collapse: collapse;
+  caption-side: bottom;
+}
+
+al-table caption {
+  padding: var(--al-space-3);
+  color: var(--muted-foreground);
+}
+
+al-table th,
+al-table td {
+  padding: var(--al-space-3) var(--al-space-4);
+  border-bottom: var(--al-border-width) solid var(--border);
+  text-align: start;
+  vertical-align: middle;
+}
+
+al-table th {
+  color: var(--muted-foreground);
+  font-weight: var(--al-weight-medium);
+}
+
+al-table tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+al-table[striped] tbody tr:nth-child(even) {
+  background: var(--muted);
+}
+
+al-table[dense] th,
+al-table[dense] td {
+  padding: var(--al-space-1-5) var(--al-space-3);
+}

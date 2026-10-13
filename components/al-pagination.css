@@ -1,0 +1,63 @@
+/*
+ * al-pagination lays out the links the app renders:
+ *   <al-pagination page="2" pages="5">
+ *     <a slot="prev" href="?page=1">Previous</a>
+ *     <a slot="next" href="?page=3">Next</a>
+ *   </al-pagination>
+ * prev, then "Page 2 of 5" (from the attributes), then next. A slot with no
+ * page to go to can be <span slot="prev" aria-disabled="true">.
+ */
+
+al-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--al-space-4);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-sm);
+  color: var(--foreground);
+}
+
+al-pagination > [slot="prev"] {
+  order: 0;
+}
+
+al-pagination[page][pages]::after {
+  content: "Page " attr(page) " of " attr(pages);
+  order: 1;
+  color: var(--muted-foreground);
+}
+
+al-pagination > [slot="next"] {
+  order: 2;
+}
+
+al-pagination > [slot="prev"],
+al-pagination > [slot="next"] {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: var(--al-control-h-sm);
+  padding: 0 var(--al-space-3);
+  border: var(--al-border-width) solid var(--input);
+  border-radius: var(--radius);
+  background: var(--background);
+  color: var(--foreground);
+  font-weight: var(--al-weight-medium);
+  text-decoration: none;
+}
+
+al-pagination > a[slot]:hover {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+al-pagination > a[slot]:focus-visible {
+  outline: var(--al-ring-width) solid var(--ring);
+  outline-offset: var(--al-ring-offset);
+}
+
+al-pagination > [slot][aria-disabled="true"] {
+  opacity: var(--al-disabled-opacity);
+  pointer-events: none;
+}
