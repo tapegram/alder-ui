@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-table · alder-ui</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-table</h1>
+<p>Styles the <code>&lt;table&gt;</code> inside it; scrolls sideways when the table is wider than the page.</p>
+<section>
+<h2>Default</h2>
+<al-table>
+  <table>
+    <thead><tr><th>Title</th><th>Status</th><th>Comments</th></tr></thead>
+    <tbody>
+      <tr><td>Hello, world</td><td><al-badge>Published</al-badge></td><td>3</td></tr>
+      <tr><td>Drafts are fine</td><td><al-badge variant="secondary">Draft</al-badge></td><td>0</td></tr>
+      <tr><td>On tokens</td><td><al-badge>Published</al-badge></td><td>12</td></tr>
+      <tr><td>Old news</td><td><al-badge variant="outline">Archived</al-badge></td><td>1</td></tr>
+    </tbody>
+  </table>
+</al-table>
+</section>
+
+<section>
+<h2>Striped</h2>
+<al-table striped>
+  <table>
+    <thead><tr><th>Title</th><th>Status</th><th>Comments</th></tr></thead>
+    <tbody>
+      <tr><td>Hello, world</td><td><al-badge>Published</al-badge></td><td>3</td></tr>
+      <tr><td>Drafts are fine</td><td><al-badge variant="secondary">Draft</al-badge></td><td>0</td></tr>
+      <tr><td>On tokens</td><td><al-badge>Published</al-badge></td><td>12</td></tr>
+      <tr><td>Old news</td><td><al-badge variant="outline">Archived</al-badge></td><td>1</td></tr>
+    </tbody>
+  </table>
+</al-table>
+</section>
+
+<section>
+<h2>Dense</h2>
+<al-table dense>
+  <table>
+    <thead><tr><th>Title</th><th>Status</th><th>Comments</th></tr></thead>
+    <tbody>
+      <tr><td>Hello, world</td><td><al-badge>Published</al-badge></td><td>3</td></tr>
+      <tr><td>Drafts are fine</td><td><al-badge variant="secondary">Draft</al-badge></td><td>0</td></tr>
+      <tr><td>On tokens</td><td><al-badge>Published</al-badge></td><td>12</td></tr>
+      <tr><td>Old news</td><td><al-badge variant="outline">Archived</al-badge></td><td>1</td></tr>
+    </tbody>
+  </table>
+</al-table>
+</section>
+
+<section>
+<h2>Striped and dense</h2>
+<al-table striped dense>
+  <table>
+    <thead><tr><th>Title</th><th>Status</th><th>Comments</th></tr></thead>
+    <tbody>
+      <tr><td>Hello, world</td><td><al-badge>Published</al-badge></td><td>3</td></tr>
+      <tr><td>Drafts are fine</td><td><al-badge variant="secondary">Draft</al-badge></td><td>0</td></tr>
+      <tr><td>On tokens</td><td><al-badge>Published</al-badge></td><td>12</td></tr>
+      <tr><td>Old news</td><td><al-badge variant="outline">Archived</al-badge></td><td>1</td></tr>
+    </tbody>
+  </table>
+</al-table>
+</section>
+
+</al-stack>
+</al-page>
+</body>
+</html>

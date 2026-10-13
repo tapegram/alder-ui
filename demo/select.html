@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-select · alder-ui</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-select</h1>
+<p>The markup Alder renders for <code>&lt;al-select field="kind" label="Kind" /&gt;</code>. The native select keeps its arrow and keyboard behaviour.</p>
+<section>
+<h2>Default</h2>
+<al-select label="Kind"><label>Kind<select name="kind" required><option value="Bug">Bug</option><option value="Feature">Feature</option></select></label><ul class="errors" data-errors="kind"></ul></al-select>
+</section>
+
+<section>
+<h2>With help</h2>
+<al-select label="Priority" help="High wakes someone up."><label>Priority<select name="priority" required><option value="Low">Low</option><option value="High">High</option></select></label><ul class="errors" data-errors="priority"></ul></al-select>
+</section>
+
+<section>
+<h2>Invalid</h2>
+<al-select label="Kind" invalid><label>Kind<select name="kind" required><option value="Bug">Bug</option><option value="Feature">Feature</option></select></label><ul class="errors" data-errors="kind"><li>must be one of Bug, Feature</li></ul></al-select>
+</section>
+
+<section>
+<h2>Disabled</h2>
+<al-select label="Kind" disabled><label>Kind<select name="kind" disabled><option value="Bug">Bug</option></select></label><ul class="errors" data-errors="kind"></ul></al-select>
+</section>
+
+</al-stack>
+</al-page>
+</body>
+</html>

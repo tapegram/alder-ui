@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-card · alder-ui</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-card</h1>
+<p>A bordered surface. Children are placed by slot, whatever their order in the source: <code>header</code>, the body, <code>footer</code>, then <code>actions</code>.</p>
+<section>
+<h2>Every slot</h2>
+<al-card>
+  <h3 slot="header">Hello, world</h3>
+  <p>The first post. Cards hold any content; the body is everything without a slot.</p>
+  <p slot="footer">Posted on 12 October 2026</p>
+  <div slot="actions">
+    <al-button variant="outline" type="button"><button type="button">Edit</button></al-button>
+    <al-button variant="destructive" type="submit"><button type="submit">Delete</button></al-button>
+  </div>
+</al-card>
+</section>
+
+<section>
+<h2>Body only</h2>
+<al-card>
+  <p>Just a surface.</p>
+</al-card>
+</section>
+
+</al-stack>
+</al-page>
+</body>
+</html>

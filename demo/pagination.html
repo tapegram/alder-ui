@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-pagination · alder-ui</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-pagination</h1>
+<p>Lays out the links the app renders: previous, then "Page N of M" from the attributes, then next. A side with nowhere to go is a <code>&lt;span aria-disabled="true"&gt;</code>.</p>
+<section>
+<h2>First page</h2>
+<al-pagination page="1" pages="5" role="navigation" aria-label="Pagination">
+  <span slot="prev" aria-disabled="true">Previous</span>
+  <a slot="next" href="?page=2">Next</a>
+</al-pagination>
+</section>
+
+<section>
+<h2>A middle page</h2>
+<al-pagination page="2" pages="5" role="navigation" aria-label="Pagination">
+  <a slot="prev" href="?page=1">Previous</a>
+  <a slot="next" href="?page=3">Next</a>
+</al-pagination>
+</section>
+
+<section>
+<h2>Last page</h2>
+<al-pagination page="5" pages="5" role="navigation" aria-label="Pagination">
+  <a slot="prev" href="?page=4">Previous</a>
+  <span slot="next" aria-disabled="true">Next</span>
+</al-pagination>
+</section>
+
+</al-stack>
+</al-page>
+</body>
+</html>

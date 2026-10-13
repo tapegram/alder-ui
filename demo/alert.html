@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-alert · alder-ui</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+<script type="module" src="../components/al-alert.js"></script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-alert</h1>
+<p>A message box. Write <code>role="alert"</code> (warning, destructive) or <code>role="status"</code> (info, success) yourself: CSS cannot add a role. <code>title</code> is drawn as the heading. <code>dismissible</code> makes room for the close button that the optional <code>al-alert.js</code> module adds.</p>
+<section>
+<h2>Variants</h2>
+<al-stack gap="sm">
+  <al-alert variant="info" title="Heads up" role="status">Comments are moderated before they appear.</al-alert>
+  <al-alert variant="success" title="Saved" role="status">Your post is live.</al-alert>
+  <al-alert variant="warning" title="Unsaved changes" role="alert">Leaving this page discards your draft.</al-alert>
+  <al-alert variant="destructive" title="Could not save" role="alert">The title must not be empty.</al-alert>
+</al-stack>
+</section>
+
+<section>
+<h2>Without a title</h2>
+<al-alert role="status">The default variant is info.</al-alert>
+</section>
+
+<section>
+<h2>Dismissible (with al-alert.js)</h2>
+<al-alert variant="success" title="Saved" role="status" dismissible>Close me with the button.</al-alert>
+</section>
+
+</al-stack>
+</al-page>
+</body>
+</html>

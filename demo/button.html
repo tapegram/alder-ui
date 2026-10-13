@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-button · alder-ui</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-button</h1>
+<p>Two forms, one look. The element itself is the button (a framework attaches the click; give it <code>role="button"</code> and <code>tabindex="0"</code>), or a native <code>&lt;button&gt;</code> inside takes the look and works with no JavaScript.</p>
+<section>
+<h2>Variants</h2>
+<al-stack direction="row" gap="sm">
+  <al-button variant="primary" role="button" tabindex="0">Primary</al-button>
+  <al-button variant="secondary" role="button" tabindex="0">Secondary</al-button>
+  <al-button variant="outline" role="button" tabindex="0">Outline</al-button>
+  <al-button variant="ghost" role="button" tabindex="0">Ghost</al-button>
+  <al-button variant="destructive" role="button" tabindex="0">Delete</al-button>
+</al-stack>
+</section>
+
+<section>
+<h2>Sizes</h2>
+<al-stack direction="row" gap="sm">
+  <al-button size="sm" role="button" tabindex="0">Small</al-button>
+  <al-button size="md" role="button" tabindex="0">Medium</al-button>
+  <al-button size="lg" role="button" tabindex="0">Large</al-button>
+</al-stack>
+</section>
+
+<section>
+<h2>Disabled</h2>
+<al-stack direction="row" gap="sm">
+  <al-button disabled role="button" aria-disabled="true">Primary</al-button>
+  <al-button variant="outline" disabled role="button" aria-disabled="true">Outline</al-button>
+</al-stack>
+</section>
+
+<section>
+<h2>A native button inside (no JavaScript)</h2>
+<form action="#">
+  <al-stack direction="row" gap="sm">
+    <al-button variant="primary" type="submit"><button type="submit">Save</button></al-button>
+    <al-button variant="secondary" type="button"><button type="button">Secondary</button></al-button>
+    <al-button variant="outline" type="button"><button type="button">Cancel</button></al-button>
+    <al-button variant="ghost" type="button"><button type="button">Ghost</button></al-button>
+    <al-button variant="destructive" type="submit"><button type="submit">Delete</button></al-button>
+    <al-button variant="primary" size="sm" type="button"><button type="button">Small</button></al-button>
+    <al-button variant="primary" size="lg" type="button"><button type="button">Large</button></al-button>
+    <al-button variant="primary" disabled type="submit"><button type="submit" disabled>Disabled</button></al-button>
+  </al-stack>
+</form>
+</section>
+
+</al-stack>
+</al-page>
+</body>
+</html>

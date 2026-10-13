@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-badge · alder-ui</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-badge</h1>
+<p>A small pill for a status or a count.</p>
+<section>
+<h2>Variants</h2>
+<al-stack direction="row" gap="sm">
+  <al-badge>Default</al-badge>
+  <al-badge variant="default">Published</al-badge>
+  <al-badge variant="secondary">Draft</al-badge>
+  <al-badge variant="outline">Archived</al-badge>
+  <al-badge variant="destructive">Failed</al-badge>
+</al-stack>
+</section>
+
+</al-stack>
+</al-page>
+</body>
+</html>

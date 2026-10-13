@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>alder-ui · alder-ui</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>alder-ui</h1>
+<p>A light-DOM, token-based design system. Link <code>al.css</code> and write the elements; no JavaScript is required. Each page below shows every variant and state of one element; use <em>Toggle theme</em> to see the dark theme.</p>
+<ul>
+  <li><a href="button.html">al-button</a></li>
+  <li><a href="input.html">al-input</a></li>
+  <li><a href="textarea.html">al-textarea</a></li>
+  <li><a href="select.html">al-select</a></li>
+  <li><a href="checkbox.html">al-checkbox</a></li>
+  <li><a href="table.html">al-table</a></li>
+  <li><a href="card.html">al-card</a></li>
+  <li><a href="badge.html">al-badge</a></li>
+  <li><a href="alert.html">al-alert</a></li>
+  <li><a href="pagination.html">al-pagination</a></li>
+  <li><a href="stack.html">al-stack</a></li>
+  <li><a href="page.html">al-page</a></li>
+</ul>
+
+</al-stack>
+</al-page>
+</body>
+</html>

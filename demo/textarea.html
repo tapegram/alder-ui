@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-textarea · alder-ui</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-textarea</h1>
+<p>The markup Alder renders for <code>&lt;al-textarea field="body" label="Body" /&gt;</code>.</p>
+<section>
+<h2>Default</h2>
+<al-textarea label="Body" placeholder="Write something"><label>Body<textarea name="body" required placeholder="Write something"></textarea></label><ul class="errors" data-errors="body"></ul></al-textarea>
+</section>
+
+<section>
+<h2>With help</h2>
+<al-textarea label="Bio" help="Markdown is not supported."><label>Bio<textarea name="bio"></textarea></label><ul class="errors" data-errors="bio"></ul></al-textarea>
+</section>
+
+<section>
+<h2>Invalid</h2>
+<al-textarea label="Body" invalid><label>Body<textarea name="body" required></textarea></label><ul class="errors" data-errors="body"><li>must not be empty</li><li>must be at most 5000 characters</li></ul></al-textarea>
+</section>
+
+<section>
+<h2>Disabled</h2>
+<al-textarea label="Notes" disabled><label>Notes<textarea name="notes" disabled>Locked.</textarea></label><ul class="errors" data-errors="notes"></ul></al-textarea>
+</section>
+
+</al-stack>
+</al-page>
+</body>
+</html>

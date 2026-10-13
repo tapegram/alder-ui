@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-checkbox · alder-ui</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-checkbox</h1>
+<p>The markup Alder renders for <code>&lt;al-checkbox field="done" label="Done" /&gt;</code> on a Bool field. The box is drawn before the text.</p>
+<section>
+<h2>Default</h2>
+<al-checkbox label="Done"><label>Done<input name="done" type="checkbox" value="True"></label><ul class="errors" data-errors="done"></ul></al-checkbox>
+</section>
+
+<section>
+<h2>Checked</h2>
+<al-checkbox label="Published"><label>Published<input name="published" type="checkbox" value="True" checked></label><ul class="errors" data-errors="published"></ul></al-checkbox>
+</section>
+
+<section>
+<h2>With help</h2>
+<al-checkbox label="Subscribe" help="One email a month."><label>Subscribe<input name="subscribe" type="checkbox" value="True"></label><ul class="errors" data-errors="subscribe"></ul></al-checkbox>
+</section>
+
+<section>
+<h2>With an error</h2>
+<al-checkbox label="I agree to the terms"><label>I agree to the terms<input name="agree" type="checkbox" value="True"></label><ul class="errors" data-errors="agree"><li>must be checked</li></ul></al-checkbox>
+</section>
+
+<section>
+<h2>Disabled</h2>
+<al-checkbox label="Archived" disabled><label>Archived<input name="archived" type="checkbox" value="True" checked disabled></label><ul class="errors" data-errors="archived"></ul></al-checkbox>
+</section>
+
+</al-stack>
+</al-page>
+</body>
+</html>

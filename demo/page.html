@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-page · alder-ui</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+</head>
+<body>
+<al-page width="wide">
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-page</h1>
+<p>The content frame: a centred column of a set maximum width. Put one directly in <code>&lt;body&gt;</code>; this demo nests them to compare the widths.</p>
+<section>
+<h2>Widths</h2>
+<al-page width="narrow"><al-card><p>narrow: at most 40rem</p></al-card></al-page>
+<al-page width="normal"><al-card><p>normal (the default): at most 56rem</p></al-card></al-page>
+<al-page width="wide"><al-card><p>wide: at most 80rem</p></al-card></al-page>
+</section>
+
+</al-stack>
+</al-page>
+</body>
+</html>

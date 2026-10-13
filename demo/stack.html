@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-stack · alder-ui</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-stack</h1>
+<p>Lays its children out in a column (the default) or a wrapping row, with a gap.</p>
+<section>
+<h2>Column</h2>
+<al-stack direction="column">
+  <al-badge variant="outline">One</al-badge>
+  <al-badge variant="outline">Two</al-badge>
+  <al-badge variant="outline">Three</al-badge>
+</al-stack>
+</section>
+
+<section>
+<h2>Row</h2>
+<al-stack direction="row">
+  <al-badge variant="outline">One</al-badge>
+  <al-badge variant="outline">Two</al-badge>
+  <al-badge variant="outline">Three</al-badge>
+</al-stack>
+</section>
+
+<section>
+<h2>Gaps: sm, md, lg</h2>
+<al-stack direction="row" gap="sm">
+  <al-badge variant="outline">One</al-badge>
+  <al-badge variant="outline">Two</al-badge>
+  <al-badge variant="outline">Three</al-badge>
+</al-stack>
+<al-stack direction="row" gap="md">
+  <al-badge variant="outline">One</al-badge>
+  <al-badge variant="outline">Two</al-badge>
+  <al-badge variant="outline">Three</al-badge>
+</al-stack>
+<al-stack direction="row" gap="lg">
+  <al-badge variant="outline">One</al-badge>
+  <al-badge variant="outline">Two</al-badge>
+  <al-badge variant="outline">Three</al-badge>
+</al-stack>
+</section>
+
+</al-stack>
+</al-page>
+</body>
+</html>
