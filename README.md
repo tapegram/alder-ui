@@ -9,9 +9,9 @@ alder-ui is the built-in design system of the
 [Alder](https://github.com/tapegram/alder) language, which vendors it at a
 tag. It works from any stack that can write HTML.
 
-**The full documentation is the Alder book's chapter
-["The alder-ui design system"](https://github.com/tapegram/alder/blob/main/book/07-design-system.md)**
-(`book/07-design-system.md` in [github.com/tapegram/alder](https://github.com/tapegram/alder)):
+**The full documentation is the Alder book's Appendix C,
+["The alder-ui design system"](https://github.com/tapegram/alder/blob/main/book/C-design-system.md)**
+(`book/C-design-system.md` in [github.com/tapegram/alder](https://github.com/tapegram/alder)):
 tokens and themes, every element with examples, and overriding tokens. This
 README is the short version.
 
@@ -71,13 +71,18 @@ Notes:
   presentational: it looks like a button but has no role, focus or
   Enter/Space handling, so use it only from a framework that supplies them.
   Buttons and badges keep their own width inside a column `al-stack`.
+  The native form is styled through `al-button:has(> button)`, so it needs a
+  browser with `:has()` (Baseline 2023: Chrome and Edge 105, Safari 15.4,
+  Firefox 121); an older browser draws the element's look around the
+  button's own.
 - **The input elements** wrap a real `<label>` around the control, then a
   `<ul class="errors">` list (shown in the destructive colour). `invalid`
   colours the border (on `al-checkbox`, an outline round the box); `help` is
   drawn from the attribute under the control. The `label` attribute is not
   drawn: the `<label>` is. `disabled` dims the whole field once.
 - **`al-alert`**: write `role="alert"` (warning, destructive) or
-  `role="status"` (info, success) yourself. `dismissible` makes room for a
+  `role="status"` (info, success) yourself (Alder adds it for you from a
+  literal `variant`). `dismissible` makes room for a
   close button that the optional module `components/al-alert.js` adds
   (`<script type="module" src="al-alert.js">`; `al.css` does not load it).
   A DOM morph (Datastar, htmx, Turbo) that replaces the alert's children
