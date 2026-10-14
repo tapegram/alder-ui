@@ -185,6 +185,14 @@
   --al-duration: 150ms;
 }
 
+/* Cross-document view transitions: a same-origin page load cross-fades from
+ * the old page to the new one instead of painting a blank (white) frame in
+ * between, which in the dark theme is a flash. Browsers without view
+ * transitions ignore the rule. */
+@view-transition {
+  navigation: auto;
+}
+
 /* Base: the page takes the theme's colours and type. */
 :root,
 [data-theme] {

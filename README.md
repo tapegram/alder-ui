@@ -37,7 +37,7 @@ README is the short version.
 `al.css` is the whole library (tokens and every component, inside
 `@layer al`). Copy it from a tagged release. Once this repository is public,
 you can also link the raw file at a tag
-(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.1.2/al.css`). Open
+(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.1.3/al.css`). Open
 `demo/index.html` to see every element, variant and state in both themes.
 
 ## Elements
@@ -119,6 +119,10 @@ Notes:
 - **Light and dark.** Dark follows `prefers-color-scheme`; set
   `data-theme="light"` or `data-theme="dark"` on `<html>` (or any subtree) to
   force one.
+- **View transitions.** `tokens.css` opts every page into cross-document
+  view transitions (`@view-transition { navigation: auto }`), so a
+  same-origin navigation cross-fades instead of flashing a blank frame
+  (white, even in the dark theme). Browsers without them ignore it.
 - **No JavaScript required.** Every element works server-rendered; scripts
   are optional enhancements only.
 - **Attributes are the API**; class names, where any are needed, start with
