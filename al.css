@@ -1146,4 +1146,110 @@ al-page[width="wide"] {
   max-width: var(--al-width-wide);
 }
 
+/* ---- components/al-dialog.css ---- */
+
+/*
+ * al-dialog: wraps a native <dialog>. Open it with a button that carries
+ * commandfor="<dialog id>" command="show-modal" (invoker commands; al-shim.js
+ * polyfills them). The focus trap, the inert page, Escape and returning
+ * focus are the platform's. Without JavaScript or invoker commands, link to
+ * href="#<dialog id>": :target shows the dialog (not modal), href="#" hides it.
+ * heading is rendered by the framework as the header slot's <h2>. The close
+ * button of a dismissible dialog is a <form method="dialog"> with a button,
+ * the first child of the <dialog>; closedby="any" adds backdrop clicks.
+ */
+
+al-dialog {
+  display: contents;
+}
+
+al-dialog > dialog {
+  position: fixed;
+  inline-size: calc(var(--al-width-narrow) * 0.75);
+  max-inline-size: calc(100dvw - var(--al-space-8));
+  max-block-size: calc(100dvh - var(--al-space-8));
+  margin: auto;
+  padding: 0;
+  border: var(--al-border-width) solid var(--border);
+  border-radius: var(--radius);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--al-shadow-sm);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-sm);
+  line-height: var(--al-leading);
+}
+
+al-dialog > dialog::backdrop {
+  color: var(--foreground);
+  background: color-mix(in srgb, currentColor 50%, transparent);
+}
+
+/* No JavaScript: the dialog the URL fragment names is shown. */
+al-dialog > dialog:target:not([open]) {
+  display: block;
+}
+
+al-dialog[size="sm"] > dialog {
+  inline-size: calc(var(--al-width-narrow) / 2);
+}
+
+al-dialog[size="lg"] > dialog {
+  inline-size: var(--al-width-narrow);
+}
+
+al-dialog [slot="header"] {
+  margin: 0;
+  padding: var(--al-space-4) var(--al-space-6) 0;
+  font-size: var(--al-text-lg);
+  font-weight: var(--al-weight-semibold);
+  line-height: var(--al-leading-tight);
+}
+
+al-dialog > dialog > :not([slot]):not(form) {
+  padding: var(--al-space-4) var(--al-space-6);
+}
+
+al-dialog [slot="actions"] {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--al-space-2);
+  padding: 0 var(--al-space-6) var(--al-space-4);
+}
+
+al-dialog[dismissible] [slot="header"] {
+  padding-inline-end: var(--al-space-10);
+}
+
+al-dialog[dismissible] > dialog > form[method="dialog"] {
+  position: absolute;
+  top: var(--al-space-3);
+  inset-inline-end: var(--al-space-3);
+  margin: 0;
+}
+
+al-dialog[dismissible] > dialog > form[method="dialog"] > button {
+  margin: 0;
+  padding: var(--al-space-1) var(--al-space-2);
+  border: 0;
+  border-radius: var(--al-radius-sm);
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: var(--al-text-base);
+  line-height: var(--al-leading-tight);
+  cursor: pointer;
+}
+
+al-dialog[dismissible] > dialog > form[method="dialog"] > button:hover {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+al-dialog[dismissible] > dialog > form[method="dialog"] > button:focus-visible {
+  outline: var(--al-ring-width) solid var(--ring);
+  outline-offset: var(--al-ring-offset);
+}
+
 }

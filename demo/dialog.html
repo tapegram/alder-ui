@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-dialog</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+<script type="module" src="../al.js"></script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-dialog</h1>
+<p>A modal dialog around a native <code>&lt;dialog&gt;</code>, opened by <code>commandfor</code> / <code>command="show-modal"</code> on a button. The no-JS form comes first.</p>
+<!-- no-js -->
+<section>
+<h2>Without JavaScript</h2>
+<p>A link to the dialog's id shows it (<code>:target</code>); the close link <code>#</code> hides it. No script, no invoker commands.</p>
+<al-stack direction="row" gap="sm">
+  <al-button variant="outline"><a href="#about-nojs">Open (link)</a></al-button>
+</al-stack>
+<al-dialog heading="About" size="sm">
+  <dialog id="about-nojs">
+    <h2 slot="header">About</h2>
+    <p>Shown by the URL fragment alone.</p>
+    <div slot="actions"><al-button variant="primary"><a href="#">Close</a></al-button></div>
+  </dialog>
+</al-dialog>
+</section>
+
+<section>
+<h2>Sizes</h2>
+<al-stack direction="row" gap="sm">
+  <al-button variant="outline"><button type="button" commandfor="d-sm" command="show-modal">Small</button></al-button>
+  <al-button variant="outline"><button type="button" commandfor="d-md" command="show-modal">Medium</button></al-button>
+  <al-button variant="outline"><button type="button" commandfor="d-lg" command="show-modal">Large</button></al-button>
+</al-stack>
+<al-dialog heading="Small" size="sm">
+  <dialog id="d-sm" closedby="any">
+    <h2 slot="header">Small</h2>
+    <p>Escape or a backdrop click closes it.</p>
+    <div slot="actions"><al-button variant="primary"><button type="button" commandfor="d-sm" command="close">Done</button></al-button></div>
+  </dialog>
+</al-dialog>
+<al-dialog heading="Medium" size="md">
+  <dialog id="d-md" closedby="any">
+    <h2 slot="header">Medium</h2>
+    <p>The default size.</p>
+    <div slot="actions"><al-button variant="primary"><button type="button" commandfor="d-md" command="close">Done</button></al-button></div>
+  </dialog>
+</al-dialog>
+<al-dialog heading="Large" size="lg">
+  <dialog id="d-lg" closedby="any">
+    <h2 slot="header">Large</h2>
+    <p>Room for a form or a table.</p>
+    <div slot="actions"><al-button variant="primary"><button type="button" commandfor="d-lg" command="close">Done</button></al-button></div>
+  </dialog>
+</al-dialog>
+</section>
+
+<section>
+<h2>Dismissible, with actions</h2>
+<al-button variant="destructive"><button type="button" commandfor="d-confirm" command="show-modal">Delete post</button></al-button>
+<al-dialog heading="Delete this post?" dismissible>
+  <dialog id="d-confirm" closedby="any">
+    <form method="dialog"><button aria-label="Close">&times;</button></form>
+    <h2 slot="header">Delete this post?</h2>
+    <p>This cannot be undone.</p>
+    <div slot="actions">
+      <al-button variant="outline"><button type="button" commandfor="d-confirm" command="close">Cancel</button></al-button>
+      <al-button variant="destructive"><button type="button" commandfor="d-confirm" command="close">Delete</button></al-button>
+    </div>
+  </dialog>
+</al-dialog>
+</section>
+</al-stack>
+</al-page>
+</body>
+</html>

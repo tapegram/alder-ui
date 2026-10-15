@@ -66,6 +66,7 @@ API = {
 }
 # v0.2.0, the interactive tier (added per element below)
 API.update({
+    "al-dialog": ([("heading", "string"), ("size", '"sm" | "md" | "lg"'), ("dismissible", "boolean")], ["header", "", "actions"]),
 })
 ADDED = {
     "al-select": [("help", "string")],
@@ -75,6 +76,7 @@ ADDED = {
 # Attributes the stylesheet deliberately does not draw: the framework copies
 # them onto the native control, or renders them as markup.
 NOT_STYLED = {
+    ("al-dialog", "heading"): "rendered by the framework as the header slot's <h2>",
     ("al-button", "type"): "selects the native button's type; no look",
     ("al-input", "label"): "rendered as a real <label>",
     ("al-input", "placeholder"): "copied onto the <input>",

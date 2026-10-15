@@ -502,6 +502,69 @@
     },
     {
       "kind": "javascript-module",
+      "path": "components/al-dialog.css",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "AlDialog",
+          "tagName": "al-dialog",
+          "customElement": true,
+          "description": "A modal dialog: wraps a native `<dialog>` (focus trap, inert page, Escape and return focus come from the platform). Open it with `<button commandfor=\"id\" command=\"show-modal\">` (al-shim.js polyfills invoker commands on older browsers). With no JavaScript, link to `#id`: the dialog is shown, not modal, and `#` hides it.",
+          "attributes": [
+            {
+              "name": "heading",
+              "type": {
+                "text": "string"
+              },
+              "description": "The dialog's heading. The framework renders it as the `header` slot's `<h2>`; the attribute itself draws nothing."
+            },
+            {
+              "name": "size",
+              "type": {
+                "text": "\"sm\" | \"md\" | \"lg\""
+              },
+              "description": "The dialog's width.",
+              "default": "\"md\""
+            },
+            {
+              "name": "dismissible",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Makes room for a close button: a `<form method=\"dialog\">` holding a `<button>` as the first child of the `<dialog>`.",
+              "default": "false"
+            }
+          ],
+          "slots": [
+            {
+              "name": "header",
+              "description": "The dialog's heading."
+            },
+            {
+              "name": "",
+              "description": "The dialog's content."
+            },
+            {
+              "name": "actions",
+              "description": "The buttons along the bottom, right-aligned."
+            }
+          ],
+          "events": [
+            {
+              "name": "al-close",
+              "description": "Fired (bubbles) on the al-dialog when its dialog closes, however it closed."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "components/al-shim.js",
+      "declarations": []
+    },
+    {
+      "kind": "javascript-module",
       "path": "components/al-alert.js",
       "declarations": []
     }
