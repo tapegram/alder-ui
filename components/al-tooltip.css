@@ -1,0 +1,25 @@
+/*
+ * al-tooltip: a short text hint for the element whose id is in `for`.
+ * popover="hint" where the browser has it (a manual popover otherwise);
+ * al-tooltip.js shows it on hover and focus, anchors it to the trigger and
+ * wires aria-describedby. Without the script it stays hidden: put the same
+ * text in a title attribute on the trigger.
+ */
+
+al-tooltip {
+  position: fixed;
+  inset: auto;
+  position-area: block-end;
+  position-try-fallbacks: flip-block, flip-inline;
+  margin: var(--al-space-1);
+  padding: var(--al-space-1) var(--al-space-2);
+  border: 0;
+  border-radius: var(--al-radius-sm);
+  background: var(--foreground);
+  color: var(--background);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-xs);
+  line-height: var(--al-leading-tight);
+  max-inline-size: calc(var(--al-width-narrow) / 2);
+  pointer-events: none;
+}

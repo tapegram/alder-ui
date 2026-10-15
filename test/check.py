@@ -66,6 +66,9 @@ API = {
 }
 # v0.2.0, the interactive tier (added per element below)
 API.update({
+    "al-tooltip": ([("for", "string")], [""]),
+    "al-toast": ([("variant", '"info" | "success" | "warning" | "destructive"'), ("timeout", "number")], [""]),
+    "al-toasts": ([("position", '"top-left" | "top-right" | "bottom-left" | "bottom-right"')], [""]),
     "al-tabs": ([], [""]),
     "al-tab": ([("name", "string"), ("selected", "boolean")], [""]),
     "al-panel": ([], [""]),
@@ -81,6 +84,8 @@ ADDED = {
 # Attributes the stylesheet deliberately does not draw: the framework copies
 # them onto the native control, or renders them as markup.
 NOT_STYLED = {
+    ("al-tooltip", "for"): "read by al-tooltip.js, which finds the trigger by id",
+    ("al-toast", "timeout"): "read by al-toast.js, which closes the toast",
     ("al-tab", "name"): "copied onto the radio input by al-tabs.js",
     ("al-tab", "selected"): "read by al-tabs.js, which checks the tab's radio",
     ("al-popover", "anchor"): "the platform's anchor attribute: it anchors to the element with that id",
@@ -156,6 +161,8 @@ def check_manifest(m, els):
             if a["type"]["text"] == "boolean":
                 if a.get("default") != "false":
                     fail("manifest", "%s[%s] is boolean; its default must be false" % (tag, a["name"]))
+            elif a["type"]["text"] == "number" and re.fullmatch(r"\d+", a.get("default", "")):
+                pass
             elif "default" in a:
                 vals = union_values(a["type"]["text"])
                 if vals is None or json.loads(a["default"]) not in vals:

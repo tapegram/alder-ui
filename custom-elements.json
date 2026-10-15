@@ -710,6 +710,100 @@
     },
     {
       "kind": "javascript-module",
+      "path": "components/al-toast.css",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "AlToast",
+          "tagName": "al-toast",
+          "customElement": true,
+          "description": "A transient message in an `<al-toasts popover=\"manual\">` region. `al-toast.js` shows the region when a toast connects, gives the toast `role=\"status\"`, and closes it after `timeout` ms. Without JavaScript the region stays hidden; render the message as an `al-alert` in the page.",
+          "attributes": [
+            {
+              "name": "variant",
+              "type": {
+                "text": "\"info\" | \"success\" | \"warning\" | \"destructive\""
+              },
+              "description": "The toast's look, like al-alert's.",
+              "default": "\"info\""
+            },
+            {
+              "name": "timeout",
+              "type": {
+                "text": "number"
+              },
+              "description": "Milliseconds before the toast closes; `0` keeps it until closed.",
+              "default": "5000"
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "The message."
+            }
+          ]
+        },
+        {
+          "kind": "class",
+          "name": "AlToasts",
+          "tagName": "al-toasts",
+          "customElement": true,
+          "description": "The region toasts appear in: a `popover=\"manual\"` element in the top layer at a corner of the viewport. Put it outside any morphed region.",
+          "attributes": [
+            {
+              "name": "position",
+              "type": {
+                "text": "\"top-left\" | \"top-right\" | \"bottom-left\" | \"bottom-right\""
+              },
+              "description": "The corner of the viewport.",
+              "default": "\"bottom-right\""
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "The `<al-toast>`s."
+            }
+          ],
+          "events": [
+            {
+              "name": "al-close",
+              "description": "Fired (bubbles) on the region when a toast closes; `detail.toast` is the toast."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "components/al-tooltip.css",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "AlTooltip",
+          "tagName": "al-tooltip",
+          "customElement": true,
+          "description": "A short text hint for the element whose id is in `for`. `al-tooltip.js` makes it a `popover=\"hint\"` (a manual popover where `hint` is unknown), anchors it, sets `aria-describedby` on the trigger and shows it on hover and focus. Without JavaScript it stays hidden: also put the text in the trigger's `title`.",
+          "attributes": [
+            {
+              "name": "for",
+              "type": {
+                "text": "string"
+              },
+              "description": "The id of the element the tooltip describes."
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "The tooltip text (text only)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "components/al-shim.js",
       "declarations": []
     },
@@ -726,6 +820,16 @@
     {
       "kind": "javascript-module",
       "path": "components/al-tabs.js",
+      "declarations": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "components/al-toast.js",
+      "declarations": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "components/al-tooltip.js",
       "declarations": []
     }
   ]

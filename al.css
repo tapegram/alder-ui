@@ -1451,4 +1451,107 @@ al-tabs > al-tab:has(> label > input:checked) > al-panel {
   display: block;
 }
 
+/* ---- components/al-toast.css ---- */
+
+/*
+ * al-toast: a transient message. Toasts live in an <al-toasts popover="manual">
+ * region, which sits in the top layer at a corner (position). al-toast.js
+ * shows the region when a toast connects, closes the toast after timeout ms
+ * (0 keeps it) and gives it role="status". Without JavaScript the region
+ * stays hidden: render the message as an al-alert in the page instead.
+ */
+
+al-toast {
+  display: block;
+  inline-size: calc(var(--al-width-narrow) / 2);
+  max-inline-size: calc(100dvw - var(--al-space-8));
+  padding: var(--al-space-3) var(--al-space-4);
+  border: var(--al-border-width) solid var(--al-info-border);
+  border-radius: var(--radius);
+  background: var(--al-info-soft);
+  color: var(--al-info-soft-foreground);
+  box-shadow: var(--al-shadow-sm);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-sm);
+  line-height: var(--al-leading);
+}
+
+al-toast[variant="success"] {
+  border-color: var(--al-success-border);
+  background: var(--al-success-soft);
+  color: var(--al-success-soft-foreground);
+}
+
+al-toast[variant="warning"] {
+  border-color: var(--al-warning-border);
+  background: var(--al-warning-soft);
+  color: var(--al-warning-soft-foreground);
+}
+
+al-toast[variant="destructive"] {
+  border-color: var(--al-destructive-border);
+  background: var(--al-destructive-soft);
+  color: var(--al-destructive-soft-foreground);
+}
+
+al-toasts {
+  position: fixed;
+  inset: auto;
+  inset-block-end: var(--al-space-4);
+  inset-inline-end: var(--al-space-4);
+  display: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+
+al-toasts:popover-open {
+  display: flex;
+  flex-direction: column;
+  gap: var(--al-space-2);
+}
+
+al-toasts[position="top-left"] {
+  inset-block: var(--al-space-4) auto;
+  inset-inline: var(--al-space-4) auto;
+}
+
+al-toasts[position="top-right"] {
+  inset-block: var(--al-space-4) auto;
+}
+
+al-toasts[position="bottom-left"] {
+  inset-inline: var(--al-space-4) auto;
+}
+
+/* ---- components/al-tooltip.css ---- */
+
+/*
+ * al-tooltip: a short text hint for the element whose id is in `for`.
+ * popover="hint" where the browser has it (a manual popover otherwise);
+ * al-tooltip.js shows it on hover and focus, anchors it to the trigger and
+ * wires aria-describedby. Without the script it stays hidden: put the same
+ * text in a title attribute on the trigger.
+ */
+
+al-tooltip {
+  position: fixed;
+  inset: auto;
+  position-area: block-end;
+  position-try-fallbacks: flip-block, flip-inline;
+  margin: var(--al-space-1);
+  padding: var(--al-space-1) var(--al-space-2);
+  border: 0;
+  border-radius: var(--al-radius-sm);
+  background: var(--foreground);
+  color: var(--background);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-xs);
+  line-height: var(--al-leading-tight);
+  max-inline-size: calc(var(--al-width-narrow) / 2);
+  pointer-events: none;
+}
+
 }

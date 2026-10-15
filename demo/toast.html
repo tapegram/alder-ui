@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-toast</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+<script type="module" src="../al.js"></script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-toast</h1>
+<p>A transient message in a corner region. The script shows the region, sets <code>role="status"</code> and closes the toast after <code>timeout</code>.</p>
+<!-- no-js -->
+<section>
+<h2>Without JavaScript</h2>
+<p>The toast region is a hidden popover until the script shows it, so the server also renders the message in the page as an <code>al-alert</code>:</p>
+<al-alert variant="success" role="status">Post saved.</al-alert>
+</section>
+
+<section>
+<h2>Enhanced</h2>
+<p>With the script, each region is shown when its toast connects. These are sticky (<code>timeout="0"</code>) so you can see all four variants at all four corners; the default <code>timeout</code> is 5000 ms and the toast closes itself.</p>
+<al-toasts popover="manual" position="bottom-right"><al-toast variant="info" timeout="0">Info toast (bottom-right).</al-toast></al-toasts>
+<al-toasts popover="manual" position="top-left"><al-toast variant="success" timeout="0">Success toast (top-left).</al-toast></al-toasts>
+<al-toasts popover="manual" position="top-right"><al-toast variant="warning" timeout="0">Warning toast (top-right).</al-toast></al-toasts>
+<al-toasts popover="manual" position="bottom-left"><al-toast variant="destructive" timeout="0">Destructive toast (bottom-left).</al-toast></al-toasts>
+</section>
+</al-stack>
+</al-page>
+</body>
+</html>
