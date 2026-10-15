@@ -610,12 +610,47 @@
     },
     {
       "kind": "javascript-module",
+      "path": "components/al-menu.css",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "AlMenu",
+          "tagName": "al-menu",
+          "customElement": true,
+          "description": "A menu: a popover of links or buttons. Open it with `<button commandfor=\"id\" command=\"toggle-popover\">`. Without JavaScript it is a popover of links (which still navigate); `al-menu.js` adds the `menu` / `menuitem` roles, roving arrow keys, Home/End, and closes on select.",
+          "attributes": [],
+          "slots": [
+            {
+              "name": "",
+              "description": "The items: `<a>` or `<button>` children."
+            }
+          ],
+          "events": [
+            {
+              "name": "al-select",
+              "description": "Fired (bubbles) on the al-menu when an item is chosen; `detail.item` is the item."
+            },
+            {
+              "name": "al-close",
+              "description": "Fired (bubbles) on the al-menu when it closes."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "components/al-shim.js",
       "declarations": []
     },
     {
       "kind": "javascript-module",
       "path": "components/al-alert.js",
+      "declarations": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "components/al-menu.js",
       "declarations": []
     }
   ]

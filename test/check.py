@@ -66,6 +66,7 @@ API = {
 }
 # v0.2.0, the interactive tier (added per element below)
 API.update({
+    "al-menu": ([], [""]),
     "al-popover": ([("placement", '"top" | "bottom" | "left" | "right"'), ("offset", '"sm" | "md" | "lg"'), ("anchor", "string")], [""]),
     "al-dialog": ([("heading", "string"), ("size", '"sm" | "md" | "lg"'), ("dismissible", "boolean")], ["header", "", "actions"]),
 })

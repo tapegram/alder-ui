@@ -1,0 +1,68 @@
+/*
+ * al-menu: a popover holding a list of items, each a link or a button. The
+ * optional al-menu.js adds role="menu" / "menuitem", roving arrow keys,
+ * Home/End, and closes the menu on select. Open it with a button carrying
+ * commandfor="<id>" command="toggle-popover" (or popovertarget). Without the
+ * script it is a popover of links, which still works.
+ */
+
+al-menu {
+  position: fixed;
+  inset: auto;
+  position-area: block-end span-inline-end;
+  position-try-fallbacks: flip-block, flip-inline;
+  display: none;
+  min-inline-size: calc(var(--al-width-narrow) / 4);
+  margin: var(--al-space-1);
+  padding: var(--al-space-1);
+  border: var(--al-border-width) solid var(--border);
+  border-radius: var(--radius);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--al-shadow-sm);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-sm);
+  line-height: var(--al-leading);
+}
+
+al-menu:popover-open {
+  display: flex;
+  flex-direction: column;
+}
+
+al-menu > a,
+al-menu > button {
+  display: block;
+  margin: 0;
+  padding: var(--al-space-1-5) var(--al-space-3);
+  border: 0;
+  border-radius: var(--al-radius-sm);
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: var(--al-leading);
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+al-menu > a:hover,
+al-menu > button:hover,
+al-menu > a:focus-visible,
+al-menu > button:focus-visible {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+al-menu > a:focus-visible,
+al-menu > button:focus-visible {
+  outline: var(--al-ring-width) solid var(--ring);
+  outline-offset: calc(var(--al-ring-width) * -1);
+}
+
+al-menu > [aria-disabled="true"],
+al-menu > button:disabled {
+  opacity: var(--al-disabled-opacity);
+  pointer-events: none;
+}

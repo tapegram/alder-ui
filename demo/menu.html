@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-menu</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+<script type="module" src="../al.js"></script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-menu</h1>
+<p>A popover of links or buttons. The optional script adds menu roles, roving arrow keys and closing on select.</p>
+<!-- no-js -->
+<section>
+<h2>Without JavaScript</h2>
+<p>The menu is a popover of plain links; the platform opens and closes it. No roles or arrow keys (those come from <code>al-menu.js</code>).</p>
+<al-button variant="outline"><button type="button" popovertarget="m-nojs">Account</button></al-button>
+<al-menu popover id="m-nojs">
+  <a href="#profile">Profile</a>
+  <a href="#settings">Settings</a>
+</al-menu>
+</section>
+
+<section>
+<h2>Enhanced</h2>
+<p>With the script: arrow keys, Home/End, focus on the first item, closes on select. Try it with the keyboard.</p>
+<al-button variant="outline"><button type="button" commandfor="m-main" command="toggle-popover">Actions</button></al-button>
+<al-menu popover id="m-main">
+  <a href="#edit">Edit</a>
+  <a href="#duplicate">Duplicate</a>
+  <button type="button">Archive</button>
+  <button type="button" disabled>Delete (disabled)</button>
+</al-menu>
+</section>
+</al-stack>
+</al-page>
+</body>
+</html>
