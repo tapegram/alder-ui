@@ -640,6 +640,76 @@
     },
     {
       "kind": "javascript-module",
+      "path": "components/al-tabs.css",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "AlTabs",
+          "tagName": "al-tabs",
+          "customElement": true,
+          "description": "Tabs backed by a radio group: selection and arrow keys work with no JavaScript. Children are `<al-tab>`s; each holds a `<label>` wrapping a radio input (same `name`, one `checked`) and its `<al-panel>`. `al-tabs.js` adds Home/End, `selected`, and the `al-select` event.",
+          "attributes": [],
+          "slots": [
+            {
+              "name": "",
+              "description": "The `<al-tab>` children."
+            }
+          ],
+          "events": [
+            {
+              "name": "al-select",
+              "description": "Fired (bubbles) on the al-tabs when a tab is chosen; `detail.tab` is the al-tab."
+            }
+          ]
+        },
+        {
+          "kind": "class",
+          "name": "AlTab",
+          "tagName": "al-tab",
+          "customElement": true,
+          "description": "One tab: a `<label>` wrapping a radio input, then its `<al-panel>`.",
+          "attributes": [
+            {
+              "name": "name",
+              "type": {
+                "text": "string"
+              },
+              "description": "The radio group's name. al-tabs.js copies it onto a radio that has none."
+            },
+            {
+              "name": "selected",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "The tab the server picked; al-tabs.js checks its radio. (Without the script, write `checked` on the radio.)",
+              "default": "false"
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "The label, then the panel."
+            }
+          ]
+        },
+        {
+          "kind": "class",
+          "name": "AlPanel",
+          "tagName": "al-panel",
+          "customElement": true,
+          "description": "A tab's content, shown when its tab is selected.",
+          "attributes": [],
+          "slots": [
+            {
+              "name": "",
+              "description": "The panel's content."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "components/al-shim.js",
       "declarations": []
     },
@@ -651,6 +721,11 @@
     {
       "kind": "javascript-module",
       "path": "components/al-menu.js",
+      "declarations": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "components/al-tabs.js",
       "declarations": []
     }
   ]

@@ -1,0 +1,63 @@
+/*
+ * al-tabs: tabs backed by a radio group, so selection works with no
+ * JavaScript. Each al-tab holds a <label> wrapping a radio input (all with the
+ * same name; one `checked`) and its al-panel. The labels sit in a row, the
+ * checked tab's panel shows beneath. The optional al-tabs.js adds Home/End,
+ * the selected attribute, and the al-select event.
+ */
+
+al-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  border-bottom: var(--al-border-width) solid var(--border);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-sm);
+  line-height: var(--al-leading);
+}
+
+al-tabs > al-tab {
+  display: contents;
+}
+
+al-tabs > al-tab > label {
+  order: 1;
+  position: relative;
+  padding: var(--al-space-2) var(--al-space-4);
+  border-bottom: var(--al-ring-width) solid transparent;
+  color: var(--muted-foreground);
+  font-weight: var(--al-weight-medium);
+  cursor: pointer;
+}
+
+al-tabs > al-tab > label > input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+al-tabs > al-tab > label:hover {
+  color: var(--foreground);
+}
+
+al-tabs > al-tab > label:has(> input:checked) {
+  border-bottom-color: var(--primary);
+  color: var(--foreground);
+}
+
+al-tabs > al-tab > label:has(> input:focus-visible) {
+  outline: var(--al-ring-width) solid var(--ring);
+  outline-offset: calc(var(--al-ring-width) * -1);
+}
+
+al-tabs > al-tab > al-panel {
+  display: none;
+  order: 2;
+  flex-basis: 100%;
+  padding: var(--al-space-4) 0;
+  color: var(--foreground);
+}
+
+al-tabs > al-tab:has(> label > input:checked) > al-panel {
+  display: block;
+}

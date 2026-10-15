@@ -66,6 +66,9 @@ API = {
 }
 # v0.2.0, the interactive tier (added per element below)
 API.update({
+    "al-tabs": ([], [""]),
+    "al-tab": ([("name", "string"), ("selected", "boolean")], [""]),
+    "al-panel": ([], [""]),
     "al-menu": ([], [""]),
     "al-popover": ([("placement", '"top" | "bottom" | "left" | "right"'), ("offset", '"sm" | "md" | "lg"'), ("anchor", "string")], [""]),
     "al-dialog": ([("heading", "string"), ("size", '"sm" | "md" | "lg"'), ("dismissible", "boolean")], ["header", "", "actions"]),
@@ -78,6 +81,8 @@ ADDED = {
 # Attributes the stylesheet deliberately does not draw: the framework copies
 # them onto the native control, or renders them as markup.
 NOT_STYLED = {
+    ("al-tab", "name"): "copied onto the radio input by al-tabs.js",
+    ("al-tab", "selected"): "read by al-tabs.js, which checks the tab's radio",
     ("al-popover", "anchor"): "the platform's anchor attribute: it anchors to the element with that id",
     ("al-dialog", "heading"): "rendered by the framework as the header slot's <h2>",
     ("al-button", "type"): "selects the native button's type; no look",
