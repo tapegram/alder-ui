@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Build al.css: tokens.css, then every component's CSS in manifest order,
+"""Build al.css and al.js: tokens.css, then every component's CSS in manifest order,
 all inside one cascade layer, @layer al, so a page's own (unlayered) CSS
 always wins over alder-ui's whatever the specificity.
 
-    python3 scripts/build.py          # write al.css
+    python3 scripts/build.py          # write al.css and al.js
     python3 scripts/build.py --check  # exit 1 if al.css is out of date
 """
 import json
@@ -15,7 +15,22 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 def component_paths():
     manifest = json.loads((ROOT / "custom-elements.json").read_text())
-    return [mod["path"] for mod in manifest["modules"]]
+    return [mod["path"] for mod in manifest["modules"] if mod["path"].endswith(".css")]
+
+
+def script_paths():
+    manifest = json.loads((ROOT / "custom-elements.json").read_text())
+    return [mod["path"] for mod in manifest["modules"] if mod["path"].endswith(".js")]
+
+
+def build_js():
+    """al.js: every script in manifest order, each in its own block so their
+    names cannot clash. An ES module that imports nothing."""
+    manifest = json.loads((ROOT / "custom-elements.json").read_text())
+    parts = ["/*! alder-ui %s | Apache-2.0 | built by scripts/build.py from components/*.js; do not edit. */\n" % manifest["version"]]
+    for rel in script_paths():
+        parts.append("\n// ---- %s ----\n{\n%s\n}\n" % (rel, (ROOT / rel).read_text().strip("\n")))
+    return "".join(parts)
 
 
 def build():
@@ -34,15 +49,16 @@ def build():
 
 
 def main(argv):
-    out = ROOT / "al.css"
-    text = build()
+    outs = [(ROOT / "al.css", build()), (ROOT / "al.js", build_js())]
     if "--check" in argv:
-        if not out.exists() or out.read_text() != text:
-            print("al.css is out of date: run python3 scripts/build.py", file=sys.stderr)
-            return 1
+        for out, text in outs:
+            if not out.exists() or out.read_text() != text:
+                print("%s is out of date: run python3 scripts/build.py" % out.name, file=sys.stderr)
+                return 1
         return 0
-    out.write_text(text)
-    print("wrote", out.relative_to(ROOT))
+    for out, text in outs:
+        out.write_text(text)
+        print("wrote", out.relative_to(ROOT))
     return 0
 
 

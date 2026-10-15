@@ -5,7 +5,7 @@
     python3 test/check.py --table   # also print the contrast table
 
 Checks:
-  manifest     the twelve elements, their attributes and slots are exactly the
+  manifest     the elements, their attributes and slots are exactly the
                published API (no rename, no drop); version looks like a tag
   css          every selector names a declared element, attribute, value and
                slot (and every class is al- prefixed, or one of the classes
@@ -21,7 +21,9 @@ Checks:
   demos        each page links ../al.css, uses only declared attributes, values
                and slots, shows every variant/size/state of its element;
                index.html links every page
-  bundle       al.css equals scripts/build.py's output
+  scripts      every components/*.js is in the manifest, exists, is at most 60
+               lines; the interactive demos have a <!-- no-js --> section
+  bundle       al.css and al.js equal scripts/build.py's output
 """
 import colorsys
 import html.parser
@@ -62,6 +64,9 @@ API = {
     "al-stack": ([("gap", '"sm" | "md" | "lg"'), ("direction", '"row" | "column"')], [""]),
     "al-page": ([("width", '"narrow" | "normal" | "wide"')], [""]),
 }
+# v0.2.0, the interactive tier (added per element below)
+API.update({
+})
 ADDED = {
     "al-select": [("help", "string")],
     "al-checkbox": [("invalid", "boolean"), ("help", "string")],
@@ -81,7 +86,14 @@ NOT_STYLED = {
 
 # Attributes any element may carry (Alder's escape list, less its own
 # message/form attributes, which never reach the HTML).
-GLOBAL_ATTRS = {"id", "class", "style", "slot", "hidden", "title", "lang", "dir", "tabindex", "role"}
+GLOBAL_ATTRS = {"id", "class", "style", "slot", "hidden", "title", "lang", "dir", "tabindex", "role",
+                "popover", "popovertarget", "commandfor", "command"}
+
+# Elements that live in another element's stylesheet and demo page: the
+# interactive tier's parts (al-tabs holds al-tab and al-panel; al-toast holds
+# its al-toasts region).
+SUB = {"al-tab": "al-tabs", "al-panel": "al-tabs", "al-toasts": "al-toast"}
+MAX_SCRIPT_LINES = 60
 
 
 def is_global(name):
@@ -111,11 +123,12 @@ def check_manifest(m, els):
         fail("manifest", "schemaVersion must be 1.0.0")
     if sorted(els) != sorted(API):
         fail("manifest", "elements %s, want %s" % (sorted(els), sorted(API)))
+    check_scripts(m)
     for tag, (attrs, slots) in API.items():
         d = els.get(tag)
         if not d:
             continue
-        if d["_path"] != "components/%s.css" % tag:
+        if d["_path"] != "components/%s.css" % SUB.get(tag, tag):
             fail("manifest", "%s path %s" % (tag, d["_path"]))
         if not (ROOT / d["_path"]).exists():
             fail("manifest", "%s: %s missing" % (tag, d["_path"]))
@@ -279,34 +292,58 @@ def check_slot(tag, val, els, sel, file_tag, seen):
 
 
 def check_css(els):
+    files = {}
     for tag, d in els.items():
-        path = ROOT / d["_path"]
+        files.setdefault(d["_path"], []).append(tag)
+    for rel, tags in files.items():
+        path = ROOT / rel
         if not path.exists():
             continue
         css = path.read_text()
         seen = set()
+        main = [t for t in tags if t not in SUB][0]
         for head, _ in rules(css):
             for sel in split_top(head):
-                check_selector(sel, els, tag, seen)
+                check_selector(sel, els, main, seen)
         for name in re.findall(r"attr\(([\w-]+)\)", strip_comments(css)):
-            seen.add((tag, "attr", name))
-        for a in d.get("attributes", []):
-            if (tag, a["name"]) in NOT_STYLED:
-                continue
-            if (tag, "attr", a["name"]) not in seen:
-                fail("css", "%s.css never styles [%s]" % (tag, a["name"]))
-                continue
-            vals = union_values(a["type"]["text"])
-            default = json.loads(a["default"]) if "default" in a else None
-            for v in vals or []:
-                if v != default and (tag, "value", a["name"], v) not in seen:
-                    fail("css", "%s.css never styles [%s=%r]" % (tag, a["name"], v))
-        for s in d.get("slots", []):
-            if s["name"] and (tag, "slot", s["name"]) not in seen:
-                fail("css", "%s.css never places slot %r" % (tag, s["name"]))
+            seen.add((main, "attr", name))
+        for tag in tags:
+            d = els[tag]
+            if tag in SUB and not any(("%s" % tag) in h for h, _ in rules(css)):
+                fail("css", "%s.css never styles <%s>" % (main, tag))
+            for a in d.get("attributes", []):
+                if (tag, a["name"]) in NOT_STYLED:
+                    continue
+                if (tag, "attr", a["name"]) not in seen:
+                    fail("css", "%s.css never styles [%s]" % (tag, a["name"]))
+                    continue
+                vals = union_values(a["type"]["text"])
+                default = json.loads(a["default"]) if "default" in a else None
+                for v in vals or []:
+                    if v != default and (tag, "value", a["name"], v) not in seen:
+                        fail("css", "%s.css never styles [%s=%r]" % (tag, a["name"], v))
+            for sl in d.get("slots", []):
+                if sl["name"] and (tag, "slot", sl["name"]) not in seen:
+                    fail("css", "%s.css never places slot %r" % (tag, sl["name"]))
     for p in sorted((ROOT / "components").glob("*.css")):
         if p.stem not in els:
             fail("css", "%s is not in the manifest" % p.name)
+
+
+def check_scripts(m):
+    """Scripts: the manifest lists each one, it exists, and it is short."""
+    listed = [mod["path"] for mod in m["modules"] if mod["path"].endswith(".js")]
+    for rel in listed:
+        if not (ROOT / rel).exists():
+            fail("scripts", "%s is in the manifest but missing" % rel)
+    for p in sorted((ROOT / "components").glob("*.js")):
+        if "components/" + p.name not in listed:
+            fail("scripts", "%s is not in the manifest" % p.name)
+        n = len(p.read_text().splitlines())
+        if n > MAX_SCRIPT_LINES:
+            fail("scripts", "%s has %d lines (max %d)" % (p.name, n, MAX_SCRIPT_LINES))
+    if not (ROOT / "al.js").exists() or (ROOT / "al.js").read_text() != build.build_js():
+        fail("bundle", "al.js is out of date: run python3 scripts/build.py")
 
 
 # ---------------------------------------------------------------- tokens only
@@ -531,7 +568,7 @@ class Demo(html.parser.HTMLParser):
         self.stack, self.elements, self.links, self.hrefs, self.classes = [], [], [], [], []
 
     def handle_starttag(self, tag, attrs):
-        parent = self.stack[-1] if self.stack else None
+        parent = next((t for t in reversed(self.stack) if t.startswith("al-")), None)
         self.elements.append((tag, attrs, parent, self.getpos()[0]))
         d = dict(attrs)
         if tag == "link" and d.get("rel") == "stylesheet":
@@ -554,6 +591,10 @@ class Demo(html.parser.HTMLParser):
         if tag in self.stack:
             while self.stack.pop() != tag:
                 pass
+
+
+def INTERACTIVE_DEMO(tag):
+    return tag in ("al-dialog", "al-popover", "al-menu", "al-tabs", "al-toast", "al-tooltip", "al-devpanel")
 
 
 def check_demos(els):
@@ -597,12 +638,14 @@ def check_demos(els):
                 elif slot not in [s["name"] for s in els[parent].get("slots", []) if s["name"]]:
                     fail("demos", "%s:%d: <%s> has no slot %r" % (where, line, parent, slot))
     for tag, decl in els.items():
-        name = tag[3:] + ".html"
+        name = SUB.get(tag, tag)[3:] + ".html"
         d = pages.get(name)
         if not d:
             fail("demos", "demo/%s is missing" % name)
             continue
         used = [(t, dict(a)) for t, a, _, _ in d.elements if t == tag]
+        if INTERACTIVE_DEMO(tag) and "<!-- no-js -->" not in (ROOT / "demo" / name).read_text():
+            fail("demos", "demo/%s has no <!-- no-js --> section" % name)
         if not used:
             fail("demos", "demo/%s never uses <%s>" % (name, tag))
         for a in decl.get("attributes", []):
@@ -616,7 +659,7 @@ def check_demos(els):
         for s in decl.get("slots", []):
             if s["name"] and not any(dict(at).get("slot") == s["name"] and par == tag for _, at, par, _ in d.elements):
                 fail("demos", "demo/%s never fills %s slot %r" % (name, tag, s["name"]))
-        if "index.html" in pages and name not in pages["index.html"].hrefs:
+        if (tag not in SUB and "index.html" in pages and name not in pages["index.html"].hrefs):
             fail("demos", "demo/index.html does not link %s" % name)
     if "index.html" not in pages:
         fail("demos", "demo/index.html is missing")
