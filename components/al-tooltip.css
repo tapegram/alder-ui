@@ -6,6 +6,10 @@
  * text in a title attribute on the trigger.
  */
 
+al-tooltip:not(:popover-open) {
+  display: none;
+}
+
 al-tooltip {
   position: fixed;
   inset: auto;
