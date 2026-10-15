@@ -1,0 +1,59 @@
+/*
+ * al-popover: a popover element anchored to its invoker. Write the
+ * popover attribute yourself and open it with a button carrying
+ * popovertarget="<id>" or commandfor="<id>" command="toggle-popover"; both
+ * work with no JavaScript. Position: CSS anchor positioning (the invoker is
+ * the implicit anchor, or name another element with the HTML anchor="<id>"
+ * attribute); position-try flips it to the other side when it would overflow.
+ * placement and offset choose the side and the gap.
+ */
+
+al-popover {
+  position: fixed;
+  inset: auto;
+  position-area: block-end;
+  position-try-fallbacks: flip-block, flip-inline;
+  margin: var(--al-space-1);
+  padding: var(--al-space-3);
+  border: var(--al-border-width) solid var(--border);
+  border-radius: var(--radius);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--al-shadow-sm);
+  font-family: var(--al-font-sans);
+  font-size: var(--al-text-sm);
+  line-height: var(--al-leading);
+  max-inline-size: calc(100dvw - var(--al-space-8));
+}
+
+al-popover[placement="top"] {
+  position-area: block-start;
+}
+
+al-popover[placement="left"] {
+  position-area: inline-start;
+}
+
+al-popover[placement="right"] {
+  position-area: inline-end;
+}
+
+al-popover[offset="sm"] {
+  margin: var(--al-space-1);
+}
+
+al-popover[offset="md"] {
+  margin: var(--al-space-3);
+}
+
+al-popover[offset="lg"] {
+  margin: var(--al-space-6);
+}
+
+al-popover > :first-child {
+  margin-top: 0;
+}
+
+al-popover > :last-child {
+  margin-bottom: 0;
+}

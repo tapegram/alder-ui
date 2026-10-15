@@ -560,6 +560,56 @@
     },
     {
       "kind": "javascript-module",
+      "path": "components/al-popover.css",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "AlPopover",
+          "tagName": "al-popover",
+          "customElement": true,
+          "description": "A small floating panel anchored to the button that opens it. Write `popover` on it and open it with `popovertarget=\"id\"` or `commandfor=\"id\" command=\"toggle-popover\"` on a button; this works with no JavaScript. Placement uses CSS anchor positioning, flipping to the other side when it would overflow.",
+          "attributes": [
+            {
+              "name": "placement",
+              "type": {
+                "text": "\"top\" | \"bottom\" | \"left\" | \"right\""
+              },
+              "description": "Which side of the anchor the popover opens on.",
+              "default": "\"bottom\""
+            },
+            {
+              "name": "offset",
+              "type": {
+                "text": "\"sm\" | \"md\" | \"lg\""
+              },
+              "description": "The gap between the anchor and the popover.",
+              "default": "\"sm\""
+            },
+            {
+              "name": "anchor",
+              "type": {
+                "text": "string"
+              },
+              "description": "The id of the element to anchor to, when it is not the invoker (the platform's `anchor` attribute)."
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "The popover's content."
+            }
+          ],
+          "events": [
+            {
+              "name": "al-close",
+              "description": "Fired (bubbles) on the al-popover when it closes."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "components/al-shim.js",
       "declarations": []
     },

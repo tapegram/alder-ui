@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-popover</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+<script type="module" src="../al.js"></script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-popover</h1>
+<p>A floating panel anchored to its invoker. <code>placement</code> picks the side, <code>offset</code> the gap, <code>anchor</code> another anchor by id; the browser flips it when there is no room.</p>
+<!-- no-js -->
+<section>
+<h2>Without JavaScript</h2>
+<p><code>popovertarget</code> and the <code>popover</code> attribute are the platform's: no script runs. (Only the placement needs a browser with CSS anchor positioning.)</p>
+<al-button variant="outline"><button type="button" popovertarget="p-nojs">Details</button></al-button>
+<al-popover popover id="p-nojs" placement="bottom" offset="sm">Opened by <code>popovertarget</code>. Escape or a click outside closes it.</al-popover>
+</section>
+
+<section>
+<h2>Placements and offsets</h2>
+<al-stack direction="row" gap="lg">
+  <al-button variant="outline"><button type="button" id="b-top" commandfor="p-top" command="toggle-popover">Top</button></al-button>
+  <al-button variant="outline"><button type="button" id="b-left" commandfor="p-left" command="toggle-popover">Left</button></al-button>
+  <al-button variant="outline"><button type="button" id="b-right" commandfor="p-right" command="toggle-popover">Right</button></al-button>
+  <al-button variant="outline"><button type="button" id="b-anchor" commandfor="p-anchor" command="toggle-popover">Anchored elsewhere</button></al-button>
+</al-stack>
+<al-popover popover id="p-top" placement="top" offset="md">Above, with a medium gap.</al-popover>
+<al-popover popover id="p-left" placement="left" offset="lg">To the left, with a large gap.</al-popover>
+<al-popover popover id="p-right" placement="right">To the right.</al-popover>
+<al-popover popover id="p-anchor" anchor="b-top" placement="bottom">Anchored to the Top button, not its invoker.</al-popover>
+</section>
+</al-stack>
+</al-page>
+</body>
+</html>
