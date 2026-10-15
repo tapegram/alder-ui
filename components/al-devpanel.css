@@ -1,0 +1,72 @@
+/*
+ * al-devpanel: the developer bar. Collapsed it is a one-line bar along the
+ * bottom of the page (sticky); with `open` the section whose tab is selected
+ * shows above it. The content is server-rendered markup: a <nav> of tab
+ * <button>s (aria-controls="<section id>") and the <section>s. al-tabs.js
+ * switches sections and toggles `open`; without it, every section shows
+ * when open. Monospace for SQL and other code.
+ */
+
+al-devpanel {
+  display: block;
+  position: sticky;
+  inset-block-end: 0;
+  border-top: var(--al-border-width) solid var(--border);
+  background: var(--card);
+  color: var(--card-foreground);
+  font-family: var(--al-font-mono);
+  font-size: var(--al-text-xs);
+  line-height: var(--al-leading);
+}
+
+al-devpanel > nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--al-space-1);
+  padding: var(--al-space-1) var(--al-space-2);
+}
+
+al-devpanel > nav > button {
+  margin: 0;
+  padding: var(--al-space-1) var(--al-space-2);
+  border: 0;
+  border-radius: var(--al-radius-sm);
+  background: transparent;
+  color: var(--muted-foreground);
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+}
+
+al-devpanel > nav > button:hover,
+al-devpanel > nav > button[aria-selected="true"] {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+al-devpanel > nav > button:focus-visible {
+  outline: var(--al-ring-width) solid var(--ring);
+  outline-offset: var(--al-ring-offset);
+}
+
+al-devpanel > section {
+  display: none;
+  max-block-size: 50dvh;
+  padding: var(--al-space-2) var(--al-space-4);
+  border-top: var(--al-border-width) solid var(--border);
+  overflow: auto;
+}
+
+al-devpanel[open] > section:not([hidden]) {
+  display: block;
+}
+
+al-devpanel pre,
+al-devpanel code {
+  font-family: var(--al-font-mono);
+  white-space: pre-wrap;
+}
+
+al-devpanel pre {
+  margin: var(--al-space-2) 0;
+}

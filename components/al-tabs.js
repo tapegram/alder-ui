@@ -27,3 +27,23 @@ customElements.get("al-tabs") || customElements.define("al-tabs", class extends 
     });
   }
 });
+
+// <al-devpanel>: a <nav> of buttons (aria-controls="<section id>") switches its
+// <section>s; a button opens the panel, the selected one closes it again.
+customElements.get("al-devpanel") || customElements.define("al-devpanel", class extends HTMLElement {
+  connectedCallback() {
+    const buttons = [...this.querySelectorAll(":scope > nav > button")];
+    const show = (b) => {
+      for (const x of buttons) x.setAttribute("aria-selected", String(x === b));
+      for (const s of this.querySelectorAll(":scope > section")) s.hidden = s.id !== b.getAttribute("aria-controls");
+    };
+    if (buttons[0]) show(buttons[0]);
+    this.addEventListener("click", (e) => {
+      const b = e.target.closest("nav > button");
+      if (!b || !buttons.includes(b)) return;
+      const close = this.hasAttribute("open") && b.getAttribute("aria-selected") === "true";
+      show(b);
+      this.toggleAttribute("open", !close);
+    });
+  }
+});

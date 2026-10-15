@@ -66,6 +66,7 @@ API = {
 }
 # v0.2.0, the interactive tier (added per element below)
 API.update({
+    "al-devpanel": ([("open", "boolean")], [""]),
     "al-tooltip": ([("for", "string")], [""]),
     "al-toast": ([("variant", '"info" | "success" | "warning" | "destructive"'), ("timeout", "number")], [""]),
     "al-toasts": ([("position", '"top-left" | "top-right" | "bottom-left" | "bottom-right"')], [""]),

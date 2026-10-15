@@ -804,6 +804,35 @@
     },
     {
       "kind": "javascript-module",
+      "path": "components/al-devpanel.css",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "AlDevpanel",
+          "tagName": "al-devpanel",
+          "customElement": true,
+          "description": "The developer bar: a one-line bar sticky along the bottom of the page; with `open`, the selected section shows above it. Content is server-rendered markup: a `<nav>` of tab `<button>`s (`aria-controls` naming a section's id) and `<section>`s. `al-tabs.js` switches sections and toggles `open`; without it every section shows when open. SQL and code are monospace.",
+          "attributes": [
+            {
+              "name": "open",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Shows the sections above the bar.",
+              "default": "false"
+            }
+          ],
+          "slots": [
+            {
+              "name": "",
+              "description": "A `<nav>` of tab buttons, then the `<section>`s."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
       "path": "components/al-shim.js",
       "declarations": []
     },

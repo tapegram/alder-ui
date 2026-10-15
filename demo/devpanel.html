@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-devpanel</title>
+<link rel="stylesheet" href="../al.css">
+<script>
+function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+</script>
+<script type="module" src="../al.js"></script>
+</head>
+<body>
+<al-page>
+<al-stack gap="lg">
+<al-stack direction="row" gap="sm">
+  <a href="index.html">alder-ui demos</a>
+  <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
+</al-stack>
+<h1>al-devpanel</h1>
+<p>Alder's developer bar, as a design-system element: a collapsed bar and an expanded tabbed panel, server-rendered, with monospace code.</p>
+<!-- no-js -->
+<section>
+<h2>Without JavaScript</h2>
+<p>Open, every section shows (no tab switching); collapsed, only the bar. The server picks with <code>open</code>.</p>
+<al-devpanel open>
+  <nav><button type="button" aria-controls="np-sql">SQL</button><button type="button" aria-controls="np-msgs">Messages</button></nav>
+  <section id="np-sql"><pre>SELECT id, title FROM posts WHERE published = 1 ORDER BY id DESC;</pre></section>
+  <section id="np-msgs">Msg: PostSaved</section>
+</al-devpanel>
+</section>
+
+<section>
+<h2>Enhanced and collapsed</h2>
+<p>With the script, the buttons switch sections and toggle <code>open</code>. This one starts collapsed: click a tab.</p>
+<al-devpanel>
+  <nav><button type="button" aria-controls="p-sql">SQL (2)</button><button type="button" aria-controls="p-state">State</button></nav>
+  <section id="p-sql"><pre>SELECT id, title FROM posts;
+UPDATE posts SET title = ? WHERE id = ?;</pre></section>
+  <section id="p-state"><code>{"page": "home"}</code></section>
+</al-devpanel>
+</section>
+</al-stack>
+</al-page>
+</body>
+</html>

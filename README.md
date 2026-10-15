@@ -37,7 +37,7 @@ README is the short version.
 `al.css` is the whole library (tokens and every component, inside
 `@layer al`). Copy it from a tagged release. Once this repository is public,
 you can also link the raw file at a tag
-(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.1.3/al.css`). Open
+(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.2.0/al.css`). Open
 `demo/index.html` to see every element, variant and state in both themes.
 
 ## Elements
@@ -58,6 +58,16 @@ declares each one with its type, default and description.
 | `al-badge` | `variant` (`default` default, `secondary`, `outline`, `destructive`) | default |
 | `al-alert` | `variant` (`info` default, `success`, `warning`, `destructive`), `heading`, `dismissible` | default |
 | `al-pagination` | `page`, `pages` | `prev`, default, `next` |
+| `al-dialog` | `heading`, `size` (`sm`, `md` default, `lg`), `dismissible` | `header`, default, `actions` |
+| `al-popover` | `placement` (`top`, `bottom` default, `left`, `right`), `offset` (`sm` default, `md`, `lg`), `anchor` | default |
+| `al-menu` | | default (links or buttons) |
+| `al-tabs` | | default (`al-tab`s) |
+| `al-tab` | `name`, `selected` | default (a `<label>` with a radio, then an `al-panel`) |
+| `al-panel` | | default |
+| `al-toast` | `variant` (`info` default, `success`, `warning`, `destructive`), `timeout` (ms; default 5000, 0 = sticky) | default |
+| `al-toasts` | `position` (`top-left`, `top-right`, `bottom-left`, `bottom-right` default) | default (`al-toast`s) |
+| `al-tooltip` | `for` | default (text) |
+| `al-devpanel` | `open` | default (a `<nav>` of buttons, then `<section>`s) |
 | `al-stack` | `gap` (`sm`, `md` default, `lg`), `direction` (`column` default, `row`) | default |
 | `al-page` | `width` (`narrow`, `normal` default, `wide`) | default |
 
@@ -149,3 +159,27 @@ CI runs the same script.
 ## License
 
 Apache-2.0. Copyright 2026 Tavish Pegram. See [LICENSE](LICENSE).
+
+## The interactive tier (v0.2.0)
+
+`al-dialog`, `al-popover`, `al-menu`, `al-tabs` (with `al-tab`, `al-panel`),
+`al-toast` (with the `al-toasts` region), `al-tooltip` and `al-devpanel` are
+built on the platform's `<dialog>`, popover, invoker commands (`commandfor` /
+`command`) and CSS anchor positioning. Each demo shows the no-JavaScript form
+first (`<!-- no-js -->`), then the enhanced states.
+
+`al.js` is the bundle of the scripts (an ES module that imports nothing; build
+it with `python3 scripts/build.py`): `<script type="module" src="al.js">`.
+Every script is at most 60 lines and optional: dialogs open with
+`popovertarget`/`#id` links, tabs are a radio group, and a menu is a popover of
+links without it. `al-shim.js` polyfills `command` / `commandfor`
+(`show-modal`, `close`, `toggle-popover`, `show-popover`, `hide-popover`) and
+re-announces closing as `al-close`; `al-tooltip.js` shows tooltips on hover and
+focus, whether or not `popover="hint"` exists.
+
+Browser support: invoker commands, `popover="hint"` and CSS anchor
+positioning need Chromium 135+, Safari 26 or Firefox 140. The shim covers
+invoker commands on older browsers that have `<dialog>` and popover. Without
+anchor positioning a popover, menu or tooltip appears at the browser's default
+popover position (usable, not anchored). Events: `al-close` (dialog, popover,
+menu, toasts) and `al-select` (menu, tabs).
