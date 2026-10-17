@@ -37,7 +37,7 @@ README is the short version.
 `al.css` is the whole library (tokens and every component, inside
 `@layer al`). Copy it from a tagged release. Once this repository is public,
 you can also link the raw file at a tag
-(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.3.2/al.css`). Open
+(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.3.3/al.css`). Open
 `demo/index.html` to see every element, variant and state in both themes.
 
 ## Elements
@@ -160,7 +160,7 @@ CI runs the same script.
 
 Apache-2.0. Copyright 2026 Tavish Pegram. See [LICENSE](LICENSE).
 
-## The interactive tier (v0.3.2)
+## The interactive tier (v0.3.3)
 
 `al-dialog`, `al-popover`, `al-menu`, `al-tabs` (with `al-tab`, `al-panel`),
 `al-toast` (with the `al-toasts` region), `al-tooltip` and `al-devpanel` are
