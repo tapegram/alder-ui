@@ -683,6 +683,46 @@ def check_demos(els):
         fail("demos", "demo/index.html is missing")
 
 
+def check_dialog_shape():
+    """demo/dialog.html's dismissible dialog has the shape Alder's renderer emits
+    (internal/ir/lower_html.go completeDialog): the close <form method="dialog">
+    first with a type=submit button labelled "Close ...", then <h2 slot="header"
+    id="<dialog id>-heading">, and the dialog's aria-labelledby naming that id."""
+    class P(html.parser.HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.dlg, self.kids, self.depth, self.cur = None, [], 0, None
+        def handle_starttag(self, tag, attrs):
+            a = dict(attrs)
+            if tag == "al-dialog" and "dismissible" in a:
+                self.cur = "pending"
+            elif tag == "dialog" and self.cur == "pending":
+                self.dlg, self.cur, self.depth = a, "in", 0
+            elif self.cur == "in":
+                self.depth += 1
+                if self.depth == 1 or (tag == "button" and self.depth == 2):
+                    self.kids.append((tag, a))
+        def handle_endtag(self, tag):
+            if self.cur == "in":
+                if tag == "dialog" and self.depth == 0:
+                    self.cur = "done"
+                else:
+                    self.depth -= 1
+    p = P()
+    p.feed((ROOT / "demo" / "dialog.html").read_text())
+    if not p.dlg:
+        return fail("demos", "demo/dialog.html has no dismissible al-dialog")
+    ids = p.dlg.get("id")
+    first, second = (p.kids + [(None, {})] * 2)[:2]
+    if first[0] != "form" or first[1].get("method") != "dialog":
+        fail("demos", "dismissible dialog: the first child is not <form method=dialog>")
+    if second[0] != "button" or second[1].get("type") != "submit" or not second[1].get("aria-label", "").startswith("Close"):
+        fail("demos", "dismissible dialog: the close button is not <button type=submit aria-label='Close ...'>")
+    h2 = next((a for t, a in p.kids if t == "h2"), {})
+    if h2.get("slot") != "header" or h2.get("id") != ids + "-heading" or p.dlg.get("aria-labelledby") != ids + "-heading":
+        fail("demos", "dismissible dialog: <h2 slot=header id=%s-heading> and aria-labelledby must match" % ids)
+
+
 # ---------------------------------------------------------------- main
 
 def main(argv):
@@ -695,6 +735,7 @@ def main(argv):
     check_tokens(light, dark, media, common)
     rows = contrast_table(light, dark)
     check_demos(els)
+    check_dialog_shape()
     if not (ROOT / "al.css").exists() or (ROOT / "al.css").read_text() != build.build():
         fail("bundle", "al.css is out of date: run python3 scripts/build.py")
     if "--table" in argv:

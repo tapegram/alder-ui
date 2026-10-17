@@ -40,6 +40,17 @@ UPDATE posts SET title = ? WHERE id = ?;</pre></section>
   <section id="p-state"><code>{"page": "home"}</code></section>
 </al-devpanel>
 </section>
+
+<section>
+<h2>Patched by the server</h2>
+<p>A server that patches the panel's inner content need not render <code>hidden</code> or <code>aria-selected</code>: the script re-applies the selection. "Patch" below replaces the panel's content with markup that has neither; the chosen section stays the only one showing.</p>
+<al-devpanel id="p-patched" open>
+  <nav><button type="button" aria-controls="pp-a">A</button><button type="button" aria-controls="pp-b">B</button></nav>
+  <section id="pp-a">Section A (render 1)</section>
+  <section id="pp-b">Section B (render 1)</section>
+</al-devpanel>
+<al-button variant="outline" size="sm"><button type="button" onclick="var n=(window.__r=(window.__r||1)+1);document.getElementById('p-patched').innerHTML='&lt;nav&gt;&lt;button type=button aria-controls=pp-a&gt;A&lt;/button&gt;&lt;button type=button aria-controls=pp-b&gt;B&lt;/button&gt;&lt;/nav&gt;&lt;section id=pp-a&gt;Section A (render '+n+')&lt;/section&gt;&lt;section id=pp-b&gt;Section B (render '+n+')&lt;/section&gt;'">Patch</button></al-button>
+</section>
 </al-stack>
 </al-page>
 </body>

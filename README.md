@@ -37,7 +37,7 @@ README is the short version.
 `al.css` is the whole library (tokens and every component, inside
 `@layer al`). Copy it from a tagged release. Once this repository is public,
 you can also link the raw file at a tag
-(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.2.1/al.css`). Open
+(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.3.0/al.css`). Open
 `demo/index.html` to see every element, variant and state in both themes.
 
 ## Elements
@@ -160,7 +160,7 @@ CI runs the same script.
 
 Apache-2.0. Copyright 2026 Tavish Pegram. See [LICENSE](LICENSE).
 
-## The interactive tier (v0.2.1)
+## The interactive tier (v0.3.0)
 
 `al-dialog`, `al-popover`, `al-menu`, `al-tabs` (with `al-tab`, `al-panel`),
 `al-toast` (with the `al-toasts` region), `al-tooltip` and `al-devpanel` are
@@ -168,9 +168,23 @@ built on the platform's `<dialog>`, popover, invoker commands (`commandfor` /
 `command`) and CSS anchor positioning. Each demo shows the no-JavaScript form
 first (`<!-- no-js -->`), then the enhanced states.
 
+`al-dialog` wraps a native `<dialog>` that **the author writes**: Alder's
+renderer writes it for you (the `id`, the `<h2 slot="header">`, the close
+`<form method="dialog">`, `aria-labelledby`); other stacks write it by hand, as
+`demo/dialog.html` does. The stylesheet styles both the bare `al-dialog > dialog`
+and the markup Alder emits, and `test/check.py` checks that the demo's
+dismissible dialog has the renderer's shape.
+
+`al-tabs.js` adds the tabs ARIA pattern: `role=tablist` on `al-tabs`, `role=tab`
+on each radio (with `aria-selected`, `aria-controls` and a roving `tabindex`),
+`role=tabpanel` with `id` and `aria-labelledby` on each panel. The radio group
+still works with no script. `al-devpanel.js` hides the sections that are not
+selected and re-applies the selection after any DOM patch (a MutationObserver),
+so a server that patches the panel's inner content need not render `hidden`.
+
 `al.js` is the bundle of the scripts (an ES module that imports nothing; build
 it with `python3 scripts/build.py`): `<script type="module" src="al.js">`.
-Every script is at most 60 lines and optional: dialogs open with
+Every script (`al-tabs.js`, `al-devpanel.js`, ...) is at most 60 lines and optional: dialogs open with
 `popovertarget`/`#id` links, tabs are a radio group, and a menu is a popover of
 links without it. `al-shim.js` polyfills `command` / `commandfor`
 (`show-modal`, `close`, `toggle-popover`, `show-popover`, `hide-popover`) and

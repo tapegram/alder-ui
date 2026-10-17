@@ -2,8 +2,8 @@
  * al-devpanel: the developer bar. Collapsed it is a one-line bar along the
  * bottom of the page (sticky); with `open` the section whose tab is selected
  * shows above it. The content is server-rendered markup: a <nav> of tab
- * <button>s (aria-controls="<section id>") and the <section>s. al-tabs.js
- * switches sections and toggles `open`; without it, every section shows
+ * <button>s (aria-controls="<section id>") and the <section>s. al-devpanel.js
+ * hides the other sections, re-applies that after DOM patches, and toggles `open`; without it, every section shows
  * when open. Monospace for SQL and other code.
  */
 

@@ -18,7 +18,7 @@ function toggleTheme() { var r = document.documentElement, dark = r.dataset.them
   <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
 </al-stack>
 <h1>al-dialog</h1>
-<p>A modal dialog around a native <code>&lt;dialog&gt;</code>, opened by <code>commandfor</code> / <code>command="show-modal"</code> on a button. The no-JS form comes first.</p>
+<p>A modal dialog around a native <code>&lt;dialog&gt;</code> that you write: Alder's renderer writes it for you (heading, close button and all), other stacks write it by hand, as here. Opened by <code>commandfor</code> / <code>command="show-modal"</code> on a button. The no-JS form comes first.</p>
 <!-- no-js -->
 <section>
 <h2>Without JavaScript</h2>
@@ -67,11 +67,12 @@ function toggleTheme() { var r = document.documentElement, dark = r.dataset.them
 
 <section>
 <h2>Dismissible, with actions</h2>
+<p>The shape Alder emits for <code>dismissible</code>: the close form first, the heading <code>&lt;h2 slot="header"&gt;</code> with an id the dialog's <code>aria-labelledby</code> names.</p>
 <al-button variant="destructive"><button type="button" commandfor="d-confirm" command="show-modal">Delete post</button></al-button>
 <al-dialog heading="Delete this post?" dismissible>
-  <dialog id="d-confirm" closedby="any">
-    <form method="dialog"><button aria-label="Close">&times;</button></form>
-    <h2 slot="header">Delete this post?</h2>
+  <dialog id="d-confirm" aria-labelledby="d-confirm-heading" closedby="any">
+    <form method="dialog"><button type="submit" aria-label="Close Delete this post?">&times;</button></form>
+    <h2 slot="header" id="d-confirm-heading">Delete this post?</h2>
     <p>This cannot be undone.</p>
     <div slot="actions">
       <al-button variant="outline"><button type="button" commandfor="d-confirm" command="close">Cancel</button></al-button>
