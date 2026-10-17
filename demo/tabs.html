@@ -18,7 +18,7 @@ function toggleTheme() { var r = document.documentElement, dark = r.dataset.them
   <al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>
 </al-stack>
 <h1>al-tabs</h1>
-<p>Tabs backed by a radio group: they work with no script; the script adds the ARIA tabs pattern (<code>tablist</code>, <code>tab</code> with <code>aria-selected</code> and <code>aria-controls</code>, <code>tabpanel</code> with <code>aria-labelledby</code>, a roving <code>tabindex</code>). <code>al-tab</code> holds a label with a radio and its <code>al-panel</code>.</p>
+<p>Tabs backed by a radio group: they work with no script; the script builds the ARIA tabs pattern from them: a <code>tablist</code> of <code>button role=tab</code> (<code>aria-selected</code>, <code>aria-controls</code>, a roving <code>tabindex</code>) before the panels, the labels hidden, <code>tabpanel</code> with <code>aria-labelledby</code>. <code>al-tab</code> holds a label with a radio and its <code>al-panel</code>.</p>
 <!-- no-js -->
 <section>
 <h2>Without JavaScript</h2>

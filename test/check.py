@@ -683,6 +683,19 @@ def check_demos(els):
         fail("demos", "demo/index.html is missing")
 
 
+def check_tabs_nojs():
+    """demo/tabs.html's no-JS form is the radio group only: labels wrapping radios and
+    panels, no role, button or hidden (al-tabs.js builds those)."""
+    text = (ROOT / "demo" / "tabs.html").read_text()
+    i = text.index("<!-- no-js -->")
+    sec = text[i:text.index("</section>", i)]
+    if len(re.findall(r'<label><input type="radio"', sec)) < 2:
+        fail("demos", "demo/tabs.html no-js section: tabs are not label-wrapped radios")
+    for bad in ("role=", "<button", "hidden", "aria-"):
+        if bad in sec:
+            fail("demos", "demo/tabs.html no-js section contains %r: the no-JS form is radios and labels only" % bad)
+
+
 def check_dialog_shape():
     """demo/dialog.html's dismissible dialog has the shape Alder's renderer emits
     (internal/ir/lower_html.go completeDialog): the close <form method="dialog">
@@ -736,6 +749,7 @@ def main(argv):
     rows = contrast_table(light, dark)
     check_demos(els)
     check_dialog_shape()
+    check_tabs_nojs()
     if not (ROOT / "al.css").exists() or (ROOT / "al.css").read_text() != build.build():
         fail("bundle", "al.css is out of date: run python3 scripts/build.py")
     if "--table" in argv:

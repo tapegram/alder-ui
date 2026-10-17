@@ -37,7 +37,7 @@ README is the short version.
 `al.css` is the whole library (tokens and every component, inside
 `@layer al`). Copy it from a tagged release. Once this repository is public,
 you can also link the raw file at a tag
-(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.3.0/al.css`). Open
+(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.3.1/al.css`). Open
 `demo/index.html` to see every element, variant and state in both themes.
 
 ## Elements
@@ -160,7 +160,7 @@ CI runs the same script.
 
 Apache-2.0. Copyright 2026 Tavish Pegram. See [LICENSE](LICENSE).
 
-## The interactive tier (v0.3.0)
+## The interactive tier (v0.3.1)
 
 `al-dialog`, `al-popover`, `al-menu`, `al-tabs` (with `al-tab`, `al-panel`),
 `al-toast` (with the `al-toasts` region), `al-tooltip` and `al-devpanel` are
@@ -175,10 +175,12 @@ renderer writes it for you (the `id`, the `<h2 slot="header">`, the close
 and the markup Alder emits, and `test/check.py` checks that the demo's
 dismissible dialog has the renderer's shape.
 
-`al-tabs.js` adds the tabs ARIA pattern: `role=tablist` on `al-tabs`, `role=tab`
-on each radio (with `aria-selected`, `aria-controls` and a roving `tabindex`),
-`role=tabpanel` with `id` and `aria-labelledby` on each panel. The radio group
-still works with no script. `al-devpanel.js` hides the sections that are not
+`al-tabs.js` builds the tabs ARIA pattern: a `<div role="tablist">` of
+`<button role="tab">` (with `aria-selected`, `aria-controls` and a roving
+`tabindex`) made from the labels' text and inserted before the panels, the radio
+labels hidden, `role=tabpanel` with `id` and `aria-labelledby` on each panel.
+Click and the arrow keys, Home and End check the (hidden) radio, so the CSS and
+`al-select` work as before. With no script nothing changes: radios and labels. `al-devpanel.js` hides the sections that are not
 selected and re-applies the selection after any DOM patch (a MutationObserver),
 so a server that patches the panel's inner content need not render `hidden`.
 
