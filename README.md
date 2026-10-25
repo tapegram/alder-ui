@@ -156,6 +156,36 @@ the contrast ratios computed from the token values pass AA; the demos use only
 declared attributes and slots and show every variant; `al.css` is up to date.
 CI runs the same script.
 
+### Parity with shadcn/ui
+
+`test/parity.py` compares alder-ui against shadcn/ui: it loads the committed
+reference grid (`ref/dist/index.html`, see `ref/README.md`) and its twin
+(`demo/parity.html`, the same grid in the markup Alder emits) in headless
+Chromium, light and dark, and diffs every marked element's computed style
+(colour, border, radius, shadow, type, padding, size, gap, opacity, outline) at
+rest and on hover and keyboard focus. It needs Playwright for Python and
+Pillow, as dev dependencies only (no Node):
+
+```sh
+python3 -m venv .venv
+.venv/bin/pip install -r requirements-dev.txt
+.venv/bin/python -m playwright install chromium
+
+.venv/bin/python -m unittest discover -s test -p 'test_*.py'  # unit tests, no browser
+.venv/bin/python test/parity.py                   # the gate: a diff table per component
+.venv/bin/python test/parity.py --only button     # one component
+.venv/bin/python test/parity.py --shots           # also ref | alder-ui | diff PNGs in ref/out/
+.venv/bin/python test/parity.py --strict          # also fail while any component is pending
+```
+
+It fails on any difference in a component that is not listed as `pending` in
+`test/parity-allow.json` and not allowed there; every allow entry carries a
+one-line reason. Structural gaps (a label wrapping the input, a native
+checkbox) may be allowed; colour, spacing, radius, type and shadow values must
+match, except the standing deviations listed there.
+CI runs the unit tests and the gate in the `parity` job and uploads
+the screenshots as the `triptychs` artifact.
+
 ## License
 
 Apache-2.0. Copyright 2026 Tavish Pegram. See [LICENSE](LICENSE).

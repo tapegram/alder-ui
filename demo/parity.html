@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>alder-ui parity twin</title>
+<!--
+  The twin of ref/dist/index.html (shadcn's reference grid): the same components, text and
+  data-ref markers, written as the markup Alder emits with today's attributes only.
+  test/parity.py diffs the two pages' computed styles. It is not a demo of one element;
+  see test/parity.py's docstring for the marker attributes. data-ref goes on the box that
+  draws the look (the inner <button>, <input>, <dialog>, ...); data-ref-before / -after /
+  -backdrop name a pseudo-element; data-ref-open marks an overlay the harness opens.
+  Variants shadcn has and alder-ui lacks today use the nearest one (button link -> ghost,
+  sizes xs / icon-sm -> sm, icon-lg -> lg); alert and toast variants alder-ui has and shadcn
+  lacks are mapped to shadcn's default in test/parity-allow.json.
+-->
+<link rel="stylesheet" href="../al.css">
+<script type="module" src="../al.js"></script>
+<script>
+// Tag the nodes al-tabs.js builds (the tablist and its buttons), then mark the page ready
+// once the fonts settle, as the ref page does with <html data-ref-ready>.
+window.addEventListener("load", function () {
+  document.querySelectorAll("al-tabs[data-ref-tablist]").forEach(function (tabs) {
+    var list = tabs.querySelector(":scope > [role=tablist]");
+    if (!list) return;
+    list.setAttribute("data-ref", tabs.getAttribute("data-ref-tablist"));
+    var on = list.querySelector("[aria-selected=true]"), off = list.querySelector("[aria-selected=false]");
+    if (on && tabs.hasAttribute("data-ref-tab-selected")) on.setAttribute("data-ref", tabs.getAttribute("data-ref-tab-selected"));
+    if (off && tabs.hasAttribute("data-ref-tab")) off.setAttribute("data-ref", tabs.getAttribute("data-ref-tab"));
+  });
+  document.fonts.ready.then(function () { document.documentElement.setAttribute("data-ref-ready", ""); });
+});
+</script>
+</head>
+<body>
+<al-page width="wide">
+<al-stack gap="lg">
+
+<al-stack gap="md" data-section="button">
+  <h2>button</h2>
+  <al-stack direction="row" gap="sm">
+    <al-button><button type="button" data-ref="button/default/default" data-ref-states="hover focus">Button</button></al-button>
+    <al-button variant="destructive"><button type="button" data-ref="button/destructive/default" data-ref-states="hover focus">Button</button></al-button>
+    <al-button variant="outline"><button type="button" data-ref="button/outline/default" data-ref-states="hover focus">Button</button></al-button>
+    <al-button variant="secondary"><button type="button" data-ref="button/secondary/default" data-ref-states="hover focus">Button</button></al-button>
+    <al-button variant="ghost"><button type="button" data-ref="button/ghost/default" data-ref-states="hover focus">Button</button></al-button>
+    <al-button variant="ghost"><button type="button" data-ref="button/link/default" data-ref-states="hover focus">Button</button></al-button>
+  </al-stack>
+  <al-stack direction="row" gap="sm">
+    <al-button size="sm"><button type="button" data-ref="button/default/xs">Button</button></al-button>
+    <al-button size="sm"><button type="button" data-ref="button/default/sm">Button</button></al-button>
+    <al-button size="lg"><button type="button" data-ref="button/default/lg">Button</button></al-button>
+    <al-button><button type="button" aria-label="Next" data-ref="button/default/icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+    <al-button size="sm"><button type="button" aria-label="Next" data-ref="button/default/icon-sm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+    <al-button size="lg"><button type="button" aria-label="Next" data-ref="button/default/icon-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+  </al-stack>
+  <al-stack direction="row" gap="sm">
+    <al-button disabled><button type="button" disabled data-ref="button/default/disabled">Button</button></al-button>
+    <al-button><button type="button" data-ref="button/default/with-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>Button</button></al-button>
+  </al-stack>
+</al-stack>
+
+<al-stack gap="md" data-section="input">
+  <h2>input</h2>
+  <al-input label="Email" placeholder="Email" help="Enter your email address."><label data-ref="label/default/default">Email<input name="email" type="email" placeholder="Email" aria-describedby="help-email" data-ref="input/default/default" data-ref-states="focus"></label><small class="help" id="help-email" data-ref="input/description/default">Enter your email address.</small><ul class="errors" data-errors="email" data-expect="display: none"></ul></al-input>
+  <al-input label="Email" placeholder="Email" disabled><label>Email<input name="email-disabled" type="email" placeholder="Email" disabled data-ref="input/default/disabled"></label><ul class="errors" data-errors="email-disabled"></ul></al-input>
+  <al-input label="Email" placeholder="Email" invalid><label>Email<input name="email-invalid" type="email" placeholder="Email" aria-invalid="true" data-ref="input/default/invalid"></label><ul class="errors" data-errors="email-invalid" data-ref="input/error/default"><li>Enter a valid email address.</li></ul></al-input>
+</al-stack>
+
+<al-stack gap="md" data-section="textarea">
+  <h2>textarea</h2>
+  <al-textarea label="Message" placeholder="Message"><label>Message<textarea name="message" placeholder="Message" data-ref="textarea/default/default"></textarea></label><ul class="errors" data-errors="message"></ul></al-textarea>
+  <al-textarea label="Message" placeholder="Message" invalid><label>Message<textarea name="message-invalid" placeholder="Message" aria-invalid="true" data-ref="textarea/default/invalid"></textarea></label><ul class="errors" data-errors="message-invalid"></ul></al-textarea>
+</al-stack>
+
+<al-stack gap="md" data-section="select">
+  <h2>select</h2>
+  <al-select label="Fruit"><label>Fruit<select name="fruit" data-ref="select/trigger/default"><option value="">Select a fruit</option><option value="apple">Apple</option><option value="banana">Banana</option></select></label><ul class="errors" data-errors="fruit"></ul></al-select>
+  <al-select label="Fruit" disabled><label>Fruit<select name="fruit-disabled" disabled data-ref="select/trigger/disabled"><option value="">Select a fruit</option><option value="apple">Apple</option></select></label><ul class="errors" data-errors="fruit-disabled"></ul></al-select>
+</al-stack>
+
+<al-stack gap="md" data-section="checkbox">
+  <h2>checkbox</h2>
+  <al-checkbox label="Accept terms"><label>Accept terms<input name="terms-1" type="checkbox" value="True" data-ref="checkbox/default/unchecked"></label><ul class="errors" data-errors="terms-1"></ul></al-checkbox>
+  <al-checkbox label="Accept terms"><label>Accept terms<input name="terms-2" type="checkbox" value="True" checked data-ref="checkbox/default/checked"></label><ul class="errors" data-errors="terms-2"></ul></al-checkbox>
+  <al-checkbox label="Accept terms" disabled><label>Accept terms<input name="terms-3" type="checkbox" value="True" disabled data-ref="checkbox/default/disabled"></label><ul class="errors" data-errors="terms-3"></ul></al-checkbox>
+  <al-checkbox label="Accept terms" invalid><label>Accept terms<input name="terms-4" type="checkbox" value="True" aria-invalid="true" data-ref="checkbox/default/invalid"></label><ul class="errors" data-errors="terms-4"></ul></al-checkbox>
+</al-stack>
+
+<al-stack gap="md" data-section="card">
+  <h2>card</h2>
+  <al-card data-ref="card/root/default">
+    <h3 slot="header" data-ref="card/title/default">Card Title</h3>
+    <p data-ref="card/description/default">Card Description</p>
+    <div data-ref="card/action/default">Card Action</div>
+    <div data-ref="card/content/default"><p>Card Content</p></div>
+    <div slot="footer" data-ref="card/footer/default"><p>Card Footer</p></div>
+  </al-card>
+</al-stack>
+
+<al-stack gap="md" data-section="badge">
+  <h2>badge</h2>
+  <al-stack direction="row" gap="sm">
+    <al-badge data-ref="badge/default/default">Badge</al-badge>
+    <al-badge variant="secondary" data-ref="badge/secondary/default">Badge</al-badge>
+    <al-badge variant="destructive" data-ref="badge/destructive/default">Badge</al-badge>
+    <al-badge variant="outline" data-ref="badge/outline/default">Badge</al-badge>
+  </al-stack>
+</al-stack>
+
+<al-stack gap="md" data-section="alert">
+  <h2>alert</h2>
+  <al-alert variant="info" heading="Alert Title" role="status" data-ref="alert/info/root" data-ref-before="alert/info/title" data-ref-after="alert/info/icon"><p data-ref="alert/info/description">Alert Description</p></al-alert>
+  <al-alert variant="success" heading="Alert Title" role="status" data-ref="alert/success/root" data-ref-before="alert/success/title" data-ref-after="alert/success/icon"><p data-ref="alert/success/description">Alert Description</p></al-alert>
+  <al-alert variant="warning" heading="Alert Title" role="alert" data-ref="alert/warning/root" data-ref-before="alert/warning/title" data-ref-after="alert/warning/icon"><p data-ref="alert/warning/description">Alert Description</p></al-alert>
+  <al-alert variant="destructive" heading="Alert Title" role="alert" data-ref="alert/destructive/root" data-ref-before="alert/destructive/title" data-ref-after="alert/destructive/icon"><p data-ref="alert/destructive/description">Alert Description</p></al-alert>
+</al-stack>
+
+<al-stack gap="md" data-section="table">
+  <h2>table</h2>
+  <al-table data-ref="table/wrapper/default">
+    <table data-ref="table/table/default">
+      <caption data-ref="table/caption/default">A list of your recent invoices.</caption>
+      <thead><tr><th data-ref="table/head/default">Invoice</th><th>Status</th><th>Method</th></tr></thead>
+      <tbody>
+        <tr data-ref="table/row/default"><td data-ref="table/cell/default">INV001</td><td>Paid</td><td>Credit Card</td></tr>
+        <tr data-ref="table/row/hover" data-ref-states="hover"><td>INV002</td><td>Pending</td><td>PayPal</td></tr>
+        <tr><td>INV003</td><td>Unpaid</td><td>Bank Transfer</td></tr>
+      </tbody>
+    </table>
+  </al-table>
+</al-stack>
+
+<al-stack gap="md" data-section="pagination">
+  <h2>pagination</h2>
+  <al-pagination page="2" pages="3" role="navigation" aria-label="pagination">
+    <a slot="prev" href="#" data-ref="pagination/previous/default">Previous</a>
+    <a href="#" data-ref="pagination/link/default">1</a>
+    <a href="#" aria-current="page" data-ref="pagination/active/default">2</a>
+    <a href="#">3</a>
+    <span aria-hidden="true">&hellip;</span>
+    <a slot="next" href="#" data-ref="pagination/next/default">Next</a>
+  </al-pagination>
+</al-stack>
+
+<al-stack gap="md" data-section="tabs">
+  <h2>tabs</h2>
+  <al-tabs data-ref-tablist="tabs/list/default" data-ref-tab-selected="tabs/trigger-active/default" data-ref-tab="tabs/trigger/default">
+    <al-tab name="parity-tabs" selected>
+      <label><input type="radio">Account</label>
+      <al-panel data-ref="tabs/content/default">Tab Content</al-panel>
+    </al-tab>
+    <al-tab name="parity-tabs">
+      <label><input type="radio">Password</label>
+      <al-panel>Password Content</al-panel>
+    </al-tab>
+  </al-tabs>
+  <al-tabs data-ref-tablist="tabs/list/line" data-ref-tab-selected="tabs/trigger-active/line">
+    <al-tab name="parity-tabs-line" selected>
+      <label><input type="radio">Account</label>
+      <al-panel>Tab Content</al-panel>
+    </al-tab>
+    <al-tab name="parity-tabs-line">
+      <label><input type="radio">Password</label>
+      <al-panel>Password Content</al-panel>
+    </al-tab>
+  </al-tabs>
+</al-stack>
+
+<al-stack gap="md" data-section="typography">
+  <h2>typography</h2>
+  <div>
+    <h1 data-ref="typography/h1/default">Heading One</h1>
+    <h2 data-ref="typography/h2/default">Heading Two</h2>
+    <h3 data-ref="typography/h3/default">Heading Three</h3>
+    <h4 data-ref="typography/h4/default">Heading Four</h4>
+    <p data-ref="typography/p/default">A paragraph of body text.</p>
+    <p>Run <code data-ref="typography/code/default">alder build</code> then read the <a href="#" data-ref="typography/a/default">guide</a>.</p>
+    <blockquote data-ref="typography/blockquote/default">A quoted passage.</blockquote>
+    <ul data-ref="typography/ul/default">
+      <li data-ref="typography/li/default">First item</li>
+      <li>Second item</li>
+    </ul>
+    <hr data-ref="typography/hr/default">
+    <table data-ref="typography/table/default">
+      <thead><tr><th data-ref="typography/th/default">Name</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td data-ref="typography/td/default">Alpha</td><td>One</td></tr>
+        <tr><td>Beta</td><td>Two</td></tr>
+      </tbody>
+    </table>
+  </div>
+</al-stack>
+
+<al-stack gap="md" data-section="dialog">
+  <h2>dialog</h2>
+  <al-dialog heading="Dialog Title" dismissible>
+    <dialog id="parity-dialog" aria-labelledby="parity-dialog-heading" data-ref="dialog/content/open" data-ref-backdrop="dialog/overlay/open" data-ref-open>
+      <form method="dialog"><button type="submit" aria-label="Close Dialog Title" data-ref="dialog/close/open">&times;</button></form>
+      <h2 slot="header" id="parity-dialog-heading" data-ref="dialog/title/open">Dialog Title</h2>
+      <p data-ref="dialog/description/open">Dialog Description</p>
+      <div slot="actions" data-ref="dialog/footer/open">
+        <al-button variant="outline"><button type="button">Cancel</button></al-button>
+        <al-button><button type="button">Continue</button></al-button>
+      </div>
+    </dialog>
+  </al-dialog>
+</al-stack>
+
+<al-stack gap="md" data-section="popover, menu, tooltip">
+  <h2>popover, menu, tooltip</h2>
+  <al-stack direction="row" gap="sm">
+    <al-button variant="outline"><button type="button" id="parity-popover-trigger" popovertarget="parity-popover">Open popover</button></al-button>
+    <al-button variant="outline"><button type="button" id="parity-menu-trigger" popovertarget="parity-menu">Open menu</button></al-button>
+    <al-button variant="outline"><button type="button" id="parity-tooltip-trigger">Hover</button></al-button>
+  </al-stack>
+  <al-popover popover id="parity-popover" anchor="parity-popover-trigger" placement="bottom" data-ref="popover/content/open" data-ref-open>
+    <h4>Popover Title</h4>
+    <p>Popover Description</p>
+  </al-popover>
+  <al-menu popover id="parity-menu" data-ref="menu/content/open" data-ref-open>
+    <a href="#" data-ref="menu/item/open">Profile</a>
+    <a href="#">Settings</a>
+    <hr data-ref="menu/separator/open">
+    <button type="button" data-variant="destructive" data-ref="menu/item-destructive/open">Delete</button>
+  </al-menu>
+  <al-tooltip for="parity-tooltip-trigger" data-ref="tooltip/content/open" data-ref-after="tooltip/arrow/open" data-ref-open>Tooltip text</al-tooltip>
+</al-stack>
+
+<al-stack gap="md" data-section="toast">
+  <h2>toast</h2>
+  <al-toasts popover="manual" position="bottom-right" data-ref-open>
+    <al-toast timeout="0" data-ref="toast/default/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
+    <al-toast variant="success" timeout="0" data-ref="toast/success/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
+    <al-toast variant="info" timeout="0" data-ref="toast/info/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
+    <al-toast variant="warning" timeout="0" data-ref="toast/warning/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
+    <al-toast variant="destructive" timeout="0" data-ref="toast/destructive/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
+  </al-toasts>
+</al-stack>
+
+</al-stack>
+</al-page>
+</body>
+</html>

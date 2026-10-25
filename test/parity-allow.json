@@ -1,0 +1,24 @@
+{
+  "pending": ["button", "label", "input", "textarea", "select", "checkbox", "card", "badge", "alert", "table", "pagination", "dialog", "popover", "menu", "tooltip", "toast", "tabs", "typography"],
+  "map": {
+    "alert/info/root": "alert/default/root",
+    "alert/info/icon": "alert/default/icon",
+    "alert/info/title": "alert/default/title",
+    "alert/info/description": "alert/default/description",
+    "alert/success/root": "alert/default/root",
+    "alert/success/icon": "alert/default/icon",
+    "alert/success/title": "alert/default/title",
+    "alert/success/description": "alert/default/description",
+    "alert/warning/root": "alert/default/root",
+    "alert/warning/icon": "alert/default/icon",
+    "alert/warning/title": "alert/default/title",
+    "alert/warning/description": "alert/default/description",
+    "toast/destructive/default": "toast/error/default"
+  },
+  "allow": [
+    {"ref": "select/listbox/*", "prop": "*", "reason": "standing (spec 8.3): al-select keeps the native <select> listbox; shadcn's Radix SelectContent has no counterpart and is not compared"},
+    {"ref": "tabs/nojs-*/*", "prop": "*", "reason": "standing (spec 8.3): the radio-backed tab labels shown when JavaScript is off have no shadcn counterpart; parity runs with al.js, comparing the JS-built tablist"},
+    {"ref": "checkbox/*", "prop": "display", "reason": "standing (spec 8.3): al-checkbox is a native <input type=checkbox> (inline-block); shadcn's is a Radix <button> (inline-flex/grid)"},
+    {"ref": "toast/*", "prop": "font-family", "reason": "standing (R5): sonner sets its own system font stack on the toaster; alder-ui forbids literal font families in components, so al-toast inherits Geist"}
+  ]
+}
