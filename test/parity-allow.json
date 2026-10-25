@@ -1,5 +1,5 @@
 {
-  "pending": ["tabs"],
+  "pending": [],
   "map": {
     "card/title/unslotted": "card/title/default",
     "card/description/unslotted": "card/description/default",

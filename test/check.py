@@ -88,6 +88,7 @@ ADDED = {
     "al-select": [("help", "string")],
     "al-checkbox": [("invalid", "boolean"), ("help", "string")],
     "al-page": [("plain", "boolean")],
+    "al-tabs": [("variant", '"default" | "line"')],
 }
 # Additive growth since the API above (restyle): extra members appended to an
 # attribute's string union, and extra slots appended after the original ones.
