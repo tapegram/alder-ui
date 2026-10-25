@@ -27,3 +27,12 @@ al-stack[gap="md"] {
 al-stack[gap="lg"] {
   gap: 2rem;
 }
+
+/* The gap alone spaces a stack's children: typography's flow margins (p and
+ * whatever follows a heading or p get mt-6, h2 mt-10, ul/ol my-6) would add to
+ * it. (0,0,1), and after typography.css in the bundle, so it beats those rules
+ * (also (0,0,1)); a component that sets its own margin later in the bundle
+ * (al-popover, al-menu, al-tooltip) or with more weight keeps it. */
+al-stack > * {
+  margin-block: 0;
+}

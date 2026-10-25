@@ -387,6 +387,23 @@ input:where([type="button"], [type="reset"], [type="submit"]),
  * rather than inside another al-page.
  */
 
+/* Flow rhythm: an alder addition beyond shadcn Typography, because alder flow
+ * content is mostly components (<h2> then <al-input>, <p> then <al-input>), which
+ * shadcn's `p` margin never reaches. Whatever follows an h2, h3, h4 or p gets the
+ * same 1.5rem as shadcn's `p` rhythm (mt-6).
+ * - Only in flow containers: the page itself and the plain HTML grouping elements
+ *   (and al-panel, a tab's content). A component's own children (al-dialog's
+ *   <dialog> > p + footer, al-card's description, al-input's help) are not reached.
+ *   al-stack is left out: its gap spaces its children (al-stack.css).
+ * - These rules come first so the element rules below, at the same (0,0,1),
+ *   win where they set their own margin: p then h2 keeps h2's mt-10, ul/ol keep my-6. */
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h2 + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h3 + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h4 + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + * {
+  margin-top: 1.5rem;
+}
+
 /* h1: scroll-m-20 text-4xl font-extrabold tracking-tight text-balance */
 :where(al-page:not([plain])) h1 {
   scroll-margin-top: 5rem;
@@ -1523,6 +1540,15 @@ al-stack[gap="md"] {
 
 al-stack[gap="lg"] {
   gap: 2rem;
+}
+
+/* The gap alone spaces a stack's children: typography's flow margins (p and
+ * whatever follows a heading or p get mt-6, h2 mt-10, ul/ol my-6) would add to
+ * it. (0,0,1), and after typography.css in the bundle, so it beats those rules
+ * (also (0,0,1)); a component that sets its own margin later in the bundle
+ * (al-popover, al-menu, al-tooltip) or with more weight keeps it. */
+al-stack > * {
+  margin-block: 0;
 }
 
 /* ---- components/al-page.css ---- */

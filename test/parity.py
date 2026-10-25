@@ -532,7 +532,8 @@ def report(rows, allow, comps, expects):
     lines.append("## clean: %s" % (", ".join(c for c in comps if c not in pending and c not in failing) or "none"))
     lines.append("(%d differing values, %d allowed by test/parity-allow.json, %d data-expect checks)"
                  % (len(rows), n_allowed, len(expects)))
-    for comp in comps:
+    # Components known only from data-expect rows (stack, page) gate too: show their rows.
+    for comp in list(comps) + sorted({r[0] for r in shown} - set(comps)):
         mine = [r for r in shown if r[0] == comp]
         if not mine:
             continue

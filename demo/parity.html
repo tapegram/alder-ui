@@ -244,6 +244,40 @@ window.addEventListener("load", function () {
 
 </al-stack>
 </al-page>
+<!-- Flow spacing after the grid (it shifts no marker): an element right after an h2/h3/h4 or a
+     p in a flow container gets the 1.5rem rhythm; al-stack's gap alone spaces its children;
+     the rule stops at component boundaries (al-dialog's footer after its description). -->
+<al-page>
+<al-stack gap="lg">
+  <p>A paragraph in a stack.</p>
+  <p data-expect="margin-top: 0px">The next one is spaced by the stack's gap alone.</p>
+  <section>
+    <h2>Section</h2>
+    <al-input label="Name" data-expect="margin-top: 24px"><label>Name<input name="flow-name" type="text"></label><ul class="errors" data-errors="flow-name"></ul></al-input>
+    <p>A paragraph between fields.</p>
+    <al-input label="Nickname" data-expect="margin-top: 24px"><label>Nickname<input name="flow-nickname" type="text"></label><ul class="errors" data-errors="flow-nickname"></ul></al-input>
+    <form data-expect="margin-top: 0px"></form>
+  </section>
+  <section>
+    <h3>Subsection</h3>
+    <form data-expect="margin-top: 24px"></form>
+    <p>Text.</p>
+    <form data-expect="margin-top: 24px"></form>
+  </section>
+  <al-card>
+    <h3 slot="header">Card Title</h3>
+    <p data-expect="margin-top: 0px">Card Description</p>
+    <div data-expect="margin-top: 0px">Card Action</div>
+  </al-card>
+  <al-dialog heading="Dialog Title">
+    <dialog aria-label="Dialog Title">
+      <h2 slot="header">Dialog Title</h2>
+      <p>Dialog Description</p>
+      <div slot="actions" data-expect="margin-top: 0px"><al-button><button type="button">Continue</button></al-button></div>
+    </dialog>
+  </al-dialog>
+</al-stack>
+</al-page>
 <!-- A plain page after the grid (it shifts no marker): typography.css is off inside it, so a
      paragraph that is not the first child keeps Preflight's zero margin. -->
 <al-page plain>
