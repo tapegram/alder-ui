@@ -1,6 +1,8 @@
 {
-  "pending": ["card", "badge", "alert", "table", "pagination", "dialog", "popover", "menu", "tooltip", "toast", "tabs"],
+  "pending": ["alert", "table", "pagination", "dialog", "popover", "menu", "tooltip", "toast", "tabs"],
   "map": {
+    "card/title/unslotted": "card/title/default",
+    "card/description/unslotted": "card/description/default",
     "alert/info/root": "alert/default/root",
     "alert/info/icon": "alert/default/icon",
     "alert/info/title": "alert/default/title",

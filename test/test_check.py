@@ -63,9 +63,9 @@ class ManifestTest(unittest.TestCase):
         self.assertEqual(self.manifest_failures(), [])
 
     def test_slot_growth_allowed(self):
-        self.els["al-card"]["slots"] += [{"name": "description"}, {"name": "action"}]
+        self.els["al-dialog"]["slots"] += [{"name": "extra"}, {"name": "more"}]
         self.assertTrue(self.manifest_failures())
-        check.ADDED_SLOTS["al-card"] = ["description", "action"]
+        check.ADDED_SLOTS["al-dialog"] = ["extra", "more"]
         self.assertEqual(self.manifest_failures(), [])
 
     def test_rc_version(self):

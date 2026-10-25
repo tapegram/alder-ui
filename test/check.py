@@ -95,7 +95,7 @@ ADDED_VALUES = {  # (tag, attribute) -> [value, ...]
     ("al-button", "variant"): ["link"],
     ("al-button", "size"): ["xs", "icon", "icon-sm", "icon-lg"],
 }
-ADDED_SLOTS = {}  # tag -> [slot, ...]
+ADDED_SLOTS = {"al-card": ["description", "action"]}  # tag -> [slot, ...]
 
 # Attributes the stylesheet deliberately does not draw: the framework copies
 # them onto the native control, or renders them as markup.
@@ -570,7 +570,8 @@ PAIRS = [
     ("al-card, al-alert, al-devpanel", "card-foreground", "card", 4.5),
     ("al-badge default", "primary-foreground", "primary", 4.5),
     ("al-badge secondary", "secondary-foreground", "secondary", 4.5),
-    ("al-badge destructive", "--color-white", "destructive", 4.5),
+    ("al-badge destructive", "--color-white",
+     Themed(("destructive", "color-mix(in oklab, var(--destructive) 60%, transparent)")), 4.5),
     ("accent hover (pagination, menu, devpanel, dialog close)", "accent-foreground", "accent", 4.5),
     ("help, placeholder, th, caption, tabs, page N of M", "muted-foreground", "background", 4.5),
     ("muted text on card (card footer, devpanel tabs)", "muted-foreground", "card", 4.5),
@@ -590,12 +591,7 @@ SPEC_GAP_REASON = "verbatim shadcn token; spec \u00a74.2 fidelity"
 # Text pairings below 4.5 that come from shadcn's verbatim tokens: kept for
 # fidelity (spec section 4.2) and printed as WARN, not failed (ruling R7).
 # Keyed (use, theme).
-# White on dark --destructive (oklch(0.704 0.191 22.216)) is 2.9:1; shadcn
-# draws the badge on bg-destructive/60 in dark, which the restyle of
-# al-badge (Task 11) brings, so drop this then. A gap whose pairing now
-# passes fails the run (contrast_table), so a stale entry cannot linger.
 SPEC_GAPS = {
-    ("al-badge destructive", "dark"): SPEC_GAP_REASON,
 }
 
 

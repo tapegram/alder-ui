@@ -97,10 +97,17 @@ window.addEventListener("load", function () {
   <h2>card</h2>
   <al-card data-ref="card/root/default">
     <h3 slot="header" data-ref="card/title/default">Card Title</h3>
-    <p data-ref="card/description/default">Card Description</p>
-    <div data-ref="card/action/default">Card Action</div>
-    <div data-ref="card/content/default"><p>Card Content</p></div>
-    <div slot="footer" data-ref="card/footer/default"><p>Card Footer</p></div>
+    <p slot="description" data-ref="card/description/default">Card Description</p>
+    <div slot="action" data-ref="card/action/default">Card Action</div>
+    <div data-ref="card/content/default">Card Content</div>
+    <div slot="footer" data-ref="card/footer/default">Card Footer</div>
+  </al-card>
+  <!-- twin: an unslotted leading heading and the p after it are title and description -->
+  <al-card>
+    <h3 data-ref="card/title/unslotted">Card Title</h3>
+    <p data-ref="card/description/unslotted">Card Description</p>
+    <div slot="action">Card Action</div>
+    <div>Card Content</div>
   </al-card>
 </al-stack>
 
