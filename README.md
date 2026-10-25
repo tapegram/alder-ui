@@ -36,8 +36,7 @@ README is the short version.
 ```
 
 `al.css` is the whole library (tokens and every component, inside
-`@layer al`). Copy it from a tagged release. Once this repository is public,
-you can also link the raw file at a tag
+`@layer al`). Copy it from a tagged release, or link the raw file at a tag
 (`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.0/al.css`). Open
 `demo/index.html` to see every element, variant and state in both themes.
 
@@ -154,7 +153,7 @@ Notes:
   Measured with `test/colour.py`: `--input` light 3.95:1; `--border` light
   3.23:1 on the background; dark 3.14:1 on the background and 3.23:1 on
   `--card` (both tokens).
-- **View transitions.** the base layer opts every page into cross-document
+- **View transitions.** The base layer opts every page into cross-document
   view transitions (`@view-transition { navigation: auto }`), so a
   same-origin navigation cross-fades instead of flashing a blank frame
   (white, even in the dark theme). Browsers without them ignore it.
@@ -177,7 +176,8 @@ v0.4.0 is a breaking release: alder-ui now looks like shadcn/ui and uses its tok
    `--al-space-*`, `--al-text-*`, `--al-leading*`, `--al-weight-*`, `--al-control-h-*`,
    `--al-ring-*` to literal rem values or Tailwind-scale equivalents; `--al-*-soft` and
    `--al-*-border` have no replacement (alerts no longer use them). Only
-   `--al-width-narrow|normal|wide` survive. `grep -rn -e '--al-' static/ src/` finds them.
+   `--al-width-narrow|normal|wide` survive.
+   `grep -rn -e '--al-' static/ src/ | grep -v -e '--al-width-'` finds the rest.
 3. Dark mode: add the theme script to the `<head>` of your Layout, before the stylesheet
    link (the exact line is under "Light and dark" above). The CSS-only
    OS-dark block and `[data-theme="dark"]` are gone; `.dark` on `<html>` is the only switch.
@@ -218,8 +218,9 @@ python3 scripts/build.py       # rebuild al.css after editing tokens or componen
 
 Python 3 with the standard library only; no Node. The checks: the manifest
 keeps its published API; every selector names a declared element, attribute,
-value and slot, and everything declared is styled; no hard-coded colours,
-lengths or fonts in components; the light and dark token sets are complete;
+value and slot, and everything declared is styled; no hard-coded colours or
+font families in components, base or typography (lengths are literal, as in
+Tailwind); all motion sits under `prefers-reduced-motion: no-preference`; the light and dark token sets are complete;
 the contrast ratios computed from the token values pass AA; the demos use only
 declared attributes and slots and show every variant; `al.css` is up to date.
 CI runs `check.py` in its own job and the unit tests and parity in the `parity` job.
