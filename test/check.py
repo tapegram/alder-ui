@@ -25,7 +25,6 @@ Checks:
                lines; the interactive demos have a <!-- no-js --> section
   bundle       al.css and al.js equal scripts/build.py's output
 """
-import colorsys
 import html.parser
 import json
 import pathlib
@@ -34,7 +33,9 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
+sys.path.insert(0, str(ROOT / "test"))
 import build  # noqa: E402
+import colour  # noqa: E402
 
 FAILURES = []
 
@@ -81,6 +82,10 @@ ADDED = {
     "al-select": [("help", "string")],
     "al-checkbox": [("invalid", "boolean"), ("help", "string")],
 }
+# Additive growth since the API above (restyle): extra members appended to an
+# attribute's string union, and extra slots appended after the original ones.
+ADDED_VALUES = {}  # (tag, attribute) -> [value, ...]
+ADDED_SLOTS = {}  # tag -> [slot, ...]
 
 # Attributes the stylesheet deliberately does not draw: the framework copies
 # them onto the native control, or renders them as markup.
@@ -133,7 +138,7 @@ def load_manifest():
 
 
 def check_manifest(m, els):
-    if not re.fullmatch(r"v\d+\.\d+\.\d+", m.get("version", "")):
+    if not re.fullmatch(r"v\d+\.\d+\.\d+(-rc\.\d+)?", m.get("version", "")):
         fail("manifest", "version %r is not a tag like v0.1.0" % m.get("version"))
     if m.get("schemaVersion") != "1.0.0":
         fail("manifest", "schemaVersion must be 1.0.0")
@@ -149,10 +154,11 @@ def check_manifest(m, els):
         if not (ROOT / d["_path"]).exists():
             fail("manifest", "%s: %s missing" % (tag, d["_path"]))
         got = [(a["name"], a["type"]["text"]) for a in d.get("attributes", [])]
-        want = attrs + ADDED.get(tag, [])
+        want = [(n, t + "".join(' | "%s"' % v for v in ADDED_VALUES.get((tag, n), []))) for n, t in attrs]
+        want += ADDED.get(tag, [])
         if got != want:
             fail("manifest", "%s attributes %s, want %s" % (tag, got, want))
-        if [s["name"] for s in d.get("slots", [])] != slots:
+        if [s["name"] for s in d.get("slots", [])] != slots + ADDED_SLOTS.get(tag, []):
             fail("manifest", "%s slots changed" % tag)
         if not d.get("description"):
             fail("manifest", "%s has no description" % tag)
@@ -422,76 +428,6 @@ def load_tokens():
     return light, dark, media, common
 
 
-HSL = re.compile(r"hsl\(\s*([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\s*\)")
-
-
-def colour(expr, env):
-    """Evaluate a CSS colour to (r, g, b, alpha) in sRGB, 0..1. Understands
-    hsl(h s% l%), transparent, var(--x) (looked up in env) and
-    color-mix(in srgb, A [p%], B [q%])."""
-    expr = expr.strip()
-    m = re.fullmatch(r"var\((--[\w-]+)\)", expr)
-    if m:
-        if m.group(1) not in env:
-            raise ValueError("undefined %s" % m.group(1))
-        return colour(env[m.group(1)], env)
-    if expr == "transparent":
-        return (0.0, 0.0, 0.0, 0.0)
-    m = HSL.fullmatch(expr)
-    if m:
-        h, s, l = (float(x) for x in m.groups())
-        return colorsys.hls_to_rgb(h / 360, l / 100, s / 100) + (1.0,)
-    m = re.fullmatch(r"color-mix\((.*)\)", expr)
-    if m:
-        args = split_top(m.group(1))
-        if args[0].split() != ["in", "srgb"]:
-            raise ValueError("only color-mix in srgb: %r" % expr)
-        parts = []
-        for a in args[1:]:
-            pm = re.fullmatch(r"(.*?)\s+([\d.]+)%", a)
-            parts.append((pm.group(1), float(pm.group(2)) / 100) if pm else (a, None))
-        (c1, p1), (c2, p2) = parts
-        if p1 is None and p2 is None:
-            p1 = p2 = 0.5
-        elif p1 is None:
-            p1 = 1 - p2
-        elif p2 is None:
-            p2 = 1 - p1
-        total = p1 + p2
-        w1, w2 = p1 / total, p2 / total
-        a1, a2 = colour(c1, env), colour(c2, env)
-        alpha = a1[3] * w1 + a2[3] * w2
-        if alpha == 0:
-            return (0.0, 0.0, 0.0, 0.0)
-        rgb = tuple((a1[i] * a1[3] * w1 + a2[i] * a2[3] * w2) / alpha for i in range(3))
-        return rgb + (alpha * min(total, 1.0),)
-    raise ValueError("cannot evaluate colour %r" % expr)
-
-
-def over(top, bottom):
-    a = top[3]
-    return tuple(top[i] * a + bottom[i] * (1 - a) for i in range(3)) + (1.0,)
-
-
-def luminance_rgb(rgb):
-    lin = [c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in rgb[:3]]
-    return 0.2126 * lin[0] + 0.7152 * lin[1] + 0.0722 * lin[2]
-
-
-def ratio_rgb(a, b):
-    la, lb = luminance_rgb(a), luminance_rgb(b)
-    hi, lo = max(la, lb), min(la, lb)
-    return (hi + 0.05) / (lo + 0.05)
-
-
-def ratio(fg, bg, env):
-    """Contrast of fg on bg, both CSS colours; translucent colours are
-    composited over the theme's --background first."""
-    base = colour("var(--background)", env)
-    b = over(colour(bg, env), base)
-    return ratio_rgb(over(colour(fg, env), b), b)
-
-
 def button_pairs():
     """al-button's text/background pairs, derived from its CSS: for every
     variant (primary is the base rule) the text on the resting background and
@@ -564,7 +500,7 @@ def contrast_table(light, dark):
         row = [use, tok(fg), tok(bg), need]
         for theme, vals in (("light", light), ("dark", dark)):
             try:
-                r = ratio(tok(fg), tok(bg), vals)
+                r = colour.contrast(tok(fg), tok(bg), vals)
             except (KeyError, ValueError) as e:
                 fail("contrast", "%s (%s): %s" % (use, theme, e))
                 r = 0.0
