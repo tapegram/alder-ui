@@ -11,6 +11,7 @@ data-ref-states lists (hover, focus-visible). Prints a Markdown table per compon
 Then, for each gating component in CLOSE_CHECKS, opens and closes its overlay on a fresh
 twin page with motion on (light and dark) and checks it is display: none and takes no
 clicks once the exit transition has run (Review Focus 4).
+And for each in ANCHOR_CHECKS, opens it and checks it sits against its anchor.
 
 Markers (both pages):
   data-ref="<component>/<variant>/<state>"   the element whose computed style is read
@@ -502,6 +503,57 @@ def run_close_checks(browser, base, comps):
     return fails
 
 
+# An anchored overlay must sit against its anchor, not wherever position-area lands with
+# none (the viewport). Each entry: (component, label, selector, anchor selector, open js,
+# side). The overlay is opened with motion off on a fresh twin page and its rect is checked.
+ANCHOR_CHECKS = [
+    ("tooltip", "hover", "al-tooltip[for=parity-tooltip-trigger]", "#parity-tooltip-trigger",
+     "(el) => %s.dispatchEvent(new PointerEvent('pointerenter'))" % _TIP_TRIGGER, "above"),
+]
+ANCHOR_GAP_PX = 12  # the tooltip's 5px offset, with room; an unanchored one is far off
+
+RECT_JS = "(el) => { const r = el.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom] }"
+
+
+def anchor_problems(rect, anchor, side):
+    """What is wrong with an overlay's rect [left, top, right, bottom] against its anchor's:
+    it must be on `side` ("above"/"below") within ANCHOR_GAP_PX and centred on it (1px)."""
+    if rect[2] - rect[0] <= 0:
+        return ["has no size, so it did not open"]
+    gap = anchor[1] - rect[3] if side == "above" else rect[1] - anchor[3]
+    out = []
+    if not 0 <= gap <= ANCHOR_GAP_PX:
+        out.append("is %spx from the anchor's %s edge, not 0-%dpx %s it"
+                   % (round(gap, 1), "top" if side == "above" else "bottom", ANCHOR_GAP_PX, side))
+    off = (rect[0] + rect[2]) / 2 - (anchor[0] + anchor[2]) / 2
+    if abs(off) > 1:
+        out.append("is %spx off the anchor's centre" % round(off, 1))
+    return out
+
+
+def run_anchor_checks(browser, base, comps):
+    """Every ANCHOR_CHECKS entry whose component is in comps, light theme only (placement
+    does not depend on the theme). Returns failure lines."""
+    fails = []
+    for comp, label, selector, anchor_sel, open_js, side in ANCHOR_CHECKS:
+        if comp not in comps:
+            continue
+        page = browser.new_page(viewport=VIEWPORT, color_scheme="light")
+        try:
+            page.goto(base + TWIN_URL, wait_until="load")
+            page.wait_for_selector("html[data-ref-ready]", state="attached", timeout=20000)
+            page.add_style_tag(content=NO_MOTION)
+            el, anchor = page.query_selector(selector), page.query_selector(anchor_sel)
+            el.evaluate(open_js)
+            page.evaluate(SETTLE_JS)
+            probs = anchor_problems(el.evaluate(RECT_JS), anchor.evaluate(RECT_JS), side)
+        finally:
+            page.close()
+        fails.extend("%s %s %s: %s" % (comp, selector, label, p) for p in probs)
+        print("anchor: %s %s via %s: %s" % (comp, selector, label, "ok" if not probs else "FAIL"))
+    return fails
+
+
 def collect(ref, twin, allow, only):
     """Rows of (component, twin marker, theme, state, prop, ref value, twin value)."""
     rows, expects = [], []
@@ -730,7 +782,10 @@ def main(argv=None):
                 close_fails = run_close_checks(browser, base, gating)
                 for f in close_fails:
                     print("parity: FAIL close %s" % f)
-                if close_fails:
+                anchor_fails = run_anchor_checks(browser, base, gating)
+                for f in anchor_fails:
+                    print("parity: FAIL anchor %s" % f)
+                if close_fails or anchor_fails:
                     status = 1
                 if args.strict and allow["pending"]:
                     print("parity: --strict and pending is not empty: %s" % ", ".join(allow["pending"]))

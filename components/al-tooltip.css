@@ -13,11 +13,12 @@ al-tooltip:not(:popover-open) {
 /* TooltipContent: z-50 w-fit origin-(--radix-tooltip-content-transform-origin)
    rounded-md bg-foreground px-3 py-1.5 text-xs text-balance text-background
    (sideOffset={0}; Radix adds the arrow's 5px height to the offset, so the
-   margin is 5px). It sits below its trigger, or above when there is no room. */
+   margin is 5px). It sits above its trigger (shadcn's side="top"), or below
+   when there is no room. */
 al-tooltip {
   position: fixed;
   inset: auto;
-  position-area: block-end;
+  position-area: block-start;
   position-try-fallbacks: flip-block, flip-inline;
   container-type: anchored;
   z-index: 50;
@@ -32,7 +33,7 @@ al-tooltip {
   line-height: 1rem;
   text-wrap: balance;
   pointer-events: none;
-  transform-origin: top;
+  transform-origin: bottom;
 }
 
 /* TooltipArrow: z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45
@@ -41,7 +42,7 @@ al-tooltip {
 al-tooltip::after {
   content: "";
   position: absolute;
-  inset-block-start: -3px;
+  inset-block-end: -3px;
   inset-inline-start: calc(50% - 5px);
   z-index: 50;
   inline-size: 10px;
@@ -51,15 +52,17 @@ al-tooltip::after {
   rotate: 45deg;
 }
 
-/* Flipped above the trigger: the arrow moves to the bottom edge. */
+/* Flipped below the trigger: the arrow moves to the top edge. */
 @container anchored(fallback: flip-block) {
   al-tooltip::after {
-    inset-block: auto -3px;
+    inset-block: -3px auto;
   }
 }
 
-/* animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2
-   data-[state=closed]:animate-out fade-out-0 zoom-out-95 */
+/* animate-in fade-in-0 zoom-in-95 data-[side=top]:slide-in-from-bottom-2
+   data-[state=closed]:animate-out fade-out-0 zoom-out-95   (a container
+   query cannot restyle the tooltip itself, so a flipped tooltip slides the
+   same way) */
 @media (prefers-reduced-motion: no-preference) {
   al-tooltip {
     transition-property: opacity, scale, translate, display, overlay;
@@ -71,14 +74,14 @@ al-tooltip::after {
   al-tooltip:not(:popover-open) {
     opacity: 0;
     scale: 0.95;
-    translate: 0 -0.5rem;
+    translate: 0 0.5rem;
   }
 
   @starting-style {
     al-tooltip:popover-open {
       opacity: 0;
       scale: 0.95;
-      translate: 0 -0.5rem;
+      translate: 0 0.5rem;
     }
   }
 }

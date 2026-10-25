@@ -141,6 +141,23 @@ class CloseChecksTest(unittest.TestCase):
         self.assertIn("light dismiss", self.labels("popover"))
         self.assertTrue(any(c[5] for c in parity.CLOSE_CHECKS if c[0] == "popover"), "no shim run")
 
+class AnchorVerdictTest(unittest.TestCase):
+    """anchor_problems: an overlay must sit against its anchor (R21: al-tooltip above)."""
+    TRIGGER = [275, 982, 347, 1018]
+
+    def test_above_and_centred(self):
+        self.assertEqual(parity.anchor_problems([268, 949, 354, 977], self.TRIGGER, "above"), [])
+
+    def test_unanchored_at_the_viewport_corner(self):
+        self.assertEqual(len(parity.anchor_problems([5, 5, 90, 33], self.TRIGGER, "above")), 2)
+
+    def test_wrong_side(self):
+        self.assertEqual(len(parity.anchor_problems([268, 1023, 354, 1051], self.TRIGGER, "above")), 1)
+        self.assertEqual(parity.anchor_problems([268, 1023, 354, 1051], self.TRIGGER, "below"), [])
+
+    def test_not_open(self):
+        self.assertEqual(len(parity.anchor_problems([0, 0, 0, 0], self.TRIGGER, "above")), 1)
+
 class ReportTest(unittest.TestCase):
     def test_expect_only_component_rows_are_printed(self):
         # A data-expect row whose component has no data-ref marker (stack, page) still
