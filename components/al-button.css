@@ -18,9 +18,9 @@ al-button {
   --_al-fg: var(--primary-foreground);
   --_al-border: var(--primary);
   --_al-hover: color-mix(in srgb, var(--primary) 90%, var(--primary-foreground));
-  --_al-h: var(--al-control-h-md);
-  --_al-px: var(--al-space-4);
-  --_al-text: var(--al-text-sm);
+  --_al-h: 2.25rem;
+  --_al-px: 1rem;
+  --_al-text: 0.875rem;
 }
 
 al-button[variant="secondary"] {
@@ -46,25 +46,25 @@ al-button[variant="ghost"] {
 
 al-button[variant="destructive"] {
   --_al-bg: var(--destructive);
-  --_al-fg: var(--destructive-foreground);
+  --_al-fg: var(--color-white);
   --_al-border: var(--destructive);
   --_al-hover: color-mix(in srgb, var(--destructive) 90%, var(--foreground));
 }
 
 al-button[size="sm"] {
-  --_al-h: var(--al-control-h-sm);
-  --_al-px: var(--al-space-3);
+  --_al-h: 2rem;
+  --_al-px: 0.75rem;
 }
 
 al-button[size="md"] {
-  --_al-h: var(--al-control-h-md);
-  --_al-px: var(--al-space-4);
+  --_al-h: 2.25rem;
+  --_al-px: 1rem;
 }
 
 al-button[size="lg"] {
-  --_al-h: var(--al-control-h-lg);
-  --_al-px: var(--al-space-8);
-  --_al-text: var(--al-text-base);
+  --_al-h: 2.5rem;
+  --_al-px: 2rem;
+  --_al-text: 1rem;
 }
 
 al-button,
@@ -73,24 +73,24 @@ al-button > :is(button, a) {
   inline-size: fit-content;
   align-items: center;
   justify-content: center;
-  gap: var(--al-space-2);
+  gap: 0.5rem;
   box-sizing: border-box;
   min-height: var(--_al-h);
   margin: 0;
   padding: 0 var(--_al-px);
-  border: var(--al-border-width) solid var(--_al-border);
+  border: 1px solid var(--_al-border);
   border-radius: var(--radius);
   background: var(--_al-bg);
   color: var(--_al-fg);
-  font-family: var(--al-font-sans);
+  font-family: var(--font-sans);
   font-size: var(--_al-text);
-  font-weight: var(--al-weight-medium);
-  line-height: var(--al-leading-tight);
+  font-weight: 500;
+  line-height: 1.25;
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
   user-select: none;
-  transition: background-color var(--al-duration);
+  transition: background-color 150ms;
 }
 
 al-button > :is(button, a) {
@@ -117,14 +117,14 @@ al-button > :is(button, a):hover {
 
 al-button:focus-visible,
 al-button > :is(button, a):focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 al-button[disabled],
 al-button[disabled] > :is(button, a),
 al-button > button:disabled {
-  opacity: var(--al-disabled-opacity);
+  opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
 }

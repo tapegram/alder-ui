@@ -9,41 +9,41 @@
 al-toast {
   display: block;
   inline-size: calc(var(--al-width-narrow) / 2);
-  max-inline-size: calc(100dvw - var(--al-space-8));
-  padding: var(--al-space-3) var(--al-space-4);
-  border: var(--al-border-width) solid var(--al-info-border);
+  max-inline-size: calc(100dvw - 2rem);
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: var(--al-info-soft);
-  color: var(--al-info-soft-foreground);
-  box-shadow: var(--al-shadow-sm);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
-  line-height: var(--al-leading);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 al-toast[variant="success"] {
-  border-color: var(--al-success-border);
-  background: var(--al-success-soft);
-  color: var(--al-success-soft-foreground);
+  border-color: var(--border);
+  background: var(--popover);
+  color: var(--popover-foreground);
 }
 
 al-toast[variant="warning"] {
-  border-color: var(--al-warning-border);
-  background: var(--al-warning-soft);
-  color: var(--al-warning-soft-foreground);
+  border-color: var(--border);
+  background: var(--popover);
+  color: var(--popover-foreground);
 }
 
 al-toast[variant="destructive"] {
-  border-color: var(--al-destructive-border);
-  background: var(--al-destructive-soft);
-  color: var(--al-destructive-soft-foreground);
+  border-color: var(--border);
+  background: var(--popover);
+  color: var(--destructive);
 }
 
 al-toasts {
   position: fixed;
   inset: auto;
-  inset-block-end: var(--al-space-4);
-  inset-inline-end: var(--al-space-4);
+  inset-block-end: 1rem;
+  inset-inline-end: 1rem;
   display: none;
   margin: 0;
   padding: 0;
@@ -55,18 +55,18 @@ al-toasts {
 al-toasts:popover-open {
   display: flex;
   flex-direction: column;
-  gap: var(--al-space-2);
+  gap: 0.5rem;
 }
 
 al-toasts[position="top-left"] {
-  inset-block: var(--al-space-4) auto;
-  inset-inline: var(--al-space-4) auto;
+  inset-block: 1rem auto;
+  inset-inline: 1rem auto;
 }
 
 al-toasts[position="top-right"] {
-  inset-block: var(--al-space-4) auto;
+  inset-block: 1rem auto;
 }
 
 al-toasts[position="bottom-left"] {
-  inset-inline: var(--al-space-4) auto;
+  inset-inline: 1rem auto;
 }

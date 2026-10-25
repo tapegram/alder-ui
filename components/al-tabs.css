@@ -12,10 +12,10 @@ al-tabs {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  border-bottom: var(--al-border-width) solid var(--border);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
-  line-height: var(--al-leading);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 al-tabs > al-tab {
@@ -25,10 +25,10 @@ al-tabs > al-tab {
 al-tabs > al-tab > label {
   order: 1;
   position: relative;
-  padding: var(--al-space-2) var(--al-space-4);
-  border-bottom: var(--al-ring-width) solid transparent;
+  padding: 0.5rem 1rem;
+  border-bottom: 2px solid transparent;
   color: var(--muted-foreground);
-  font-weight: var(--al-weight-medium);
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -48,15 +48,15 @@ al-tabs > al-tab > label:has(> input:checked) {
 }
 
 al-tabs > al-tab > label:has(> input:focus-visible) {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: calc(var(--al-ring-width) * -1);
+  outline: none;
+  box-shadow: inset 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 al-tabs > al-tab > al-panel {
   display: none;
   order: 2;
   flex-basis: 100%;
-  padding: var(--al-space-4) 0;
+  padding: 1rem 0;
   color: var(--foreground);
 }
 
@@ -75,20 +75,20 @@ al-tabs > [role="tablist"] {
   flex-basis: 100%;
   align-items: flex-end;
   order: 1;
-  border-bottom: var(--al-border-width) solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 al-tabs > [role="tablist"] > [role="tab"] {
   margin: 0;
-  padding: var(--al-space-2) var(--al-space-4);
+  padding: 0.5rem 1rem;
   border: 0;
-  border-bottom: var(--al-ring-width) solid transparent;
+  border-bottom: 2px solid transparent;
   border-radius: 0;
   background: transparent;
   color: var(--muted-foreground);
   font-family: inherit;
   font-size: inherit;
-  font-weight: var(--al-weight-medium);
+  font-weight: 500;
   line-height: inherit;
   cursor: pointer;
 }
@@ -103,6 +103,6 @@ al-tabs > [role="tablist"] > [role="tab"][aria-selected="true"] {
 }
 
 al-tabs > [role="tablist"] > [role="tab"]:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: calc(var(--al-ring-width) * -1);
+  outline: none;
+  box-shadow: inset 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }

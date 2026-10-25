@@ -11,13 +11,16 @@ Checks:
                slot (and every class is al- prefixed, or one of the classes
                Alder renders: errors, help, _alder-click); every element, attribute,
                value and slot in the manifest is styled
-  tokens-only  no hard-coded colours, lengths or fonts in components/; every
-               var(--x) is defined
-  tokens       shadcn's names exist in light and dark; the two dark blocks agree
-  contrast     WCAG AA for each text pairing (4.5:1) and control edge (3:1),
-               light and dark, computed from tokens.css; al-button's pairs
-               (resting and hover, color-mix evaluated in sRGB) are derived
-               from its CSS
+  tokens-only  no literal colour and no literal font-family in components/,
+               base.css, typography.css; every var(--x) is defined
+  tokens       tokens.css has shadcn's names (Ref section 1) in light and
+               dark, --radius 0.625rem, .dark/.light only (no data-theme, no
+               media query); --al-width-* are the only --al- tokens left
+  contrast     WCAG AA for each text pairing the components draw (4.5:1,
+               a failure; a verbatim shadcn gap in SPEC_GAPS is a WARN) and
+               each border and ring (3:1, a WARN only), light and dark,
+               computed from tokens.css; al-button's pairs (resting and
+               hover) are derived from its CSS
   demos        each page links ../al.css, uses only declared attributes, values
                and slots, shows every variant/size/state of its element;
                index.html links every page
@@ -38,6 +41,7 @@ import build  # noqa: E402
 import colour  # noqa: E402
 
 FAILURES = []
+WARNINGS = []
 
 
 def fail(section, msg):
@@ -374,18 +378,22 @@ def check_scripts(m):
 
 COLOUR_FUNCS = re.compile(r"\b(rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\(", re.I)
 HEX = re.compile(r"#[0-9a-fA-F]{3,8}\b")
-LENGTH = re.compile(r"(?<![\w-])-?\d*\.?\d+(px|rem|em|pt|vh|vw|ch|ex|%)\b")
 NAMED = {"white", "black", "red", "green", "blue", "gray", "grey", "silver", "yellow", "orange",
          "purple", "navy", "teal", "maroon", "olive", "lime", "aqua", "fuchsia", "pink", "brown"}
-TYPE_PROPS = {"font-size", "font-family", "font-weight", "line-height"}
 
 
 def check_tokens_only(defined):
-    for p in sorted((ROOT / "components").glob("*.css")):
+    """No literal colour and no literal font-family in the styling files
+    (lengths, font sizes, weights and line heights are fine); every var(--x)
+    is defined by tokens.css or by one of the files."""
+    files = styled_files()
+    declared = set()
+    for p in files:
+        declared |= set(re.findall(r"(--[\w-]+)\s*:", strip_strings(strip_comments(p.read_text()))))
+    for p in files:
         css = strip_strings(strip_comments(p.read_text()))
-        local = set(re.findall(r"(--[\w-]+)\s*:", css))
         for name in re.findall(r"var\((--[\w-]+)", css):
-            if name not in defined and name not in local:
+            if name not in defined and name not in declared:
                 fail("tokens-only", "%s uses undefined %s" % (p.name, name))
         for head, body in rules(p.read_text()):
             for decl in body.split(";"):
@@ -395,21 +403,24 @@ def check_tokens_only(defined):
                 val = strip_strings(val)
                 if HEX.search(val) or COLOUR_FUNCS.search(val):
                     fail("tokens-only", "%s: %s { %s: %s } hard-codes a colour" % (p.name, head, prop, val))
-                if set(re.findall(r"[a-z]+", val.lower())) & NAMED:
+                if set(re.findall(r"[a-z]+", re.sub(r"--[\w-]+", "", val).lower())) & NAMED:
                     fail("tokens-only", "%s: %s { %s: %s } uses a named colour" % (p.name, head, prop, val))
-                bare = re.sub(r"color-mix\([^)]*\)", "", val)
-                if LENGTH.search(bare) and not (prop == "width" and val == "100%"):
-                    fail("tokens-only", "%s: %s { %s: %s } hard-codes a length" % (p.name, head, prop, val))
-                if prop in TYPE_PROPS and not (val.startswith("var(") or val == "inherit"):
+                if prop == "font-family" and not (val.startswith("var(") or val == "inherit"):
                     fail("tokens-only", "%s: %s { %s: %s } must use a token" % (p.name, head, prop, val))
 
 
 # ---------------------------------------------------------------- tokens + contrast
 
+# Ref §1's names (the shadcn token sheet), plus --destructive-foreground.
 SHADCN = ["background", "foreground", "card", "card-foreground", "popover", "popover-foreground",
           "primary", "primary-foreground", "secondary", "secondary-foreground", "muted",
           "muted-foreground", "accent", "accent-foreground", "destructive",
-          "destructive-foreground", "border", "input", "ring"]
+          "destructive-foreground", "border", "input", "ring",
+          "chart-1", "chart-2", "chart-3", "chart-4", "chart-5",
+          "sidebar", "sidebar-foreground", "sidebar-primary", "sidebar-primary-foreground",
+          "sidebar-accent", "sidebar-accent-foreground", "sidebar-border", "sidebar-ring"]
+# The only alder-ui tokens left: the page widths.
+AL_TOKENS = {"--al-width-narrow", "--al-width-normal", "--al-width-wide"}
 
 
 def decls(body):
@@ -417,15 +428,23 @@ def decls(body):
 
 
 def load_tokens():
+    """tokens.css's three blocks: light (":root, .light"), dark (".dark") and
+    the theme-independent ":root"."""
     css = strip_comments((ROOT / "tokens.css").read_text())
     blocks = {}
     for head, body in rules(css):
         blocks.setdefault(" ".join(head.split()), {}).update(decls(body))
-    light = blocks.get(':root, [data-theme="light"]', {})
-    dark = blocks.get('[data-theme="dark"]', {})
-    media = blocks.get(':root:not([data-theme="light"])', {})
+    light = blocks.get(":root, .light", {})
+    dark = blocks.get(".dark", {})
     common = blocks.get(":root", {})
-    return light, dark, media, common
+    return light, dark, common
+
+
+def styled_files():
+    """The CSS files that style (rather than define tokens): components/*.css,
+    and base.css and typography.css once they exist."""
+    out = [ROOT / n for n in ("base.css", "typography.css") if (ROOT / n).exists()]
+    return out + sorted((ROOT / "components").glob("*.css"))
 
 
 def button_pairs():
@@ -451,28 +470,43 @@ def button_pairs():
     return out
 
 
-# (where it is used, foreground token, background token, minimum)
+# (where it is used, foreground token, background token, minimum): only the
+# pairings the components draw. 4.5 is text (a failure below it); 3.0 is a
+# border or ring (a WARN below it, never a failure).
+RING_50 = "color-mix(in oklab, var(--ring) 50%, transparent)"
 PAIRS = [
-    ("body text", "foreground", "background", 4.5),
-    ("al-card", "card-foreground", "card", 4.5),
+    ("body text, tabs, outline badge, fields", "foreground", "background", 4.5),
+    ("al-card, al-alert, al-devpanel", "card-foreground", "card", 4.5),
     ("al-badge default", "primary-foreground", "primary", 4.5),
     ("al-badge secondary", "secondary-foreground", "secondary", 4.5),
-    ("al-badge outline", "foreground", "background", 4.5),
-    ("al-badge destructive", "destructive-foreground", "destructive", 4.5),
-    ("al-pagination link hover", "accent-foreground", "accent", 4.5),
-    ("help, placeholder, th, card footer, page N of M", "muted-foreground", "background", 4.5),
-    ("muted text on card", "muted-foreground", "card", 4.5),
+    ("al-badge destructive", "--color-white", "destructive", 4.5),
+    ("accent hover (pagination, menu, devpanel, dialog close)", "accent-foreground", "accent", 4.5),
+    ("help, placeholder, th, caption, tabs, page N of M", "muted-foreground", "background", 4.5),
+    ("muted text on card (card footer, devpanel tabs)", "muted-foreground", "card", 4.5),
     ("al-table striped row", "foreground", "muted", 4.5),
-    ("ul.errors", "--al-destructive-text", "background", 4.5),
-    ("al-alert info", "--al-info-soft-foreground", "--al-info-soft", 4.5),
-    ("al-alert success", "--al-success-soft-foreground", "--al-success-soft", 4.5),
-    ("al-alert warning", "--al-warning-soft-foreground", "--al-warning-soft", 4.5),
-    ("al-alert destructive", "--al-destructive-soft-foreground", "--al-destructive-soft", 4.5),
-    ("popover", "popover-foreground", "popover", 4.5),
+    ("ul.errors", "destructive", "background", 4.5),
+    ("al-alert destructive", "destructive", "card", 4.5),
+    ("popover, al-menu, al-dialog", "popover-foreground", "popover", 4.5),
+    ("al-toast", "popover-foreground", "popover", 4.5),
+    ("al-toast destructive", "destructive", "popover", 4.5),
+    ("al-tooltip", "background", "foreground", 4.5),
     ("field border (non-text)", "input", "background", 3.0),
-    ("focus ring (non-text)", "ring", "background", 3.0),
-    ("invalid border (non-text)", "--al-destructive-text", "background", 3.0),
+    ("focus ring (non-text)", RING_50, "background", 3.0),
+    ("invalid border (non-text)", "destructive", "background", 3.0),
 ]
+
+SPEC_GAP_REASON = "verbatim shadcn token; spec \u00a74.2 fidelity"
+# Text pairings below 4.5 that come from shadcn's verbatim tokens: kept for
+# fidelity (spec section 4.2) and printed as WARN, not failed (ruling R7).
+# Keyed (use, theme).
+# White on dark --destructive (oklch(0.704 0.191 22.216)) is 2.9:1; shadcn
+# draws the button and badge on bg-destructive/60 in dark, which the
+# restyles of al-button (Task 8) and al-badge bring, so drop these then.
+SPEC_GAPS = {
+    ("al-button destructive", "dark"): SPEC_GAP_REASON,
+    ("al-button destructive hover", "dark"): SPEC_GAP_REASON,
+    ("al-badge destructive", "dark"): SPEC_GAP_REASON,
+}
 
 
 def tok(name):
@@ -481,33 +515,61 @@ def tok(name):
     return "var(%s)" % (name if name.startswith("--") else "--" + name)
 
 
-def check_tokens(light, dark, media, common):
+def check_tokens(light, dark, common):
     for theme, vals in (("light", light), ("dark", dark)):
         for n in SHADCN:
             if "--" + n not in vals:
                 fail("tokens", "%s theme lacks --%s" % (theme, n))
-    if "--radius" not in common:
-        fail("tokens", "--radius is not defined")
-    if media != dark:
-        fail("tokens", "the prefers-color-scheme dark block differs from [data-theme=\"dark\"]")
-    if set(light) != set(dark):
-        fail("tokens", "light and dark define different tokens: %s" % sorted(set(light) ^ set(dark)))
+    if light.get("--radius", "").strip() != "0.625rem":
+        fail("tokens", "--radius is %r in the light block, not 0.625rem" % light.get("--radius"))
+    if set(light) - {"--radius"} != set(dark):
+        fail("tokens", "light and dark define different tokens: %s"
+             % sorted((set(light) - {"--radius"}) ^ set(dark)))
+    raw = (ROOT / "tokens.css").read_text()
+    for banned in ("[data-theme", "prefers-color-scheme"):
+        if banned in raw:
+            fail("tokens", "tokens.css mentions %s (themes are .dark and .light only)" % banned)
+    for name in sorted(set(light) | set(dark) | set(common)):
+        if name.startswith("--al-") and name not in AL_TOKENS:
+            fail("tokens", "tokens.css defines %s (only %s survive)" % (name, ", ".join(sorted(AL_TOKENS))))
+    for p in styled_files():
+        css = strip_comments(p.read_text())
+        for name in sorted(set(re.findall(r"(--al-[\w-]+)\s*:", css))):
+            if name not in AL_TOKENS:
+                fail("tokens", "%s defines %s (only %s survive)" % (p.name, name, ", ".join(sorted(AL_TOKENS))))
+        for name in sorted(set(re.findall(r"var\((--al-[\w-]+)", css))):
+            if name not in AL_TOKENS:
+                fail("tokens", "%s uses removed token %s" % (p.name, name))
 
 
-def contrast_table(light, dark):
+def theme_envs(light, dark, common):
+    """The custom properties in force on a light page and on a .dark page."""
+    return (("light", {**common, **light}), ("dark", {**common, **light, **dark}))
+
+
+def contrast_table(light, dark, common):
     rows = []
     for use, fg, bg, need in button_pairs() + PAIRS:
         row = [use, tok(fg), tok(bg), need]
-        for theme, vals in (("light", light), ("dark", dark)):
+        for theme, vals in theme_envs(light, dark, common):
             try:
                 r = colour.contrast(tok(fg), tok(bg), vals)
             except (KeyError, ValueError) as e:
                 fail("contrast", "%s (%s): %s" % (use, theme, e))
                 r = 0.0
             if r < need:
-                fail("contrast", "%s in %s: %s on %s is %.2f:1, needs %.1f:1" % (use, theme, tok(fg), tok(bg), r, need))
+                msg = "%s in %s: %s on %s is %.2f:1, needs %.1f:1" % (use, theme, tok(fg), tok(bg), r, need)
+                if need < 4.5:
+                    WARNINGS.append("contrast: %s (non-text)" % msg)
+                elif (use, theme) in SPEC_GAPS:
+                    WARNINGS.append("contrast: %s (%s)" % (msg, SPEC_GAPS[(use, theme)]))
+                else:
+                    fail("contrast", msg)
             row.append(r)
         rows.append(row)
+    for use, theme in sorted(SPEC_GAPS):
+        if not any(r[0] == use for r in rows):
+            fail("contrast", "SPEC_GAPS names %r, which is not a pairing" % use)
     return rows
 
 
@@ -678,11 +740,11 @@ def main(argv):
     m, els = load_manifest()
     check_manifest(m, els)
     check_css(els)
-    light, dark, media, common = load_tokens()
+    light, dark, common = load_tokens()
     defined = set(light) | set(dark) | set(common)
     check_tokens_only(defined)
-    check_tokens(light, dark, media, common)
-    rows = contrast_table(light, dark)
+    check_tokens(light, dark, common)
+    rows = contrast_table(light, dark, common)
     check_demos(els)
     check_dialog_shape()
     check_tabs_nojs()
@@ -693,6 +755,8 @@ def main(argv):
         print("|---|---|---|---|---|---|")
         for use, fg, bg, need, lr, dr in rows:
             print("| %s | `%s` | `%s` | %.1f | %.2f | %.2f |" % (use, fg, bg, need, lr, dr))
+    for w in WARNINGS:
+        print("WARN", w)
     if FAILURES:
         for f in FAILURES:
             print("FAIL", f)

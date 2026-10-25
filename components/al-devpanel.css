@@ -11,26 +11,26 @@ al-devpanel {
   display: block;
   position: sticky;
   inset-block-end: 0;
-  border-top: var(--al-border-width) solid var(--border);
+  border-top: 1px solid var(--border);
   background: var(--card);
   color: var(--card-foreground);
-  font-family: var(--al-font-mono);
-  font-size: var(--al-text-xs);
-  line-height: var(--al-leading);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
 }
 
 al-devpanel > nav {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--al-space-1);
-  padding: var(--al-space-1) var(--al-space-2);
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
 }
 
 al-devpanel > nav > button {
   margin: 0;
-  padding: var(--al-space-1) var(--al-space-2);
+  padding: 0.25rem 0.5rem;
   border: 0;
-  border-radius: var(--al-radius-sm);
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--muted-foreground);
   font-family: inherit;
@@ -45,15 +45,15 @@ al-devpanel > nav > button[aria-selected="true"] {
 }
 
 al-devpanel > nav > button:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 al-devpanel > section {
   display: none;
   max-block-size: 50dvh;
-  padding: var(--al-space-2) var(--al-space-4);
-  border-top: var(--al-border-width) solid var(--border);
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--border);
   overflow: auto;
 }
 
@@ -63,10 +63,10 @@ al-devpanel[open] > section:not([hidden]) {
 
 al-devpanel pre,
 al-devpanel code {
-  font-family: var(--al-font-mono);
+  font-family: var(--font-mono);
   white-space: pre-wrap;
 }
 
 al-devpanel pre {
-  margin: var(--al-space-2) 0;
+  margin: 0.5rem 0;
 }

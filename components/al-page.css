@@ -6,7 +6,7 @@ al-page {
   width: 100%;
   max-width: var(--al-width-normal);
   margin-inline: auto;
-  padding: var(--al-space-8) var(--al-space-4);
+  padding: 2rem 1rem;
 }
 
 al-page[width="narrow"] {

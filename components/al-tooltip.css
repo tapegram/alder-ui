@@ -15,15 +15,15 @@ al-tooltip {
   inset: auto;
   position-area: block-end;
   position-try-fallbacks: flip-block, flip-inline;
-  margin: var(--al-space-1);
-  padding: var(--al-space-1) var(--al-space-2);
+  margin: 0.25rem;
+  padding: 0.25rem 0.5rem;
   border: 0;
-  border-radius: var(--al-radius-sm);
+  border-radius: var(--radius-sm);
   background: var(--foreground);
   color: var(--background);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-xs);
-  line-height: var(--al-leading-tight);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.25;
   max-inline-size: calc(var(--al-width-narrow) / 2);
   pointer-events: none;
 }

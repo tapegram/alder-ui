@@ -14,9 +14,9 @@ al-pagination {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--al-space-4);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
+  gap: 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
   color: var(--foreground);
 }
 
@@ -47,13 +47,13 @@ al-pagination > [slot="next"] {
   display: inline-flex;
   align-items: center;
   box-sizing: border-box;
-  min-height: var(--al-control-h-sm);
-  padding: 0 var(--al-space-3);
-  border: var(--al-border-width) solid var(--input);
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--input);
   border-radius: var(--radius);
   background: var(--background);
   color: var(--foreground);
-  font-weight: var(--al-weight-medium);
+  font-weight: 500;
   text-decoration: none;
 }
 
@@ -63,11 +63,11 @@ al-pagination > a[slot]:hover {
 }
 
 al-pagination > a[slot]:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 al-pagination > [slot][aria-disabled="true"] {
-  opacity: var(--al-disabled-opacity);
+  opacity: 0.5;
   pointer-events: none;
 }
