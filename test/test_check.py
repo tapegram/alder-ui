@@ -57,9 +57,9 @@ class ManifestTest(unittest.TestCase):
     def test_union_growth_allowed(self):
         for a in self.els["al-button"]["attributes"]:
             if a["name"] == "variant":
-                a["type"]["text"] += ' | "link"'
+                a["type"]["text"] += ' | "brand"'
         self.assertTrue(self.manifest_failures())
-        check.ADDED_VALUES[("al-button", "variant")] = ["link"]
+        check.ADDED_VALUES[("al-button", "variant")] = ["link", "brand"]
         self.assertEqual(self.manifest_failures(), [])
 
     def test_slot_growth_allowed(self):
