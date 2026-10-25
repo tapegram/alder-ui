@@ -83,6 +83,23 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 </al-stack>
 </section>
 
+<section>
+<h2>In a form and a column</h2>
+<p>A button keeps its natural width in a grid form or a column stack. Add <code>full</code> for a full-width button.</p>
+<form id="grid-form" action="#">
+  <al-button id="g-bare">Bare</al-button>
+  <al-button id="g-button"><button type="submit">Save</button></al-button>
+  <al-button id="g-link" variant="outline"><a href="#">Cancel</a></al-button>
+  <al-button id="g-icon" size="icon" variant="outline"><button type="button" aria-label="Add"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button></al-button>
+  <al-button id="g-full" full><button type="submit">Full width</button></al-button>
+</form>
+<al-stack id="col-stack">
+  <al-button id="c-bare">Bare</al-button>
+  <al-button id="c-button"><button type="button">Save</button></al-button>
+  <al-button id="c-full" full><button type="button">Full width</button></al-button>
+</al-stack>
+</section>
+
 </al-stack>
 </al-page>
 </body>

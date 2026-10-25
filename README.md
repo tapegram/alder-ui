@@ -50,7 +50,7 @@ declares each one with its type, default and description.
 
 | element | attributes | slots |
 |---|---|---|
-| `al-button` | `variant` (`primary` default, `secondary`, `outline`, `ghost`, `destructive`, `link`), `size` (`xs`, `sm`, `md` default, `lg`, `icon`, `icon-sm`, `icon-lg`), `disabled`, `type` (`button`, `submit`) | default |
+| `al-button` | `variant` (`primary` default, `secondary`, `outline`, `ghost`, `destructive`, `link`), `size` (`xs`, `sm`, `md` default, `lg`, `icon`, `icon-sm`, `icon-lg`), `disabled`, `type` (`button`, `submit`), `full` | default |
 | `al-input` | `label`, `placeholder`, `disabled`, `invalid`, `help` | |
 | `al-textarea` | `label`, `placeholder`, `disabled`, `invalid`, `help` | |
 | `al-select` | `label`, `disabled`, `invalid`, `help` | |
@@ -82,7 +82,8 @@ Notes:
   a button. The element alone (`<al-button>Save</al-button>`) is
   presentational: it looks like a button but has no role, focus or
   Enter/Space handling, so use it only from a framework that supplies them.
-  Buttons and badges keep their own width inside a column `al-stack`.
+  A button keeps its natural width in a grid form or a column `al-stack`;
+  add `full` for a full-width button.
   The native form is styled through `al-button:has(> button)`, so it needs a
   browser with `:has()` (Baseline 2023: Chrome and Edge 105, Safari 15.4,
   Firefox 121); an older browser draws the element's look around the
