@@ -15,6 +15,7 @@
   sizes xs / icon-sm -> sm, icon-lg -> lg); alert and toast variants alder-ui has and shadcn
   lacks are mapped to shadcn's default in test/parity-allow.json.
 -->
+<script>try{document.documentElement.classList.toggle("dark",localStorage.theme==="dark"||(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches))}catch(e){}</script>
 <link rel="stylesheet" href="../al.css">
 <script type="module" src="../al.js"></script>
 <script>

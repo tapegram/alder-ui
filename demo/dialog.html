@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>al-dialog</title>
+<script>try{document.documentElement.classList.toggle("dark",localStorage.theme==="dark"||(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches))}catch(e){}</script>
 <link rel="stylesheet" href="../al.css">
 <script>
-function toggleTheme() { var r = document.documentElement, dark = r.dataset.theme ? r.dataset.theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches; r.dataset.theme = dark ? "light" : "dark"; }
+function toggleTheme(){var d=document.documentElement.classList.toggle("dark");try{localStorage.theme=d?"dark":"light"}catch(e){}}
 </script>
 <script type="module" src="../al.js"></script>
 </head>

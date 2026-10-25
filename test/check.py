@@ -689,9 +689,19 @@ def INTERACTIVE_DEMO(tag):
     return tag in ("al-dialog", "al-popover", "al-menu", "al-tabs", "al-toast", "al-tooltip", "al-devpanel")
 
 
+THEME_SCRIPT = ('<script>try{document.documentElement.classList.toggle("dark",localStorage.theme==="dark"||'
+                '(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches))}catch(e){}</script>')
+
+
 def check_demos(els):
     pages = {}
     for p in sorted((ROOT / "demo").glob("*.html")):
+        text = p.read_text()
+        link = text.find('href="../al.css"')
+        if THEME_SCRIPT not in text or link < 0 or text.find(THEME_SCRIPT) > link:
+            fail("demos", "demo/%s lacks the theme script line before ../al.css" % p.name)
+        if "data-theme" in text or "dataset.theme" in text:
+            fail("demos", "demo/%s uses data-theme" % p.name)
         d = Demo()
         d.feed(p.read_text())
         d.close()

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "version": "v0.3.3",
+  "version": "v0.4.0-rc.1",
   "modules": [
     {
       "kind": "javascript-module",
