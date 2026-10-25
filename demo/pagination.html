@@ -52,6 +52,19 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 </al-pagination>
 </section>
 
+<section>
+<h2>Page links (the default slot)</h2>
+<p>Unslotted links are square buttons; <code>aria-current="page"</code> outlines the current one.</p>
+<al-pagination role="navigation" aria-label="Pagination">
+  <a slot="prev" href="?page=1">Previous</a>
+  <a href="?page=1">1</a>
+  <a href="?page=2" aria-current="page">2</a>
+  <a href="?page=3">3</a>
+  <span aria-hidden="true">&hellip;</span>
+  <a slot="next" href="?page=3">Next</a>
+</al-pagination>
+</section>
+
 </al-stack>
 </al-page>
 </body>
