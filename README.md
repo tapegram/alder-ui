@@ -37,10 +37,29 @@ README is the short version.
 
 `al.css` is the whole library (tokens and every component, inside
 `@layer al`). Copy it from a tagged release, or link the raw file at a tag
-(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.1/al.css`). See every
+(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.2/al.css`). See every
 element, variant and state in both themes at
 <https://tapegram.github.io/alder-ui/> (the root `index.html`, built from the
 demos), or one element per page in `demo/`.
+
+## Spacing
+
+Elements have no outer margin, as in shadcn. Space siblings with
+`al-stack` (`sm` 0.5rem, `md` 1rem, `lg` 1.5rem, `xl` 2.5rem). An app's
+Layout wraps page content in `<al-stack gap="lg">`; inside `al-page`,
+prose keeps shadcn's Typography rhythm.
+
+### Upgrading to v0.4.2
+
+`al-button` no longer stretches in grids or column stacks, so add `full`
+where you relied on a full-width button. Put the Layout's page content in
+`<al-stack gap="lg">`:
+
+```html
+<al-page …><main><al-stack gap="lg">{children}</al-stack></main></al-page>
+```
+
+(any `<header>` outside `<main>` is left alone).
 
 ## Elements
 
@@ -60,7 +79,7 @@ declares each one with its type, default and description.
 | `al-badge` | `variant` (`default` default, `secondary`, `outline`, `destructive`) | default |
 | `al-alert` | `variant` (`info` default, `success`, `warning`, `destructive`), `heading`, `dismissible` | default |
 | `al-pagination` | `page`, `pages` | `prev`, default, `next` |
-| `al-dialog` | `heading`, `size` (`sm`, `md` default, `lg`), `dismissible` | `header`, default, `actions`, `description` |
+| `al-dialog` | `heading`, `size` (`sm`, `md` default, `lg`, `xl`), `dismissible` | `header`, default, `actions`, `description` |
 | `al-popover` | `placement` (`top`, `bottom` default, `left`, `right`), `offset` (`sm` default, `md`, `lg`), `anchor` (an id; needs `al.js`, without it the invoker is the anchor) | default |
 | `al-menu` | `anchor` (an id; needs `al.js`, without it the invoker is the anchor) | default (links or buttons) |
 | `al-tabs` | `variant` (`default`, `line`) | default (`al-tab`s) |

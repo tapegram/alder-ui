@@ -284,5 +284,26 @@ class DetailListTest(unittest.TestCase):
         self.assertEqual(r, ["block", "16px"])
 
 
+@unittest.skipIf(sync_playwright is None, "playwright is not installed")
+class StackTest(unittest.TestCase):
+    """al-stack gaps, and children that draw nothing add no gap."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.page = open_page("stack.html")
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.page.close()
+
+    def test_gap_xl(self):
+        gap = self.page.eval_on_selector("#xl-stack", "e => getComputedStyle(e).rowGap")
+        self.assertEqual(gap, "40px")
+
+    def test_hidden_children_add_no_gap(self):
+        one, two = box(self.page, "#ps-1"), box(self.page, "#ps-2")
+        self.assertAlmostEqual(two["y"] - (one["y"] + one["height"]), 24, delta=TOL)
+
+
 if __name__ == "__main__":
     unittest.main()

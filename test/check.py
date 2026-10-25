@@ -96,6 +96,7 @@ ADDED = {
 ADDED_VALUES = {  # (tag, attribute) -> [value, ...]
     ("al-button", "variant"): ["link"],
     ("al-button", "size"): ["xs", "icon", "icon-sm", "icon-lg"],
+    ("al-stack", "gap"): ["xl"],
 }
 ADDED_SLOTS = {"al-card": ["description", "action"], "al-dialog": ["description"]}  # tag -> [slot, ...]
 

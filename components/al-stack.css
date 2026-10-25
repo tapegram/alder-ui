@@ -33,6 +33,11 @@ al-stack[gap="lg"] {
   gap: 1.5rem;
 }
 
+/* gap-10 */
+al-stack[gap="xl"] {
+  gap: 2.5rem;
+}
+
 /* The gap alone spaces a stack's children: typography's flow margins (p and
  * whatever follows a heading or p get mt-6, h2 mt-10, ul/ol my-6) would add to
  * it. (0,0,1), and after typography.css in the bundle, so it beats those rules

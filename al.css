@@ -1,4 +1,4 @@
-/*! alder-ui v0.4.1 | Apache-2.0 | https://github.com/tapegram/alder-ui
+/*! alder-ui v0.4.2 | Apache-2.0 | https://github.com/tapegram/alder-ui
  * Built by scripts/build.py from tokens.css, base.css, typography.css and components/;
  * do not edit. Geist and Geist Mono (SIL OFL 1.1) load from fonts/ beside this file. */
 
@@ -2596,6 +2596,11 @@ al-stack[gap="md"] {
 /* gap-6 */
 al-stack[gap="lg"] {
   gap: 1.5rem;
+}
+
+/* gap-10 */
+al-stack[gap="xl"] {
+  gap: 2.5rem;
 }
 
 /* The gap alone spaces a stack's children: typography's flow margins (p and

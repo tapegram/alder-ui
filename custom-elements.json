@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "version": "v0.4.1",
+  "version": "v0.4.2",
   "modules": [
     {
       "kind": "javascript-module",
@@ -464,9 +464,9 @@
             {
               "name": "gap",
               "type": {
-                "text": "\"sm\" | \"md\" | \"lg\""
+                "text": "\"sm\" | \"md\" | \"lg\" | \"xl\""
               },
-              "description": "The space between the children: `sm`, `md` or `lg`.",
+              "description": "The space between the children: `sm`, `md`, `lg` or `xl`.",
               "default": "\"md\""
             },
             {
