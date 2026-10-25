@@ -101,6 +101,14 @@ al-dialog > dialog > [slot="header"] {
   text-align: center;
 }
 
+/* DialogClose is absolute at the top-end corner, so a long title would run under
+   it: a dismissible dialog keeps the title's inline end clear of the button.
+   The button's inner edge is 0.5rem inside the content box (right-4 against
+   p-6), so 1rem leaves a 0.5rem gap. A divergence from shadcn, #15. */
+al-dialog[dismissible] > dialog > [slot="header"] {
+  padding-inline-end: 1rem;
+}
+
 /* DialogDescription: text-sm text-muted-foreground   (the -0.5rem top margin
    turns the grid's gap-4 into DialogHeader's gap-2; it applies only when the
    description directly follows the header in source order, below) */

@@ -201,3 +201,12 @@ al-select ul.errors > li {
 al-select ul.errors:empty {
   display: none;
 }
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-select select:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 0;
+  }
+}

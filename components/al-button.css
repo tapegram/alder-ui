@@ -278,3 +278,13 @@ al-button:has(> :is(button, a))[disabled] {
 form._alder-click {
   display: contents;
 }
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-button:not(:has(> :is(button, a))):focus-visible,
+  al-button > :is(button, a):focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+}

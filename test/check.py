@@ -398,6 +398,27 @@ def unguarded_motion(css):
     return out
 
 
+FOCUS_HEAD = re.compile(r":focus(?:-visible)?\b")
+OUTLINE_NONE = re.compile(r"(?:^|[;{\s])outline(?:-style)?\s*:\s*(?:none\b|[^;]*\snone\b)")
+
+
+def unguarded_focus(css):
+    """True when a :focus or :focus-visible rule sets outline to none (outline: none,
+    outline-style: none, or outline: <w> none ...) and css has no @media (forced-colors:
+    active) block. Forced colors drops box-shadow rings, so the outline is the only
+    indicator left (#15)."""
+    css = strip_comments(css)
+    if re.search(r"@media[^{]*forced-colors\s*:\s*active", css):
+        return False
+    return any(FOCUS_HEAD.search(head) and OUTLINE_NONE.search(body) for head, body in rules(css))
+
+
+def check_focus():
+    for p in styled_files():
+        if unguarded_focus(p.read_text()):
+            fail("css", "%s: a focus rule sets outline: none and the file has no @media (forced-colors: active) block" % p.name)
+
+
 def check_motion():
     for p in styled_files():
         for sel in unguarded_motion(p.read_text()):
@@ -626,9 +647,14 @@ PAIRS = [
     ("al-menu destructive item", "destructive", "popover", 4.5),
     ("al-tooltip", "background", "foreground", 4.5),
     ("field border (non-text)", "input", "background", 3.0),
+    ("menu keyboard focus outline (non-text)", "muted-foreground", "popover", 3.0),
     ("focus ring (non-text)", RING_50, "background", 3.0),
     ("invalid border (non-text)", "destructive", "background", 3.0),
 ]
+
+# Non-text pairings that fail the run (rather than WARN) when below their ratio: the
+# indicator is the only focus cue left in normal mode (#15, D4).
+NON_TEXT_FAIL = {"menu keyboard focus outline (non-text)"}
 
 SPEC_GAP_REASON = "verbatim shadcn token; spec \u00a74.2 fidelity"
 # Text pairings below 4.5 that come from shadcn's verbatim tokens: kept for
@@ -691,7 +717,7 @@ def contrast_table(light, dark, common):
                 r = 0.0
             if r < need:
                 msg = "%s in %s: %s on %s is %.2f:1, needs %.1f:1" % (use, theme, fg_t, bg_t, r, need)
-                if need < 4.5:
+                if need < 4.5 and use not in NON_TEXT_FAIL:
                     WARNINGS.append("contrast: %s (non-text)" % msg)
                 elif (use, theme) in SPEC_GAPS:
                     WARNINGS.append("contrast: %s (%s)" % (msg, SPEC_GAPS[(use, theme)]))
@@ -886,6 +912,7 @@ def main(argv):
     check_css(els)
     check_typography_weight()
     check_motion()
+    check_focus()
     light, dark, common = load_tokens()
     defined = set(light) | set(dark) | set(common)
     check_tokens_only(defined)

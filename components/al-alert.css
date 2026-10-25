@@ -235,3 +235,12 @@ al-alert:not([heading]):has(> ul.errors:empty) {
 al-alert > ul.errors:empty {
   display: none;
 }
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-alert > .al-alert-dismiss:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+}

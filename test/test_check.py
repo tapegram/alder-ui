@@ -84,5 +84,17 @@ class MotionTest(unittest.TestCase):
         self.assertEqual(check.unguarded_motion(css), ["a", "e::after"])
 
 
+class FocusGuardTest(unittest.TestCase):
+    def test_unguarded_focus(self):
+        rule = "a:focus-visible{outline:none}"
+        self.assertTrue(check.unguarded_focus(rule))
+        self.assertFalse(check.unguarded_focus(rule + "@media (forced-colors: active){a:focus-visible{outline:2px solid CanvasText}}"))
+        self.assertTrue(check.unguarded_focus("a:focus{outline-style:none}"))
+        self.assertTrue(check.unguarded_focus("a:focus-visible{outline:1px none red}"))
+        self.assertFalse(check.unguarded_focus("a:focus-visible{outline:1px solid red}"))
+        self.assertFalse(check.unguarded_focus("a:hover{outline:none}"))
+        self.assertFalse(check.unguarded_focus("/* a:focus{outline:none} */ a{color:red}"))
+
+
 if __name__ == "__main__":
     unittest.main()

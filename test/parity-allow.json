@@ -35,6 +35,9 @@
     {"ref": "tooltip/arrow/open", "prop": "box-*", "reason": "structural: the twin's arrow is the tooltip's ::after, which has no bounding box the harness can read; its 10px width and height, radius and colour are compared and match (the ref's 14.14px box is the rotated 10px svg's bounds)"},
     {"ref": "toast/*", "prop": "padding", "reason": "structural (fix round 1): al-toast is block flow so a one-line message can mix text and inline elements; the icon is an absolute ::before in a 39px start padding (16 - 3 + 16 + 4 + 6, sonner's icon margins and gap), so the text sits where sonner's does"},
     {"ref": "toast/*", "prop": "gap", "reason": "structural (fix round 1): block flow has no gap; sonner's 6px icon gap is in the 39px start padding and its 2px [data-content] gap is the description's top margin (box sizes match)"},
-    {"ref": "toast/*", "prop": "font-family", "reason": "standing (R5): sonner sets its own system font stack on the toaster; alder-ui forbids literal font families in components, so al-toast inherits Geist"}
+    {"ref": "toast/*", "prop": "font-family", "reason": "standing (R5): sonner sets its own system font stack on the toaster; alder-ui forbids literal font families in components, so al-toast inherits Geist"},
+    {"ref": "menu/item/open", "prop": "outline", "reason": "a11y #15: keyboard focus draws a 2px solid muted-foreground outline (offset -2px) so the focused item is not only a faint fill; shadcn computes 1px none. Hover keeps outline-style none"},
+    {"ref": "menu/item-destructive/open", "prop": "outline", "reason": "a11y #15: same as menu/item/open, the focused destructive item draws the 2px outline too"},
+    {"ref": "dialog/title/open", "prop": "padding", "reason": "a11y #15: a dismissible dialog's title keeps 1rem of padding-inline-end so a long title wraps before the close button (shadcn's title has none and runs under it)"}
   ]
 }

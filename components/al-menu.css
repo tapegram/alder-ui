@@ -93,6 +93,15 @@ al-menu > :is(a, button):is(:hover, :focus-visible) {
   outline-width: 1px;
 }
 
+/* Keyboard focus also draws an outline, which hover does not (a divergence from
+   shadcn, #15): the accent fill alone is too faint to find the focused item
+   (muted-foreground on popover is checked at 3:1 by test/check.py). The negative
+   offset keeps it inside the popover's clipped edge. Forced colors recolour it. */
+al-menu > :is(a, button):focus-visible {
+  outline: 2px solid var(--muted-foreground);
+  outline-offset: -2px;
+}
+
 /* data-[variant=destructive]:text-destructive
    data-[variant=destructive]:*:[svg]:text-destructive! */
 al-menu > [data-variant="destructive"],

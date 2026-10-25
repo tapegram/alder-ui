@@ -933,6 +933,16 @@ form._alder-click {
   display: contents;
 }
 
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-button:not(:has(> :is(button, a))):focus-visible,
+  al-button > :is(button, a):focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+}
+
 /* ---- components/al-input.css ---- */
 
 /*
@@ -1099,6 +1109,15 @@ al-input ul.errors > li {
    without a list). */
 al-input ul.errors:empty {
   display: none;
+}
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-input input:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 0;
+  }
 }
 
 /* ---- components/al-textarea.css ---- */
@@ -1269,6 +1288,15 @@ al-textarea ul.errors > li {
    without a list). */
 al-textarea ul.errors:empty {
   display: none;
+}
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-textarea textarea:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 0;
+  }
 }
 
 /* ---- components/al-select.css ---- */
@@ -1477,6 +1505,15 @@ al-select ul.errors:empty {
   display: none;
 }
 
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-select select:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 0;
+  }
+}
+
 /* ---- components/al-checkbox.css ---- */
 
 /*
@@ -1665,6 +1702,15 @@ al-checkbox ul.errors > li {
 /* An empty list takes no room (display: none). */
 al-checkbox ul.errors:empty {
   display: none;
+}
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-checkbox input[type="checkbox"]:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 0;
+  }
 }
 
 /* ---- components/al-table.css ---- */
@@ -2014,6 +2060,15 @@ al-badge > a:focus-visible {
   outline: none;
 }
 
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-badge > a:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+}
+
 /* ---- components/al-alert.css ---- */
 
 /*
@@ -2254,6 +2309,15 @@ al-alert > ul.errors:empty {
   display: none;
 }
 
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-alert > .al-alert-dismiss:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+}
+
 /* ---- components/al-pagination.css ---- */
 
 /*
@@ -2452,6 +2516,15 @@ al-pagination > [slot][aria-disabled="true"] {
   pointer-events: none;
 }
 
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-pagination > a:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+}
+
 /* ---- components/al-stack.css ---- */
 
 /* al-stack: children in a column (default) or a wrapping row, with a gap. */
@@ -2642,6 +2715,14 @@ al-dialog > dialog > [slot="header"] {
   line-height: 1;
   letter-spacing: normal;
   text-align: center;
+}
+
+/* DialogClose is absolute at the top-end corner, so a long title would run under
+   it: a dismissible dialog keeps the title's inline end clear of the button.
+   The button's inner edge is 0.5rem inside the content box (right-4 against
+   p-6), so 1rem leaves a 0.5rem gap. A divergence from shadcn, #15. */
+al-dialog[dismissible] > dialog > [slot="header"] {
+  padding-inline-end: 1rem;
 }
 
 /* DialogDescription: text-sm text-muted-foreground   (the -0.5rem top margin
@@ -3013,6 +3094,15 @@ al-menu > :is(a, button):is(:hover, :focus-visible) {
   outline-width: 1px;
 }
 
+/* Keyboard focus also draws an outline, which hover does not (a divergence from
+   shadcn, #15): the accent fill alone is too faint to find the focused item
+   (muted-foreground on popover is checked at 3:1 by test/check.py). The negative
+   offset keeps it inside the popover's clipped edge. Forced colors recolour it. */
+al-menu > :is(a, button):focus-visible {
+  outline: 2px solid var(--muted-foreground);
+  outline-offset: -2px;
+}
+
 /* data-[variant=destructive]:text-destructive
    data-[variant=destructive]:*:[svg]:text-destructive! */
 al-menu > [data-variant="destructive"],
@@ -3313,6 +3403,16 @@ al-tabs[variant="line"] > al-tab > label:has(> input:checked)::after {
 al-tabs > al-tab > label:has(> input:focus-visible) {
   outline: none;
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+}
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-tabs > [role="tablist"] > [role="tab"]:focus-visible,
+  al-tabs > al-tab > label:has(> input:focus-visible) {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
 }
 
 /* ---- components/al-toast.css ---- */
@@ -3682,6 +3782,15 @@ al-devpanel code {
 
 al-devpanel pre {
   margin: 0.5rem 0;
+}
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-devpanel > nav > button:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
 }
 
 }

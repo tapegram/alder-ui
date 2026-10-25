@@ -200,6 +200,30 @@ class LayoutColourTest(unittest.TestCase):
         self.assertEqual(y, "0px")
         self.assertAlmostEqual(float(x[:-2]), got["width"], delta=1.0)
 
+    def title_gap(self, rtl):
+        page = self.browser.new_page(viewport={"width": 600, "height": 800})
+        try:
+            page.goto(self.url, wait_until="load")
+            page.evaluate("(rtl) => { if (rtl) document.documentElement.dir = 'rtl';"
+                          " document.getElementById('parity-dialog-heading').textContent = 'long title '.repeat(18);"
+                          " document.getElementById('parity-dialog').showModal() }", rtl)
+            return page.evaluate("""() => {
+                const h = document.getElementById('parity-dialog-heading');
+                const r = document.createRange(); r.selectNodeContents(h);
+                const t = r.getBoundingClientRect();
+                const c = document.querySelector('#parity-dialog > form button').getBoundingClientRect();
+                return { tl: t.left, tr: t.right, cl: c.left, cr: c.right, pad: getComputedStyle(h).paddingInlineEnd };
+            }""")
+        finally:
+            page.close()
+
+    def test_dialog_title_clears_close(self):
+        # #15: a long title wraps before the close button instead of running under it
+        g = self.title_gap(False)
+        self.assertLessEqual(g["tr"], g["cl"], g)
+        g = self.title_gap(True)
+        self.assertGreaterEqual(g["tl"], g["cr"], g)
+
 
 if __name__ == "__main__":
     unittest.main()
