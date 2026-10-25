@@ -18,7 +18,7 @@
               "type": {
                 "text": "\"primary\" | \"secondary\" | \"outline\" | \"ghost\" | \"destructive\" | \"link\""
               },
-              "description": "The button's look: `primary` (filled), `secondary` (soft), `outline` (bordered), `ghost` (no border until hover) or `destructive` (for deleting) or `link` (text with an underline on hover).",
+              "description": "The button's look: `primary` (filled), `secondary` (soft), `outline` (bordered), `ghost` (no border until hover), `destructive` (for deleting) or `link` (text with an underline on hover).",
               "default": "\"primary\""
             },
             {
@@ -371,7 +371,7 @@
               "type": {
                 "text": "\"info\" | \"success\" | \"warning\" | \"destructive\""
               },
-              "description": "The alert's kind, which sets its colours: `info`, `success`, `warning` or `destructive`.",
+              "description": "The alert's kind, which sets its icon: `info`, `success`, `warning` or `destructive` (which also tints the text). The surface is the same for all four.",
               "default": "\"info\""
             },
             {
@@ -753,7 +753,7 @@
               "type": {
                 "text": "\"info\" | \"success\" | \"warning\" | \"destructive\""
               },
-              "description": "The toast's look, like al-alert's.",
+              "description": "The toast's icon: `info`, `success`, `warning` or `destructive`. Without the attribute no icon is drawn (like sonner's plain toast); write `variant=\"info\"` for the info icon. The surface and text are the same for all.",
               "default": "\"info\""
             },
             {
