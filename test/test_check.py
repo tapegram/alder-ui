@@ -118,7 +118,19 @@ class SelectorTest(unittest.TestCase):
         # nested functional pseudos: [foo] belongs to td / .x, not to the al- element around them
         self.assertEqual(self.failures("al-card:has(al-button:is(td[foo]))", "al-card"), [])
         self.assertEqual(self.failures(":is(al-card:not(td[foo]))", "al-card"), [])
-        self.assertEqual(self.failures("al-card:is(al-button:not(.x[foo]), b)", "al-card"), [])
+        self.assertEqual(self.failures("al-card:is(td:not(.x[foo]), b)", "al-card"), [])
+        # ...but :not(.x[foo]) on an al- element is that element's attribute
+        self.assertTrue(self.failures("al-card:is(al-button:not(.x[foo]), b)", "al-card"))
+
+    def test_attr_only_compound_in_not(self):
+        self.assertTrue(self.failures(":where(al-page:not([nonesuch]))", "al-page"))
+        self.assertTrue(self.failures("al-card:not([nonesuch])", "al-card"))
+        self.assertEqual(self.failures("al-card:has([nonesuch])", "al-card"), [])
+        seen = set()
+        check.FAILURES.clear()
+        check.check_selector(":where(al-page:not([plain]))", self.els, "al-page", seen)
+        self.assertEqual(check.FAILURES, [])
+        self.assertIn(("al-page", "attr", "plain"), seen)
 
     def test_attr_goes_to_own_compound(self):
         self.assertTrue(self.failures("al-card[nonesuch]", "al-card"))

@@ -271,7 +271,7 @@ ALDER_CLASSES = {"errors", "help", "_alder-click"}
 
 def split_pseudos(comp):
     """A compound -> (bare, args): the compound with every :pseudo(...) removed
-    (parentheses balanced), and the arguments of :has/:not/:is/:where."""
+    (parentheses balanced), and the (name, argument) of each :has/:not/:is/:where."""
     bare, args, i = "", [], 0
     while i < len(comp):
         m = re.compile(r":{1,2}([\w-]+)\(").match(comp, i)
@@ -284,7 +284,7 @@ def split_pseudos(comp):
             depth += {"(": 1, ")": -1}.get(comp[j], 0)
             j += 1
         if m.group(1) in ("has", "not", "is", "where"):
-            args.append(comp[m.end():j - 1])
+            args.append((m.group(1), comp[m.end():j - 1]))
         i = j
     return bare, args
 
@@ -297,11 +297,11 @@ def check_selector(sel, els, file_tag, seen):
     last = None
     for comp in compounds(sel):
         bare, inner = split_pseudos(comp)
-        for sub in inner:
-            for s in split_top(sub):
-                check_selector_inner(s, els, last, seen)
         m = re.match(r"([a-zA-Z][\w-]*)", bare)
         tag = m.group(1) if m else None
+        for fn, sub in inner:
+            for s in split_top(sub):
+                check_selector_inner(s, els, last, seen, tag if fn != "has" else None)
         if tag and tag.startswith("al-"):
             if tag not in els:
                 fail("css", "%s.css: unknown element <%s> in %r" % (file_tag, tag, sel))
@@ -317,20 +317,24 @@ def check_selector(sel, els, file_tag, seen):
                 check_slot(last, val, els, sel, file_tag, seen)
 
 
-def check_selector_inner(sel, els, parent, seen):
-    for comp in compounds(sel):
+def check_selector_inner(sel, els, parent, seen, host=None):
+    """host: the al- tag of the compound that owns this :not/:is/:where argument (same
+    element), so an attribute-only leading compound belongs to it. :has() passes None."""
+    for i, comp in enumerate(compounds(sel)):
         bare, inner = split_pseudos(comp)
         m = re.match(r"(al-[\w-]+)", bare)
+        owner = m.group(1) if m else (host if i == 0 and re.match(r"[.\[:]|$", bare) else None)
         for name, op, val in ATTR_RE.findall(bare):
             if name == "slot" and val and parent:
                 check_slot(parent, val, els, sel, parent, seen)
-            elif m and m.group(1) in els and name != "slot":
+            elif owner and owner in els and name != "slot":
                 # an al- element inside :where()/:not()/:is()/:has(), e.g.
                 # typography.css's :where(al-page:not([plain]))
-                check_attr(m.group(1), name, op, val, els, sel, m.group(1), seen)
-        for sub in inner:
+                check_attr(owner, name, op, val, els, sel, owner, seen)
+        for fn, sub in inner:
             for s in split_top(sub):
-                check_selector_inner(s, els, m.group(1) if m and m.group(1) in els else parent, seen)
+                check_selector_inner(s, els, owner if owner in els else parent, seen,
+                                     owner if fn != "has" else None)
 
 
 def check_attr(tag, name, op, val, els, sel, file_tag, seen):
