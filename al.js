@@ -208,10 +208,13 @@ customElements.get("al-devpanel") || customElements.define("al-devpanel", class 
 // after `timeout` ms (default 5000; 0 keeps it) and hides an empty region.
 // close() sets data-closing, lets the exit transition run (al-toast.css) and
 // then removes the toast; with no transition running (reduced motion, or the
-// toast not shown) it removes it at once. Fires al-close on the region when a
-// toast closes. Load with <script type="module">.
+// toast not shown) it removes it at once. A toast re-inserted while closing
+// (a morph) starts afresh. Fires al-close on the region when a toast closes.
+// Load with <script type="module">.
 customElements.get("al-toast") || customElements.define("al-toast", class extends HTMLElement {
   connectedCallback() {
+    this.closing = null;
+    this.removeAttribute("data-closing");
     this.hasAttribute("role") || this.setAttribute("role", "status");
     const region = this.closest("al-toasts");
     if (region && region.hasAttribute("popover") && !region.matches(":popover-open")) region.showPopover();
@@ -223,19 +226,21 @@ customElements.get("al-toast") || customElements.define("al-toast", class extend
   }
   close() {
     if (this.closing) return;
-    this.closing = true;
+    const token = this.closing = {};
     clearTimeout(this.timer);
     this.setAttribute("data-closing", "");
     const region = this.closest("al-toasts");
     const done = () => {
+      if (this.closing !== token) return; // re-inserted meanwhile: it lives on
       this.remove();
       if (!region) return;
       region.dispatchEvent(new CustomEvent("al-close", { bubbles: true, detail: { toast: this } }));
       if (!region.querySelector("al-toast") && region.matches(":popover-open")) region.hidePopover();
     };
     // getAnimations() flushes style, so the exit transition (if any) has started;
-    // a cancelled one (the toast hidden or removed meanwhile) settles too.
-    const running = this.getAnimations().map((a) => a.finished);
+    // a cancelled one (the toast hidden or removed meanwhile) settles too. Only
+    // transitions end by themselves: an app's infinite animation must not block.
+    const running = this.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.finished);
     running.length ? Promise.allSettled(running).then(done) : done();
   }
 });

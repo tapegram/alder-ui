@@ -28,6 +28,7 @@ Twin-only:
                                              against the twin's own computed style (for
                                              things shadcn lacks); its component is the
                                              nearest al-* ancestor-or-self, less "al-"
+  data-expect-before="prop:value; ..."       the same, against the element's ::before
 
 test/parity-allow.json:
   pending   components reported but not gating (every one, until its restyle lands)
@@ -254,20 +255,23 @@ READ_JS = """([props, fixed, only]) => {
 EXPECT_JS = """() => {
   const out = [];
   const seen = {};
-  for (const el of document.querySelectorAll('[data-expect]:not([data-ref])')) {
+  for (const el of document.querySelectorAll('[data-expect]:not([data-ref]), [data-expect-before]:not([data-ref])')) {
     let host = el;
     while (host && !host.localName.startsWith('al-')) host = host.parentElement;
     const comp = host ? host.localName.slice(3) : 'page';
     const n = seen[comp] = (seen[comp] || 0) + 1;
-    const want = {};
-    for (const decl of el.getAttribute('data-expect').split(';')) {
-      const i = decl.indexOf(':');
-      if (i > 0) want[decl.slice(0, i).trim()] = decl.slice(i + 1).trim();
+    for (const [attr, pseudo] of [['data-expect', null], ['data-expect-before', '::before']]) {
+      if (!el.hasAttribute(attr)) continue;
+      const want = {};
+      for (const decl of el.getAttribute(attr).split(';')) {
+        const i = decl.indexOf(':');
+        if (i > 0) want[decl.slice(0, i).trim()] = decl.slice(i + 1).trim();
+      }
+      const cs = getComputedStyle(el, pseudo);
+      const got = {};
+      for (const p of Object.keys(want)) got[p] = cs.getPropertyValue(p);
+      out.push([comp + '/expect/' + el.localName + '-' + n + (pseudo || ''), want, got]);
     }
-    const cs = getComputedStyle(el);
-    const got = {};
-    for (const p of Object.keys(want)) got[p] = cs.getPropertyValue(p);
-    out.push([comp + '/expect/' + el.localName + '-' + n, want, got]);
   }
   return out;
 }"""
@@ -408,6 +412,8 @@ _SHOW_POPOVER = "(el) => el.showPopover()"
 _INVOKE = "(el) => document.querySelector('[commandfor=\"' + el.id + '\"][command=\"%s\"]').click()"
 _POPOVERTARGET = "(el) => document.querySelector('[popovertarget=\"' + el.id + '\"]').click()"
 _TIP_TRIGGER = "document.getElementById(el.getAttribute('for'))"
+_ADD_TOAST = ("(el) => { const t = document.createElement('al-toast'); t.setAttribute('timeout', '100');"
+              " t.textContent = 'Timed toast'; el.appendChild(t); %s return t }")
 CLOSE_CHECKS = [
     ("dialog", "close()", "#parity-dialog", _SHOW_MODAL, "(el) => el.close()", False),
     ("dialog", "close button", "#parity-dialog", _SHOW_MODAL,
@@ -425,9 +431,11 @@ CLOSE_CHECKS = [
     ("tooltip", "pointerleave", "al-tooltip[for=parity-tooltip-trigger]",
      "(el) => %s.dispatchEvent(new PointerEvent('pointerenter'))" % _TIP_TRIGGER,
      "(el) => %s.dispatchEvent(new PointerEvent('pointerleave'))" % _TIP_TRIGGER, False),
-    ("toast", "timeout", "#parity-toasts-timeout",
-     "(el) => { const t = document.createElement('al-toast'); t.setAttribute('timeout', '100');"
-     " t.textContent = 'Timed toast'; return el.appendChild(t) }", 100, False),
+    ("toast", "timeout", "#parity-toasts-timeout", _ADD_TOAST % "", 100, False),
+    # An app's infinite animation on the toast must not hold up its removal (R24).
+    ("toast", "timeout, infinite animation", "#parity-toasts-timeout",
+     _ADD_TOAST % "t.animate([{ outlineColor: 'red' }, { outlineColor: 'blue' }], { duration: 1000, iterations: Infinity });",
+     100, False),
 ]
 CLOSE_WAIT_MS = 300  # longer than the 200ms dialog / 150ms overlay exit transitions
 

@@ -258,6 +258,10 @@ window.addEventListener("load", function () {
     <al-toast variant="info" timeout="0" data-ref="toast/info/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
     <al-toast variant="warning" timeout="0" data-ref="toast/warning/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
     <al-toast variant="destructive" timeout="0" data-ref="toast/destructive/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
+    <!-- twin-only: a one-line message that mixes text and an inline element stays one
+         line and is all title; with no variant there is no icon, variant="info" has one -->
+    <al-toast timeout="0" data-expect="font-weight: 500; padding-left: 16px" data-expect-before="content: none">Saved <code data-expect="display: inline">post.md</code></al-toast>
+    <al-toast variant="info" timeout="0" data-expect="padding-left: 39px" data-expect-before="content: &quot;&quot;">Saved</al-toast>
   </al-toasts>
   <!-- the timeout close check (test/parity.py CLOSE_CHECKS) adds a toast here -->
   <al-toasts popover="manual" position="top-right" id="parity-toasts-timeout" data-expect="top: 24px; right: 24px; flex-direction: column-reverse"></al-toasts>

@@ -3004,10 +3004,14 @@ al-tabs > [role="tablist"] > [role="tab"]:focus-visible {
  * stays hidden: render the message as an al-alert in the page instead.
  *
  * The look is sonner's under shadcn's Toaster: the popover surface, a border
- * and the variant's icon (info, circle-check, triangle-alert, octagon-x),
- * drawn as an ::before. No tinted backgrounds and no tinted text. The first
- * child is the title and the rest the description; a toast that is only text
- * is all title.
+ * and, with a variant, its icon (info, circle-check, triangle-alert,
+ * octagon-x) drawn as an absolute ::before in the start padding; with no
+ * variant attribute there is no icon, like sonner's plain toast(). No tinted
+ * backgrounds and no tinted text. The toast is block flow, so a one-line
+ * message may mix text and inline elements ("Saved <code>post.md</code>").
+ * A message with no block child is all title; with blocks (div, p, ul, ol),
+ * the text or strong/heading before them is the title and the blocks are
+ * the description.
  */
 
 /* [data-sonner-toast]: width var(--width) 356px; padding 16px; gap 6px;
@@ -3016,15 +3020,12 @@ al-tabs > [role="tablist"] > [role="tab"]:focus-visible {
    color var(--normal-text); box-shadow 0 4px 12px rgb(0 0 0 / .1);
    font-size 13px; outline 0   (the Toaster's --normal-bg, --normal-text,
    --normal-border and --border-radius are var(--popover),
-   var(--popover-foreground), var(--border) and var(--radius)). A grid here,
-   so the title and description stack beside the icon without the
-   [data-content] wrapper sonner adds. */
+   var(--popover-foreground), var(--border) and var(--radius)). Block flow
+   here, not flex: sonner wraps title and description in [data-content] and
+   Alder emits no wrapper. */
 al-toast {
-  --_al-icon: var(--_al-icon-info);
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 6px;
+  display: block;
+  position: relative;
   box-sizing: border-box;
   inline-size: 356px;
   max-inline-size: calc(100dvw - 48px);
@@ -3042,20 +3043,23 @@ al-toast {
 }
 
 /* [data-icon]: size-4 (the Toaster's icons); margin-left -3px;
-   margin-right 4px; the icon is centred on the title and description */
-al-toast::before {
-  content: "";
-  grid-column: 1;
-  grid-row: 1;
-  width: 1rem;
-  height: 1rem;
-  margin-inline: -3px 4px;
-  background: currentColor;
-  mask: var(--_al-icon) center / contain no-repeat;
+   margin-right 4px; then the 6px gap: the text starts 16 - 3 + 16 + 4 + 6
+   = 39px in, and the icon is centred on the title and description */
+al-toast[variant] {
+  --_al-icon: var(--_al-icon-info);
+  padding-inline-start: 39px;
 }
 
-al-toast:has(> * + *)::before {
-  grid-row: 1 / span 2;
+al-toast[variant]::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 13px;
+  inset-block-start: 50%;
+  width: 1rem;
+  height: 1rem;
+  translate: 0 -50%;
+  background: currentColor;
+  mask: var(--_al-icon) center / contain no-repeat;
 }
 
 al-toast[variant="success"] {
@@ -3073,7 +3077,6 @@ al-toast[variant="destructive"] {
 
 /* headings, paragraphs and lists inside reset to the toast's own recipe */
 al-toast > * {
-  grid-column: 2;
   margin: 0;
   padding: 0;
   border-width: 0;
@@ -3081,22 +3084,29 @@ al-toast > * {
   letter-spacing: normal;
 }
 
-/* [data-title]: font-weight 500; line-height 1.5; color inherit */
-al-toast > :first-child,
-al-toast:not(:has(> *)) {
+/* [data-title]: font-weight 500; line-height 1.5; color inherit   (a message
+   with no description block is all title) */
+al-toast:not(:has(> :is(div, p, ul, ol))),
+al-toast > :is(strong, b, h1, h2, h3, h4, h5, h6) {
   font-weight: 500;
   line-height: 1.5;
 }
 
 /* [data-description]: font-weight 400; line-height 1.4; opacity .8 on the
-   toast's colour (sonner's literal #3f3f3f is not a token). [data-content]
-   is a flex column with gap 2px; here the rows share the toast's 6px gap, so
-   the description pulls up 4px. */
-al-toast > * + * {
-  margin-block-start: -4px;
+   toast's colour (sonner's literal #3f3f3f is not a token); [data-content]'s
+   gap 2px is the top margin */
+al-toast > :is(div, p, ul, ol) {
   font-weight: 400;
   line-height: 1.4;
   opacity: 0.8;
+}
+
+al-toast > :is(div, p, ul, ol):not(:first-child) {
+  margin-block-start: 2px;
+}
+
+al-toast > :is(ul, ol) {
+  list-style: none;
 }
 
 /* [data-sonner-toaster]: position fixed; --offset 24px (VIEWPORT_OFFSET);
@@ -3140,7 +3150,9 @@ al-toasts[position="bottom-left"] {
   inset-inline: 24px auto;
 }
 
-/* [data-sonner-toast][data-mounted=false]: translate from the region's edge,
+/* Spec section 7's toast row: "slide-in from the edge". Sonner slides and
+   fades and does not scale, so there is no scale .95 here (R22).
+   [data-sonner-toast][data-mounted=false]: translate from the region's edge,
    opacity 0; [data-removed=true]: back out the same way. --_al-from is the
    toast's own height toward the edge; al-toast.js sets data-closing and
    removes the toast once the exit transition has run. */

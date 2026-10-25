@@ -29,8 +29,8 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 
 <section>
 <h2>Enhanced</h2>
-<p>With the script, each region is shown when its toast connects. These are sticky (<code>timeout="0"</code>) so you can see all four variants at all four corners; the default <code>timeout</code> is 5000 ms and the toast closes itself. The first child is the title and the rest the description; a toast that is only text is all title.</p>
-<al-toasts popover="manual" position="bottom-right"><al-toast variant="info" timeout="0"><strong>Info toast</strong><div>Bottom-right, the default corner.</div></al-toast></al-toasts>
+<p>With the script, each region is shown when its toast connects. These are sticky (<code>timeout="0"</code>) so you can see all four variants at all four corners; the default <code>timeout</code> is 5000 ms and the toast closes itself. Text or a <code>strong</code> before the first block (<code>div</code>, <code>p</code>, list) is the title and the blocks are the description; a one-line message, even with inline elements, is all title. A toast with no <code>variant</code> has no icon.</p>
+<al-toasts popover="manual" position="bottom-right"><al-toast timeout="0">Saved <code>post.md</code></al-toast><al-toast variant="info" timeout="0"><strong>Info toast</strong><div>Bottom-right, the default corner.</div></al-toast></al-toasts>
 <al-toasts popover="manual" position="top-left"><al-toast variant="success" timeout="0"><strong>Success toast</strong><div>Top-left.</div></al-toast></al-toasts>
 <al-toasts popover="manual" position="top-right"><al-toast variant="warning" timeout="0"><strong>Warning toast</strong><div>Top-right.</div></al-toast></al-toasts>
 <al-toasts popover="manual" position="bottom-left" id="demo-toasts"><al-toast variant="destructive" timeout="0">Destructive toast (bottom-left).</al-toast></al-toasts>
