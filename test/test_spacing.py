@@ -255,6 +255,23 @@ class DetailListTest(unittest.TestCase):
         self.assertEqual(s["display"], "grid")
         self.assertEqual(s["cols"], 2)
 
+    def test_dl_margin_top_follows_flow_rhythm(self):
+        page = open_page("page.html")
+        try:
+            r = page.evaluate("""() => {
+                const top = e => getComputedStyle(e).marginTop;
+                const dl = document.getElementById('detail');
+                const alone = document.createElement('dl');
+                dl.parentNode.append(alone);  // last child, after a table, not prose
+                return {afterP: top(dl), notAfterProse: top(alone),
+                        sides: [getComputedStyle(dl).marginLeft, getComputedStyle(dl).marginBottom]};
+            }""")
+        finally:
+            page.close()
+        self.assertEqual(r["afterP"], "24px")
+        self.assertEqual(r["notAfterProse"], "0px")
+        self.assertEqual(r["sides"], ["0px", "0px"])
+
     def test_plain_dl_unstyled(self):
         page = open_page("page.html")
         try:

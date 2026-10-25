@@ -625,12 +625,12 @@ input:where([type="button"], [type="reset"], [type="submit"]),
 }
 
 /* dl: an alder addition beyond shadcn Typography, in shadcn's tokens. A detail list:
- * muted labels (dt) beside their values (dd) from 40rem, stacked below. */
+ * muted labels (dt) beside their values (dd) from 40rem, stacked below. No margin of its own, so the flow rhythm's top
+ * margin after a p or heading applies and the base reset zeroes the rest. */
 :where(al-page:not([plain])) dl {
   display: grid;
   grid-template-columns: 1fr;
   row-gap: 0.5rem;
-  margin: 0;
 }
 
 @media (min-width: 40rem) {
