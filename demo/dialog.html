@@ -75,6 +75,10 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
     <form method="dialog"><button type="submit" aria-label="Close Delete this post?">&times;</button></form>
     <h2 slot="header" id="d-confirm-heading">Delete this post?</h2>
     <p slot="description">This cannot be undone.</p>
+    <dl id="delete-detail">
+      <dt>Title</dt><dd>Hello world</dd>
+      <dt>Author</dt><dd>Ada Lovelace</dd>
+    </dl>
     <div slot="actions">
       <al-button variant="outline"><button type="button" commandfor="d-confirm" command="close">Cancel</button></al-button>
       <al-button variant="destructive"><button type="button" commandfor="d-confirm" command="close">Delete</button></al-button>

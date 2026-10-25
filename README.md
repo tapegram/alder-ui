@@ -89,6 +89,9 @@ Notes:
   browser with `:has()` (Baseline 2023: Chrome and Edge 105, Safari 15.4,
   Firefox 121); an older browser draws the element's look around the
   button's own.
+- **Typography**: inside an `al-page` (not `plain`) flow content gets shadcn's
+  typography. `dl` is a detail list: muted labels beside their values from
+  40rem, stacked below.
 - **The input elements** wrap a real `<label>` around the control, then a
   `<ul class="errors">` list (shown in the destructive colour). `invalid`
   colours the border (on `al-checkbox`, an outline round the box); `help` is

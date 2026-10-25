@@ -190,5 +190,82 @@ class BadgeLayoutTest(unittest.TestCase):
         finally:
             page.close()
 
+@unittest.skipIf(sync_playwright is None, "playwright is not installed")
+class DetailListTest(unittest.TestCase):
+    """dl is a detail list: two columns from 40rem, stacked below."""
+
+    def first_pair(self, width, sel="#detail"):
+        page = open_page("page.html", width)
+        try:
+            return (box(page, sel + " > dt"), box(page, sel + " > dd"),
+                    page.eval_on_selector(sel, """e => {
+                        const s = getComputedStyle(e);
+                        return {display: s.display, cols: s.gridTemplateColumns,
+                                column: s.columnGap, row: s.rowGap};
+                    }"""))
+        finally:
+            page.close()
+
+    def test_dl_two_columns_wide(self):
+        dt, dd, s = self.first_pair(1280)
+        self.assertEqual(s["display"], "grid")
+        self.assertAlmostEqual(dd["y"], dt["y"], delta=TOL)
+        self.assertGreater(dd["x"], dt["x"])
+        self.assertEqual(s["column"], "24px")
+        self.assertEqual(s["row"], "8px")
+
+    def test_dl_stacked_narrow(self):
+        dt, dd, s = self.first_pair(600)
+        self.assertGreaterEqual(dd["y"], dt["y"] + dt["height"] - TOL)
+        self.assertAlmostEqual(dd["x"], dt["x"], delta=TOL)
+        self.assertEqual(s["row"], "8px")
+
+    def test_dt_dd_look(self):
+        page = open_page("page.html")
+        try:
+            r = page.evaluate("""() => {
+                const color = v => {
+                    const p = document.createElement('span');
+                    p.style.color = 'var(' + v + ')';
+                    document.body.append(p);
+                    const c = getComputedStyle(p).color;
+                    p.remove();
+                    return c;
+                };
+                const dt = getComputedStyle(document.querySelector('#detail > dt'));
+                const dd = getComputedStyle(document.querySelector('#detail > dd'));
+                return {dt: [dt.color, dt.fontSize, dt.lineHeight],
+                        dd: [dd.color, dd.marginLeft],
+                        muted: color('--muted-foreground'), fg: color('--foreground')};
+            }""")
+        finally:
+            page.close()
+        self.assertEqual(r["dt"], [r["muted"], "14px", "20px"])
+        self.assertEqual(r["dd"], [r["fg"], "0px"])
+
+    def test_dialog_dl_is_grid(self):
+        page = open_page("dialog.html")
+        try:
+            s = page.eval_on_selector("#delete-detail", """e => {
+                const s = getComputedStyle(e);
+                return {display: s.display, cols: s.gridTemplateColumns.split(' ').length};
+            }""")
+        finally:
+            page.close()
+        self.assertEqual(s["display"], "grid")
+        self.assertEqual(s["cols"], 2)
+
+    def test_plain_dl_unstyled(self):
+        page = open_page("page.html")
+        try:
+            r = page.evaluate("""() => [
+                getComputedStyle(document.querySelector('#plain-detail')).display,
+                getComputedStyle(document.querySelector('#plain-detail > dt')).fontSize]""")
+        finally:
+            page.close()
+        # the reset zeroes the browser's 40px dd margin, so assert what the typography would change
+        self.assertEqual(r, ["block", "16px"])
+
+
 if __name__ == "__main__":
     unittest.main()
