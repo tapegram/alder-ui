@@ -38,7 +38,7 @@ README is the short version.
 `al.css` is the whole library (tokens and every component, inside
 `@layer al`). Copy it from a tagged release. Once this repository is public,
 you can also link the raw file at a tag
-(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.0-rc.1/al.css`). Open
+(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.0/al.css`). Open
 `demo/index.html` to see every element, variant and state in both themes.
 
 ## Elements
@@ -49,20 +49,20 @@ declares each one with its type, default and description.
 
 | element | attributes | slots |
 |---|---|---|
-| `al-button` | `variant` (`primary` default, `secondary`, `outline`, `ghost`, `destructive`), `size` (`sm`, `md` default, `lg`), `disabled`, `type` (`button`, `submit`) | default |
+| `al-button` | `variant` (`primary` default, `secondary`, `outline`, `ghost`, `destructive`, `link`), `size` (`xs`, `sm`, `md` default, `lg`, `icon`, `icon-sm`, `icon-lg`), `disabled`, `type` (`button`, `submit`) | default |
 | `al-input` | `label`, `placeholder`, `disabled`, `invalid`, `help` | |
 | `al-textarea` | `label`, `placeholder`, `disabled`, `invalid`, `help` | |
 | `al-select` | `label`, `disabled`, `invalid`, `help` | |
 | `al-checkbox` | `label`, `disabled`, `invalid`, `help` | |
 | `al-table` | `striped`, `dense` | default (a `<table>`) |
-| `al-card` | | `header`, default, `footer`, `actions` |
+| `al-card` | | `header`, default, `footer`, `actions`, `description`, `action` |
 | `al-badge` | `variant` (`default` default, `secondary`, `outline`, `destructive`) | default |
 | `al-alert` | `variant` (`info` default, `success`, `warning`, `destructive`), `heading`, `dismissible` | default |
 | `al-pagination` | `page`, `pages` | `prev`, default, `next` |
-| `al-dialog` | `heading`, `size` (`sm`, `md` default, `lg`), `dismissible` | `header`, default, `actions` |
+| `al-dialog` | `heading`, `size` (`sm`, `md` default, `lg`), `dismissible` | `header`, default, `actions`, `description` |
 | `al-popover` | `placement` (`top`, `bottom` default, `left`, `right`), `offset` (`sm` default, `md`, `lg`), `anchor` | default |
 | `al-menu` | | default (links or buttons) |
-| `al-tabs` | | default (`al-tab`s) |
+| `al-tabs` | `variant` (`default`, `line`) | default (`al-tab`s) |
 | `al-tab` | `name`, `selected` | default (a `<label>` with a radio, then an `al-panel`) |
 | `al-panel` | | default |
 | `al-toast` | `variant` (`info` default, `success`, `warning`, `destructive`), `timeout` (ms; default 5000, 0 = sticky) | default |
@@ -70,7 +70,7 @@ declares each one with its type, default and description.
 | `al-tooltip` | `for` | default (text) |
 | `al-devpanel` | `open` | default (a `<nav>` of buttons, then `<section>`s) |
 | `al-stack` | `gap` (`sm`, `md` default, `lg`), `direction` (`column` default, `row`) | default |
-| `al-page` | `width` (`narrow`, `normal` default, `wide`) | default |
+| `al-page` | `width` (`narrow`, `normal` default, `wide`), `plain` | default |
 
 Notes:
 
@@ -163,9 +163,28 @@ Notes:
 - **Accessible by default.** Real labels, visible `:focus-visible` rings in
   `--ring`, and WCAG AA contrast for every variant in both themes.
 
-## Removed tokens (from v0.4.0)
+## Migrating from v0.3.x
 
-The old `--al-*` tokens are gone; use these instead.
+v0.4.0 is a breaking release: alder-ui now looks like shadcn/ui and uses its token sheet.
+
+1. Re-vendor / rebuild with the Alder release that carries alder-ui `v0.4.0`.
+2. Replace every old token in your own CSS: `--al-radius-*` to `--radius-sm|md|lg|xl`;
+   `--al-font-mono` / `--al-font-sans` to `--font-mono` / `--font-sans`;
+   `--al-destructive-text` to `--destructive`; `--al-primary` and the other plain colour
+   tokens to the shadcn name without the prefix; `--al-shadow-sm` to `--shadow-sm`;
+   `--al-space-*`, `--al-text-*`, `--al-leading*`, `--al-weight-*`, `--al-control-h-*`,
+   `--al-ring-*` to literal rem values or Tailwind-scale equivalents; `--al-*-soft` and
+   `--al-*-border` have no replacement (alerts no longer use them). Only
+   `--al-width-narrow|normal|wide` survive. `grep -rn -e '--al-' static/ src/` finds them.
+3. Dark mode: add the theme script to the `<head>` of your Layout, before the stylesheet
+   link (the exact line is under "Light and dark" above). The CSS-only
+   OS-dark block and `[data-theme="dark"]` are gone; `.dark` on `<html>` is the only switch.
+4. Rebuild, look at each page in light and dark, and delete any app CSS that fought the
+   old look.
+
+Fonts: `al.css` loads Geist and Geist Mono from `fonts/` beside it; copy `fonts/` with `al.css`.
+
+### Token replacements
 
 | removed | replacement |
 |---|---|
@@ -183,12 +202,14 @@ The old `--al-*` tokens are gone; use these instead.
 | `--al-ring-width`, `--al-ring-offset` | none: the focus ring is `0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent)` |
 | `--al-disabled-opacity`, `--al-duration` | literal `0.5`, `150ms` |
 | `--al-{info,success,warning,destructive}-soft[-foreground]`, `--al-*-border` | no replacement (alerts use `--card`, `--card-foreground`, `--border`, `--destructive`) |
-| `--al-width-narrow/normal/wide` | kept |
+| `--al-width-narrow/normal/wide` | **kept** |
 
 ## Tests
 
 ```sh
 python3 test/check.py          # all checks
+python3 -m unittest discover -s test -p 'test_*.py'  # unit tests
+python3 test/parity.py --strict  # parity with shadcn/ui (needs the dev venv, see below)
 python3 test/check.py --table  # and print the contrast table
 python3 scripts/build.py       # rebuild al.css after editing tokens or components
 ```
@@ -199,7 +220,7 @@ value and slot, and everything declared is styled; no hard-coded colours,
 lengths or fonts in components; the light and dark token sets are complete;
 the contrast ratios computed from the token values pass AA; the demos use only
 declared attributes and slots and show every variant; `al.css` is up to date.
-CI runs the same script.
+CI runs `check.py` in its own job and the unit tests and parity in the `parity` job.
 
 ### Parity with shadcn/ui
 
@@ -235,7 +256,7 @@ the screenshots as the `triptychs` artifact.
 
 Apache-2.0. Copyright 2026 Tavish Pegram. See [LICENSE](LICENSE).
 
-## The interactive tier (v0.3.3)
+## The interactive tier (v0.4.0)
 
 `al-dialog`, `al-popover`, `al-menu`, `al-tabs` (with `al-tab`, `al-panel`),
 `al-toast` (with the `al-toasts` region), `al-tooltip` and `al-devpanel` are
