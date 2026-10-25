@@ -1,90 +1,165 @@
 /*
- * al-alert: a message box. The heading attribute is drawn as its heading.
- * Write role="alert" (warning, destructive) or role="status" (info,
- * success) on the element yourself: CSS cannot add a role. dismissible
- * makes room for the close button that the optional al-alert.js adds.
+ * al-alert: a message box. The heading attribute is drawn as its title (a
+ * ::before) and the variant's icon is drawn as an ::after, both placed in the
+ * grid below; every other child is the description. Write role="alert"
+ * (warning, destructive) or role="status" (info, success) on the element
+ * yourself: CSS cannot add a role. dismissible makes room for the close
+ * button that the optional al-alert.js adds.
+ *
+ * shadcn has only default and destructive. info, success and warning are
+ * the default look; they differ only in the icon (info, circle-check,
+ * triangle-alert; destructive has octagon-x). No tinted backgrounds.
  */
 
+/* relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 rounded-lg
+   border px-4 py-3 text-sm has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr]
+   has-[>svg]:gap-x-3  (every alert has an icon, so the icon column is always
+   there)
+   default: bg-card text-card-foreground */
 al-alert {
-  display: block;
+  --_al-icon: var(--_al-icon-info);
+  display: grid;
   position: relative;
-  padding: 1rem;
+  box-sizing: border-box;
+  width: 100%;
+  grid-template-columns: 1rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.125rem 0.75rem;
+  padding: 0.75rem 1rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   background: var(--card);
   color: var(--card-foreground);
   font-family: var(--font-sans);
   font-size: 0.875rem;
-  line-height: 1.5;
+  line-height: 1.25rem;
 }
 
-al-alert[variant="info"] {
-  border-color: var(--border);
-  background: var(--card);
-  color: var(--card-foreground);
+/* [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current  (the icon;
+   it spans both rows so that text without an element of its own, which the
+   grid places by itself, lands in the second column) */
+al-alert::after {
+  content: "";
+  grid-column: 1;
+  grid-row: 1;
+  width: 1rem;
+  height: 1rem;
+  translate: 0 0.125rem;
+  background: currentColor;
+  mask: var(--_al-icon) center / contain no-repeat;
+}
+
+al-alert[heading]::after {
+  grid-row: 1 / span 2;
 }
 
 al-alert[variant="success"] {
-  border-color: var(--border);
-  background: var(--card);
-  color: var(--card-foreground);
+  --_al-icon: var(--_al-icon-circle-check);
 }
 
 al-alert[variant="warning"] {
-  border-color: var(--border);
-  background: var(--card);
-  color: var(--card-foreground);
+  --_al-icon: var(--_al-icon-triangle-alert);
 }
 
+/* destructive: bg-card text-destructive
+   *:data-[slot=alert-description]:text-destructive/90 */
 al-alert[variant="destructive"] {
-  border-color: var(--border);
-  background: var(--card);
+  --_al-icon: var(--_al-icon-octagon-x);
   color: var(--destructive);
 }
 
+/* AlertTitle: col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight */
 al-alert[heading]::before {
   content: attr(heading);
-  display: block;
-  margin-bottom: 0.25rem;
-  font-weight: 600;
-  line-height: 1.25;
+  grid-column: 2;
+  display: -webkit-box;
+  overflow: hidden;
+  min-height: 1rem;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  font-weight: 500;
+  letter-spacing: -0.025em;
 }
 
-al-alert > :first-child {
-  margin-top: 0;
+/* AlertDescription: col-start-2 grid justify-items-start gap-1 text-sm
+   text-muted-foreground [&_p]:leading-relaxed */
+al-alert > :not(.al-alert-dismiss) {
+  grid-column: 2;
+  display: grid;
+  justify-items: start;
+  gap: 0.25rem;
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
-al-alert > :last-child {
-  margin-bottom: 0;
+al-alert[variant="destructive"] > :not(.al-alert-dismiss) {
+  color: color-mix(in oklab, var(--destructive) 90%, transparent);
+}
+
+/* an errors list is plain lines here, not bullets */
+al-alert > ul {
+  padding: 0;
+  list-style: none;
+}
+
+al-alert > :not(.al-alert-dismiss) p {
+  line-height: 1.625;
 }
 
 al-alert[dismissible] {
-  padding-inline-end: 2.5rem;
+  padding-inline-end: 3rem;
 }
 
+/* The dismiss button: a ghost icon button, size-7, top right.
+   hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50
+   focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 */
 al-alert > .al-alert-dismiss {
   position: absolute;
   top: 0.5rem;
   inset-inline-end: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 1.75rem;
+  height: 1.75rem;
   margin: 0;
-  padding: 0.25rem 0.5rem;
+  padding: 0;
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: transparent;
   color: inherit;
-  font-family: inherit;
-  font-size: 1rem;
-  line-height: 1.25;
   cursor: pointer;
+  outline: none;
+}
+
+al-alert > .al-alert-dismiss::before {
+  content: "";
+  width: 1rem;
+  height: 1rem;
+  background: currentColor;
+  mask: var(--_al-icon-x) center / contain no-repeat;
 }
 
 al-alert > .al-alert-dismiss:hover {
-  background: color-mix(in srgb, currentColor 12%, transparent);
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.dark al-alert > .al-alert-dismiss:hover {
+  background: color-mix(in oklab, var(--accent) 50%, transparent);
 }
 
 al-alert > .al-alert-dismiss:focus-visible {
-  outline: none;
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  al-alert > .al-alert-dismiss {
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }
 
 /* An alert that holds only an empty errors list (Alder's

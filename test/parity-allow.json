@@ -1,5 +1,5 @@
 {
-  "pending": ["alert", "table", "pagination", "dialog", "popover", "menu", "tooltip", "toast", "tabs"],
+  "pending": ["dialog", "popover", "menu", "tooltip", "toast", "tabs"],
   "map": {
     "card/title/unslotted": "card/title/default",
     "card/description/unslotted": "card/description/default",
@@ -18,6 +18,9 @@
     "toast/destructive/default": "toast/error/default"
   },
   "allow": [
+    {"ref": "alert/*/icon", "prop": "background-color", "reason": "structural: the twin draws a Lucide icon as a mask over a currentColor background (an ::after); shadcn's is an inline svg with a transparent background and currentColor strokes. The glyph colour is the same, text-current"},
+    {"ref": "alert/*/icon", "prop": "box-*", "reason": "structural: the twin's icon and title are ::after and ::before, which have no bounding box the harness can read (width and height of the icon are compared and match; the title's line-height and height match too)"},
+    {"ref": "alert/*/title", "prop": "box-*", "reason": "structural: same as the icon above; the title is the ::before"},
     {"ref": "label/default/default", "prop": "height", "reason": "structural (spec 5.3 4a): the <label> wraps its control, so it is a grid of the text and the input (shadcn's Label is a leaf with only the text); the text itself matches (14px, leading-none, gap 8px)"},
     {"ref": "label/default/default", "prop": "box-height", "reason": "structural (spec 5.3 4a): same as height above; the label's box holds the control it wraps"},
     {"ref": "select/listbox/*", "prop": "*", "reason": "standing (spec 8.3): al-select keeps the native <select> listbox; shadcn's Radix SelectContent has no counterpart and is not compared"},

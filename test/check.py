@@ -564,6 +564,7 @@ def button_pairs():
 # (where it is used, foreground token, background token, minimum): only the
 # pairings the components draw. 4.5 is text (a failure below it); 3.0 is a
 # border or ring (a WARN below it, never a failure).
+MUTED_50 = "color-mix(in oklab, var(--muted) 50%, transparent)"
 RING_50 = "color-mix(in oklab, var(--ring) 50%, transparent)"
 PAIRS = [
     ("body text, tabs, outline badge, fields", "foreground", "background", 4.5),
@@ -573,9 +574,10 @@ PAIRS = [
     ("al-badge destructive", "--color-white",
      Themed(("destructive", "color-mix(in oklab, var(--destructive) 60%, transparent)")), 4.5),
     ("accent hover (pagination, menu, devpanel, dialog close)", "accent-foreground", "accent", 4.5),
-    ("help, placeholder, th, caption, tabs, page N of M", "muted-foreground", "background", 4.5),
+    ("help, placeholder, caption, tabs, page N of M", "muted-foreground", "background", 4.5),
     ("muted text on card (card footer, devpanel tabs)", "muted-foreground", "card", 4.5),
-    ("al-table striped row", "foreground", "muted", 4.5),
+    ("al-table striped row", "foreground", MUTED_50, 4.5),
+    ("muted text on a striped row (a th or td the app mutes)", "muted-foreground", MUTED_50, 4.5),
     ("ul.errors", "destructive", "background", 4.5),
     ("al-alert destructive", "destructive", "card", 4.5),
     ("popover, al-menu, al-dialog", "popover-foreground", "popover", 4.5),
