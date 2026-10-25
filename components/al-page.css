@@ -1,6 +1,6 @@
 /* al-page: the content frame, a centred column of a set maximum width. */
 
-/* py-8 px-4 sm:px-6 */
+/* mx-auto w-full py-8 px-4 (max-w from --al-width-*) */
 al-page {
   display: block;
   box-sizing: border-box;
@@ -10,6 +10,7 @@ al-page {
   padding: 2rem 1rem;
 }
 
+/* sm:px-6 */
 @media (min-width: 40rem) {
   al-page {
     padding-inline: 1.5rem;

@@ -35,8 +35,8 @@ window.addEventListener("load", function () {
 </script>
 </head>
 <body data-expect="font-family: Geist, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji">
-<al-page width="wide">
-<al-stack gap="lg">
+<al-page width="wide" data-expect="padding-top: 32px; padding-bottom: 32px; padding-left: 24px; padding-right: 24px; max-width: 1280px">
+<al-stack gap="lg" data-expect="row-gap: 24px">
 
 <al-stack gap="md" data-section="button">
   <h2>button</h2>
@@ -307,6 +307,14 @@ window.addEventListener("load", function () {
 <al-page plain>
   <p>A plain page brings its own typography.</p>
   <p data-expect="margin-top: 0px">Its second paragraph has no top margin.</p>
+</al-page>
+<!-- No shadcn counterpart for stack and page: their values are pinned here. -->
+<al-page width="narrow" data-expect="max-width: 640px; padding-left: 24px">
+  <al-stack gap="sm" data-expect="row-gap: 8px; column-gap: 8px"><span>a</span><span>b</span></al-stack>
+  <al-stack data-expect="row-gap: 16px"><span>a</span><span>b</span></al-stack>
+  <al-stack gap="md" data-expect="row-gap: 16px"><span>a</span><span>b</span></al-stack>
+  <al-stack gap="lg" data-expect="row-gap: 24px"><span>a</span><span>b</span></al-stack>
+  <al-stack direction="row" gap="lg" data-expect="column-gap: 24px; flex-direction: row"><span>a</span><span>b</span></al-stack>
 </al-page>
 </body>
 </html>
