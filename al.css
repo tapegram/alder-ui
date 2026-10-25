@@ -1,4 +1,4 @@
-/*! alder-ui v0.4.0 | Apache-2.0 | https://github.com/tapegram/alder-ui
+/*! alder-ui v0.4.1 | Apache-2.0 | https://github.com/tapegram/alder-ui
  * Built by scripts/build.py from tokens.css, base.css, typography.css and components/;
  * do not edit. Geist and Geist Mono (SIL OFL 1.1) load from fonts/ beside this file. */
 
@@ -356,6 +356,9 @@ input:where([type="button"], [type="reset"], [type="submit"]),
   height: auto;
 }
 
+/* Tailwind Preflight's rule, kept as is. Inside `@layer al` this !important
+   still beats an unlayered app `!important`: for important declarations the
+   layer order inverts, so an earlier layer wins over the unlayered styles. */
 [hidden]:where(:not([hidden="until-found"])) {
   display: none !important;
 }
@@ -403,17 +406,17 @@ input:where([type="button"], [type="reset"], [type="submit"]),
  * - These rules come first so the element rules below, at the same (0,0,1),
  *   win where they set their own margin: p then h2 keeps h2's mt-10, ul/ol keep my-6. */
 :where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h2 + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h2 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h2 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h2 + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h2 + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + *,
 :where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h3 + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h3 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h3 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h3 + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h3 + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + *,
 :where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h4 + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h4 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h4 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h4 + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h4 + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + *,
 :where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + * {
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + * {
   margin-top: 1.5rem;
 }
 
@@ -674,6 +677,11 @@ al-button {
   --_al-hover-fg: var(--primary-foreground);
   --_al-ring: color-mix(in oklab, var(--ring) 50%, transparent);
   --_al-border: var(--border);
+  /* The transparent layers mirror how Tailwind composes box-shadow, so the
+     computed list matches the reference's. --_al-shadow (in variants that set a
+     shadow: 4 no-op layers + shadow; none otherwise) and --_al-shadow-end (the last layer, under the focus ring: 3
+     no-op layers + ring + shadow-end) must stay in step; change one, change
+     the other. */
   --_al-shadow: none;
   --_al-shadow-end: 0 0 transparent;
   --_al-border-focus: var(--ring);
@@ -925,6 +933,16 @@ form._alder-click {
   display: contents;
 }
 
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-button:not(:has(> :is(button, a))):focus-visible,
+  al-button > :is(button, a):focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+}
+
 /* ---- components/al-input.css ---- */
 
 /*
@@ -1091,6 +1109,15 @@ al-input ul.errors > li {
    without a list). */
 al-input ul.errors:empty {
   display: none;
+}
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-input input:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 0;
+  }
 }
 
 /* ---- components/al-textarea.css ---- */
@@ -1263,6 +1290,15 @@ al-textarea ul.errors:empty {
   display: none;
 }
 
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-textarea textarea:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 0;
+  }
+}
+
 /* ---- components/al-select.css ---- */
 
 /*
@@ -1303,7 +1339,9 @@ al-select label {
 
 /* The chevron: <ChevronDownIcon className="size-4 opacity-50" />, drawn by the
    label's ::after over the select's right padding (a <select> takes no
-   pseudo-element). right-3 is 0.75rem; the select is the label's last row. */
+   pseudo-element). right-3 is 0.75rem. The bottom offset (select height 2.25rem / 2 minus
+   icon 1rem / 2, from the label's bottom edge) assumes the select is the
+   label's last row: a hint or error line after it would shift the chevron. */
 al-select label::after {
   content: "";
   position: absolute;
@@ -1352,6 +1390,9 @@ al-select select {
   white-space: nowrap;
   color-scheme: inherit;
   cursor: pointer;
+  /* `outline-style: none` at width 3px keeps the computed `outline` equal to
+     the reference's; on focus the width becomes 1px (below) to match its
+     outline-width. The visible ring is the box-shadow. */
   outline: 3px none color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
@@ -1377,7 +1418,10 @@ al-select select:has(option[value=""]:checked) {
   color: var(--muted-foreground);
 }
 
-/* the open listbox is native: its options keep the page colours */
+/* the open listbox is native: its options keep the page colours. In .dark,
+   `color-scheme: inherit` (above) already gives the listbox dark chrome, so
+   these colours partly duplicate it; they stay because the computed colours
+   are compared with the reference's. */
 al-select select option {
   background-color: var(--popover);
   color: var(--popover-foreground);
@@ -1459,6 +1503,15 @@ al-select ul.errors > li {
 /* An empty list takes no room (display: none). */
 al-select ul.errors:empty {
   display: none;
+}
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-select select:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 0;
+  }
 }
 
 /* ---- components/al-checkbox.css ---- */
@@ -1651,6 +1704,15 @@ al-checkbox ul.errors:empty {
   display: none;
 }
 
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-checkbox input[type="checkbox"]:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 0;
+  }
+}
+
 /* ---- components/al-table.css ---- */
 
 /*
@@ -1716,6 +1778,16 @@ al-table tfoot > tr:last-child {
   border-bottom-width: 0;
 }
 
+/* dense: th h-8, cells p-1 */
+al-table[dense] th {
+  height: 2rem;
+}
+
+al-table[dense] th,
+al-table[dense] td {
+  padding: 0.25rem;
+}
+
 /* TableHead: h-10 px-2 text-left align-middle font-medium whitespace-nowrap
    text-foreground [&:has([role=checkbox])]:pr-0
    [&>[role=checkbox]]:translate-y-[2px] */
@@ -1737,6 +1809,7 @@ al-table td {
   white-space: nowrap;
 }
 
+/* after the dense block: dense cells keep the checkbox cell's pr-0 */
 al-table th:has([role="checkbox"]),
 al-table td:has([role="checkbox"]) {
   padding-right: 0;
@@ -1759,14 +1832,9 @@ al-table[striped] tbody tr:nth-child(even) {
   background: color-mix(in oklab, var(--muted) 50%, transparent);
 }
 
-/* dense: th h-8, cells p-1 */
-al-table[dense] th {
-  height: 2rem;
-}
-
-al-table[dense] th,
-al-table[dense] td {
-  padding: 0.25rem;
+/* data-[state=selected]:bg-muted wins over the even row (#13) */
+al-table[striped] tbody tr[aria-selected="true"]:nth-child(even) {
+  background: var(--muted);
 }
 
 /* ---- components/al-card.css ---- */
@@ -1787,6 +1855,10 @@ al-table[dense] td {
  * after it the description. `:nth-child(1 of :not([slot]))` counts only the
  * unslotted children, so a slotted element before the heading does not
  * break the rule (:first-child would).
+ *
+ * Typography (#11): a body paragraph keeps 24px leading (CardContent sets
+ * none, so it inherits leading-normal); the description is text-sm, 20px.
+ * Every surface keeps shadcn's per-part values; none is reset uniformly.
  */
 
 /* flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground
@@ -1804,6 +1876,8 @@ al-card {
   border-radius: var(--radius-xl);
   background: var(--card);
   color: var(--card-foreground);
+  /* the four transparent layers are Tailwind's no-op shadow slots (see
+     al-button.css), kept so the computed list matches the reference's */
   box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-sm);
   font-family: var(--font-sans);
 }
@@ -1852,10 +1926,15 @@ al-card > :is(h2, h3):nth-child(1 of :not([slot])) {
 al-card > [slot="description"],
 al-card > :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot])) {
   order: -2;
-  margin-block-start: -1rem;
   color: var(--muted-foreground);
   font-size: 0.875rem;
   line-height: 1.25rem;
+}
+
+/* the header's gap-2 pulls the description up under the title; a card with
+   no title has nothing to be close to (#13) */
+al-card:has(> [slot="header"], > :is(h2, h3):nth-child(1 of :not([slot]))) > :is([slot="description"], :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot]))) {
+  margin-block-start: -1rem;
 }
 
 al-card > [slot="action"] {
@@ -1981,6 +2060,15 @@ al-badge > a:focus-visible {
   outline: none;
 }
 
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-badge > a:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+}
+
 /* ---- components/al-alert.css ---- */
 
 /*
@@ -1996,6 +2084,16 @@ al-badge > a:focus-visible {
  * shadcn has only default and destructive. info, success and warning are
  * the default look; they differ only in the icon (info, circle-check,
  * triangle-alert; destructive has octagon-x). No tinted backgrounds.
+ *
+ * Content (spec 5.2): a heading attribute plus bare text reads like a heading
+ * plus a p: the host takes the description colour and the title (::before),
+ * the icon and the close button take the title colour (--_al-title). An h1-h6
+ * child is styled as AlertTitle, not as Typography's heading. An empty
+ * ul.errors is hidden; with a heading the alert still draws the heading.
+ *
+ * Typography (#11): the description is text-sm, 20px, and a p nested in a
+ * block child is leading-relaxed (1.625), as in shadcn's [&_p]:leading-relaxed.
+ * Every surface keeps shadcn's per-part values; none is reset uniformly.
  */
 
 /* relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 rounded-lg
@@ -2007,6 +2105,7 @@ al-badge > a:focus-visible {
    column and gap-x-3 are the start padding: px-4 + size-4 + gap-x-3. */
 al-alert {
   --_al-icon: var(--_al-icon-info);
+  --_al-title: var(--card-foreground);
   display: block;
   position: relative;
   box-sizing: border-box;
@@ -2048,7 +2147,23 @@ al-alert[variant="warning"] {
    *:data-[slot=alert-description]:text-destructive/90 */
 al-alert[variant="destructive"] {
   --_al-icon: var(--_al-icon-octagon-x);
+  --_al-title: var(--destructive);
   color: var(--destructive);
+}
+
+/* heading + bare text: the text is the description (the p rules below give
+   the same colours to a block child, so the host keeps its own then) */
+al-alert[heading]:not(:has(> :is(p, div, ul:not(.errors:empty), ol))) {
+  color: var(--muted-foreground);
+}
+
+al-alert[heading][variant="destructive"]:not(:has(> :is(p, div, ul:not(.errors:empty), ol))) {
+  color: color-mix(in oklab, var(--destructive) 90%, transparent);
+}
+
+/* the icon is text-current on the title colour, not the description's */
+al-alert[heading]::after {
+  color: var(--_al-title);
 }
 
 /* AlertTitle: col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight
@@ -2060,7 +2175,29 @@ al-alert[heading]::before {
   min-height: 1rem;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
+  color: var(--_al-title);
   font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+/* gap-y-0.5 under the title when bare text follows it (a block child brings
+   its own 2px margin).
+   An empty errors list counts as a block child here: CSS cannot see bare text
+   beside it, and a heading-only alert (Alder's Errors form) must stay 46px. */
+al-alert[heading]:not(:has(> :is(p, div, ul, ol)))::before {
+  margin-block-end: 0.125rem;
+}
+
+/* an h1-h6 child is the AlertTitle: font-medium tracking-tight text-sm, with
+   no Typography margin, divider or size (scroll-m-20 h3 text-2xl) */
+al-alert > :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  padding: 0;
+  border-width: 0;
+  color: var(--_al-title);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
   letter-spacing: -0.025em;
 }
 
@@ -2112,7 +2249,8 @@ al-alert[dismissible] {
 
 /* The dismiss button: a ghost icon button, size-7, top right.
    hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50
-   focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 */
+   focus-visible:ring-[3px] focus-visible:ring-ring/50 (no border-ring: the
+   button's border is 0, so focus draws the ring as a box-shadow only) */
 al-alert > .al-alert-dismiss {
   position: absolute;
   top: 0.5rem;
@@ -2128,7 +2266,7 @@ al-alert > .al-alert-dismiss {
   border: 0;
   border-radius: var(--radius-md);
   background: transparent;
-  color: inherit;
+  color: var(--_al-title);
   cursor: pointer;
   outline: none;
 }
@@ -2163,8 +2301,23 @@ al-alert > .al-alert-dismiss:focus-visible {
 /* An alert that holds only an empty errors list (Alder's
    <al-alert variant="destructive"><Errors form /></al-alert>, before any
    error) is not drawn: no empty coloured box. */
-al-alert:has(> ul.errors:empty) {
+al-alert:not([heading]):has(> ul.errors:empty) {
   display: none;
+}
+
+/* with a heading the alert stays and only the empty list goes (it would
+   otherwise add a 2px gap and, as a grid, beat the plain display rule) */
+al-alert > ul.errors:empty {
+  display: none;
+}
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-alert > .al-alert-dismiss:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
 }
 
 /* ---- components/al-pagination.css ---- */
@@ -2179,7 +2332,9 @@ al-alert:has(> ul.errors:empty) {
  * page to go to can be <span slot="prev" aria-disabled="true">. Children
  * without a slot go in the middle and replace the generated text: page
  * links (<a>) are 2.25rem square buttons, the current one
- * (aria-current="page") outlined; anything else is muted text.
+ * (aria-current="page") outlined; anything else is muted text, except the
+ * ellipsis (<span aria-hidden="true">&hellip;</span>), which is shadcn's
+ * size-9 PaginationEllipsis: the mask icon replaces the text (kept for no-CSS).
  * Content: flex flex-row items-center gap-1 (centred, as Pagination's
  * mx-auto flex w-full justify-center)
  */
@@ -2223,6 +2378,37 @@ al-pagination > [slot="next"] {
 al-pagination > :not([slot]):not(a) {
   padding-inline: 0.5rem;
   color: var(--muted-foreground);
+}
+
+/* PaginationEllipsis: flex size-9 items-center justify-center, with a size-4
+   more-horizontal icon (inherits the foreground colour and the 16px/24px body
+   type, as in shadcn). The text stays for no-CSS and is pushed out of the
+   clipped box; the icon is centred on it. */
+al-pagination > [aria-hidden="true"]:not([slot]):not(a) {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  padding: 0;
+  overflow: hidden;
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  text-indent: 4rem;
+  white-space: nowrap;
+}
+
+al-pagination > [aria-hidden="true"]:not([slot]):not(a)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  inline-size: 1rem;
+  block-size: 1rem;
+  background: currentColor;
+  mask: var(--_al-icon-ellipsis) center / contain no-repeat;
 }
 
 /* Link: buttonVariants({ variant: "ghost" | "outline", size: "icon" }) =
@@ -2330,6 +2516,15 @@ al-pagination > a:focus-visible {
 al-pagination > [slot][aria-disabled="true"] {
   opacity: 0.5;
   pointer-events: none;
+}
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-pagination > a:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
 }
 
 /* ---- components/al-stack.css ---- */
@@ -2442,7 +2637,14 @@ al-page[plain] {
  * actions = DialogFooter, the close form's button = the Close. shadcn's
  * DialogHeader is a wrapper element; Alder emits none, so the <dialog> itself
  * is the grid, and the header's gap-2 is a negative margin on the
- * description. Children are placed by slot, whatever their source order.
+ * description. Children are placed by slot (order), so the layout does not
+ * depend on source order, with one exception: the description's negative
+ * margin applies only when it directly follows the header in the source,
+ * which is how the renderer always emits them.
+ *
+ * Typography (#11): a body paragraph keeps 24px leading (DialogContent sets
+ * none, so it inherits leading-normal); the description is text-sm, 20px.
+ * Every surface keeps shadcn's per-part values; none is reset uniformly.
  */
 
 al-dialog {
@@ -2517,8 +2719,17 @@ al-dialog > dialog > [slot="header"] {
   text-align: center;
 }
 
+/* DialogClose is absolute at the top-end corner, so a long title would run under
+   it: a dismissible dialog keeps the title's inline end clear of the button.
+   The button's inner edge is 0.5rem inside the content box (right-4 against
+   p-6), so 1rem leaves a 0.5rem gap. A divergence from shadcn, #15. */
+al-dialog[dismissible] > dialog > [slot="header"] {
+  padding-inline-end: 1rem;
+}
+
 /* DialogDescription: text-sm text-muted-foreground   (the -0.5rem top margin
-   turns the grid's gap-4 into DialogHeader's gap-2) */
+   turns the grid's gap-4 into DialogHeader's gap-2; it applies only when the
+   description directly follows the header in source order, below) */
 al-dialog > dialog > [slot="description"] {
   order: -1;
   color: var(--muted-foreground);
@@ -2660,13 +2871,26 @@ al-dialog[dismissible] > dialog > form[method="dialog"]:first-child > button:dis
  * popover attribute yourself and open it with a button carrying
  * popovertarget="<id>" or commandfor="<id>" command="toggle-popover"; both
  * work with no JavaScript. Position: CSS anchor positioning (the invoker is
- * the implicit anchor, or name another element with the HTML anchor="<id>"
- * attribute); position-try flips it to the other side when it would overflow.
- * placement and offset choose the side and the gap.
+ * the implicit anchor, or name another element with anchor="<id>");
+ * position-try flips it to the other side when it would overflow.
+ * placement and offset choose the side and the gap. anchor= needs al.js
+ * (al-shim.js sets position-anchor at each open; Chromium ignores the HTML
+ * attribute); without it the invoker is the anchor.
  *
  * The parts map to shadcn's: the element is PopoverContent; a heading inside
  * it is PopoverTitle and a paragraph PopoverDescription (PopoverHeader's
- * gap-1 is the paragraph's top margin after a heading).
+ * gap-1 is the paragraph's top margin after a heading). Children have no
+ * margin between them (`al-popover > * { margin: 0 }`): PopoverContent has no
+ * inter-child spacing either, only the header's gap-1.
+ *
+ * Typography (#11): the paragraph is text-sm, 20px (the reference computes the
+ * same), pinned in demo/parity.html. Every surface keeps shadcn's per-part
+ * values; none is reset uniformly (card and dialog body p are 24px).
+ *
+ * Limit (#13): when position-try flips the popover to the other side, its
+ * transform-origin and slide-in direction stay those of the first choice.
+ * @position-try cannot carry transform-origin or translate, and a container
+ * query cannot restyle its own container, so mirroring them needs JS.
  */
 
 /* PopoverContent: z-50 w-72 origin-(--radix-popover-content-transform-origin)
@@ -2724,6 +2948,7 @@ al-popover[offset="lg"] {
   margin: 1rem;
 }
 
+/* shadcn-faithful: no spacing between children (see the header) */
 al-popover > * {
   margin: 0;
 }
@@ -2786,6 +3011,15 @@ al-popover > :is(h1, h2, h3, h4, h5, h6) + p {
  * The parts map to shadcn's dropdown-menu: the element is DropdownMenuContent,
  * each a / button child a DropdownMenuItem (data-variant="destructive" for
  * the destructive one), an <hr> child the DropdownMenuSeparator.
+ *
+ * Position: like al-popover, anchor="<id>" names another element to anchor to.
+ * It needs al.js (al-shim.js sets position-anchor at each open; Chromium
+ * ignores the HTML attribute); without it the invoker is the anchor.
+ *
+ * Limit (#13): the transform-origin is the resting one (top left, top right
+ * under dir=rtl). When position-try flips the menu, the origin is not
+ * mirrored: @position-try cannot carry transform-origin or translate, and a
+ * container query cannot restyle its container, so that needs JS.
  */
 
 /* DropdownMenuContent: z-50 max-h-(--radix-dropdown-menu-content-available-height)
@@ -2813,6 +3047,12 @@ al-menu {
   box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-md);
   outline: none;
   transform-origin: top left;
+}
+
+/* the resting origin is the inline start (position-area: block-end
+   span-inline-end opens at the invoker's start edge) */
+al-menu:dir(rtl) {
+  transform-origin: top right;
 }
 
 al-menu:popover-open {
@@ -2852,10 +3092,21 @@ al-menu > :is(a, button) svg {
 }
 
 /* focus:bg-accent focus:text-accent-foreground   (Radix focuses the item the
-   pointer is over, so hover is the same) */
+   pointer is over, so hover is the same). A focused ref item computes
+   outline-width 1px (outline-style stays none), so hover matches it. */
 al-menu > :is(a, button):is(:hover, :focus-visible) {
   background: var(--accent);
   color: var(--accent-foreground);
+  outline-width: 1px;
+}
+
+/* Keyboard focus also draws an outline, which hover does not (a divergence from
+   shadcn, #15): the accent fill alone is too faint to find the focused item
+   (muted-foreground on popover is checked at 3:1 by test/check.py). The negative
+   offset keeps it inside the popover's clipped edge. Forced colors recolour it. */
+al-menu > :is(a, button):focus-visible {
+  outline: 2px solid var(--muted-foreground);
+  outline-offset: -2px;
 }
 
 /* data-[variant=destructive]:text-destructive
@@ -2927,8 +3178,13 @@ al-menu > hr {
  * same name; one `checked`) and its al-panel. The labels sit in a row, the
  * checked tab's panel shows beneath. The optional al-tabs.js builds a
  * <div role="tablist"> of <button role="tab"> from the labels (which it hides),
- * styled below like the labels, and adds the arrow keys, Home/End, the selected
- * attribute, and the al-select event.
+ * styled as shadcn's TabsList / TabsTrigger (the rules below), and adds the
+ * arrow keys, Home/End, the selected attribute, and the al-select event.
+ *
+ * With no script the radio labels are the tab row, a plain fallback with no
+ * shadcn counterpart. variant=line applies there too (a transparent checked
+ * label with the same underline); the muted pill does not, because labels and
+ * panels share one flex row, so nothing wraps just the labels.
  */
 
 /* Tabs: group/tabs flex flex-col gap-2. Written as a wrapping row so the no-JS
@@ -3127,9 +3383,42 @@ al-tabs > al-tab > label:has(> input:checked) {
   box-shadow: var(--shadow-sm);
 }
 
+/* variant=line, no script: no pill and no shadow, the checked label gets the
+   built tab's underline (the same ::after as the tablist's line tab). The muted
+   pill is not possible here: labels and panels share one flex row, so there is
+   no container that holds only the labels. */
+al-tabs[variant="line"] > al-tab > label:has(> input:checked) {
+  background: transparent;
+  box-shadow: none;
+}
+
+al-tabs[variant="line"] > al-tab > label::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -5px;
+  block-size: 2px;
+  background: var(--foreground);
+  opacity: 0;
+}
+
+al-tabs[variant="line"] > al-tab > label:has(> input:checked)::after {
+  opacity: 1;
+}
+
 al-tabs > al-tab > label:has(> input:focus-visible) {
   outline: none;
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+}
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-tabs > [role="tablist"] > [role="tab"]:focus-visible,
+  al-tabs > al-tab > label:has(> input:focus-visible) {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
 }
 
 /* ---- components/al-toast.css ---- */
@@ -3213,8 +3502,9 @@ al-toast[variant="destructive"] {
   --_al-icon: var(--_al-icon-octagon-x);
 }
 
-/* headings, paragraphs and lists inside reset to the toast's own recipe */
-al-toast > * {
+/* headings, paragraphs and lists inside reset to the toast's own recipe (an
+   al-button or al-badge keeps its own size, #13) */
+al-toast > :not(al-button, al-badge) {
   margin: 0;
   padding: 0;
   border-width: 0;
@@ -3498,6 +3788,15 @@ al-devpanel code {
 
 al-devpanel pre {
   margin: 0.5rem 0;
+}
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-devpanel > nav > button:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
 }
 
 }

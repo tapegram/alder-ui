@@ -83,6 +83,11 @@ NO_MOTION = "*, *::before, *::after, *::backdrop { transition: none !important; 
 # Colour parsing lives in test/colour.py (shared with check.py).
 from colour import COLOUR_FUNCS, normalise_colour  # noqa: E402
 
+try:
+    from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+except ImportError:  # the pure verdict helpers are used without Playwright
+    PlaywrightTimeoutError = TimeoutError
+
 
 # ------------------------------------------------------------------------ comparison
 
@@ -201,11 +206,19 @@ def target(marker, allow):
 def allowed(marker, prop, allow):
     """True when an allow entry's ref glob matches the marker (or its mapped ref marker)
     and its prop glob matches the property."""
+    return any(_matches(marker, prop, e, allow) for e in allow.get("allow", []))
+
+
+def _matches(marker, prop, entry, allow):
     names = {marker, target(marker, allow)}
-    return any(
-        any(fnmatch.fnmatchcase(n, e["ref"]) for n in names) and fnmatch.fnmatchcase(prop, e["prop"])
-        for e in allow.get("allow", [])
-    )
+    return any(fnmatch.fnmatchcase(n, entry["ref"]) for n in names) and fnmatch.fnmatchcase(prop, entry["prop"])
+
+
+def unused_allow(rows, allow):
+    """Allow entries that matched no row. `rows` is every differing value before the
+    allow-list filter, light and dark together, so an entry only a dark row uses is used."""
+    return [e for e in allow.get("allow", [])
+            if not any(_matches(r[1], r[4], e, allow) for r in rows)]
 
 
 def component(marker):
@@ -275,6 +288,11 @@ EXPECT_JS = """() => {
   }
   return out;
 }"""
+
+# Labels of elements carrying both a data-ref marker and a data-expect*: EXPECT_JS skips
+# those, and the inventory never reads data-expect, so each would be silently unchecked.
+EXPECT_CONFLICT_JS = """() => [...document.querySelectorAll(
+  '[data-ref][data-expect], [data-ref][data-expect-before]')].map((el) => el.getAttribute('data-ref'))"""
 
 FONTS_JS = """async () => {
   await document.fonts.ready;
@@ -363,6 +381,10 @@ class Page:
     def drive(self, marker, state, fixed_as):
         """Read `marker` in `state` (hover / focus); fixed_as names the FIXED_WIDTH glob key."""
         loc = self.locator(marker)
+        # The ref's Radix menu is position:fixed and re-positions a frame after the page
+        # scrolls, so neither scrollIntoView nor Playwright's own scroll reaches it.
+        loc.evaluate("(el) => scrollBy(0, el.getBoundingClientRect().top - innerHeight / 2)")
+        self.settle()
         if state == "hover":
             loc.hover()
             self.settle()
@@ -429,6 +451,8 @@ CLOSE_CHECKS = [
     ("popover", "command=hide-popover, commandForElement deleted", "#parity-popover", _SHOW_POPOVER, _INVOKE % "hide-popover", True),
     ("menu", "select an item", "#parity-menu", _SHOW_POPOVER,
      "(el) => el.querySelector(':scope > button').click()", False),
+    # #10.7: the tooltip's hit-test can never fail (it is pointer-events: none), so only
+    # display: none counts for the tooltip rows.
     ("tooltip", "blur", "al-tooltip[for=parity-tooltip-trigger]",
      "(el) => %s.focus()" % _TIP_TRIGGER, "(el) => %s.blur()" % _TIP_TRIGGER, False),
     ("tooltip", "pointerleave", "al-tooltip[for=parity-tooltip-trigger]",
@@ -455,13 +479,19 @@ CLOSED_JS = """([el, x, y]) => {
 }"""
 
 
+CLOSING_JS = "(el) => el.isConnected && el.hasAttribute('data-closing')"
+
+
 def close_problems(st):
     """What is wrong with an overlay measured CLOSE_WAIT_MS after closing: st holds
     opened (it was shown before closing), connected (el.isConnected), display (computed)
     and hit (elementFromPoint at its open centre lands inside it). A disconnected node is
-    closed (R19)."""
+    closed (R19). closing_seen is set for timeout rows only: False means the node went
+    without data-closing ever showing, i.e. without its exit transition."""
     if not st["opened"]:
         return ["did not open, so its closing proves nothing"]
+    if st.get("closing_seen") is False:
+        return ["closed without its exit transition (data-closing never showed)"]
     if not st["connected"]:
         return []
     out = []
@@ -485,6 +515,12 @@ def check_closes(page, selector, close_js, open_js=_SHOW_MODAL):
         # It closes itself: check it opened at once, then wait out its timeout as well.
         page.evaluate(SETTLE_JS)
         opened = el.evaluate(OPENED_JS)
+        # Poll for the exit transition's data-closing: the toast stays connected through it.
+        try:
+            page.wait_for_function(CLOSING_JS, arg=el, polling=10, timeout=close_js + 100)
+            closing_seen = True
+        except PlaywrightTimeoutError:
+            closing_seen = False
         page.wait_for_timeout(close_js)
     else:
         page.wait_for_timeout(CLOSE_WAIT_MS)
@@ -496,10 +532,65 @@ def check_closes(page, selector, close_js, open_js=_SHOW_MODAL):
     page.wait_for_timeout(CLOSE_WAIT_MS)
     st = page.evaluate(CLOSED_JS, [el, opened["x"], opened["y"]])
     st["opened"] = opened["opened"]
+    if isinstance(close_js, (int, float)):
+        st["closing_seen"] = closing_seen
     return close_problems(st)
 
 
-def run_close_checks(browser, base, comps):
+# A toast re-inserted while it closes (a morph) starts afresh (components/al-toast.js).
+RECONNECT_TIMEOUT_MS = 150
+RECONNECT_JS = ("(el) => { const t = document.createElement('al-toast'); t.setAttribute('timeout', '%d');"
+                " t.textContent = 'Reconnected toast'; el.appendChild(t); return t }" % RECONNECT_TIMEOUT_MS)
+ALIVE_JS = "(el) => el.isConnected && !el.hasAttribute('data-closing')"
+
+
+def reconnect_problems(st):
+    """What is wrong with a toast re-appended mid-close: survived_old_close (it was
+    still connected, not closing, before its fresh timeout ran, and still connected after
+    the old close would have removed it) and closed_after_new_timeout (it is gone once the
+    fresh timeout and exit transition have run)."""
+    out = []
+    if not st["survived_old_close"]:
+        out.append("was removed by the old close after it was re-inserted")
+    if not st["closed_after_new_timeout"]:
+        out.append("is still there after its new timeout and exit transition")
+    return out
+
+
+def check_reconnect(page, selector="#parity-toasts-timeout"):
+    """Add a timed toast, wait for data-closing, re-append it, and return reconnect_problems().
+    Timeline after the re-append (timeout 150ms, exit transition 150ms): alive at 100ms
+    (the fresh timeout has not fired), connected at 220ms (the old close, due at ~150ms,
+    did not remove it; the fresh one is mid-exit), gone 450ms later."""
+    region = page.query_selector(selector)
+    if region is None:
+        return ["%s is not on the page" % selector]
+    el = region.evaluate_handle(RECONNECT_JS).as_element()
+    try:
+        page.wait_for_function(CLOSING_JS, arg=el, polling=10, timeout=RECONNECT_TIMEOUT_MS + 100)
+    except PlaywrightTimeoutError:
+        return ["never started closing, so re-inserting it proves nothing"]
+    el.evaluate("(el) => el.parentNode.appendChild(el)")
+    page.wait_for_timeout(100)
+    alive = el.evaluate(ALIVE_JS)
+    page.wait_for_timeout(120)
+    alive = alive and el.evaluate("(el) => el.isConnected")
+    page.wait_for_timeout(450)
+    return reconnect_problems({"survived_old_close": alive,
+                               "closed_after_new_timeout": not el.evaluate("(el) => el.isConnected")})
+
+
+class ErrorSink:
+    """Collects the pageerror events of the fresh pages the close and anchor checks open."""
+
+    def __init__(self, name):
+        self.name, self.errors = name, []
+
+    def watch(self, page):
+        page.on("pageerror", lambda e: self.errors.append(str(e)))
+
+
+def run_close_checks(browser, base, comps, sink=None):
     """Every CLOSE_CHECKS entry whose component is in comps, light and dark, each on a fresh
     twin page with motion on. Returns failure lines."""
     fails = []
@@ -508,6 +599,8 @@ def run_close_checks(browser, base, comps):
             continue
         for theme in THEMES:
             page = browser.new_page(viewport=VIEWPORT, color_scheme="light")
+            if sink:
+                sink.watch(page)
             try:
                 if shim:
                     page.add_init_script("delete HTMLButtonElement.prototype.commandForElement")
@@ -526,12 +619,34 @@ def run_close_checks(browser, base, comps):
     return fails
 
 
+def run_reconnect_check(browser, base, sink=None):
+    """check_reconnect on a fresh twin page with motion on, light and dark. Failure lines."""
+    fails = []
+    for theme in THEMES:
+        page = browser.new_page(viewport=VIEWPORT, color_scheme="light")
+        if sink:
+            sink.watch(page)
+        try:
+            page.goto(base + TWIN_URL, wait_until="load")
+            page.wait_for_selector("html[data-ref-ready]", state="attached", timeout=20000)
+            page.evaluate("(on) => document.documentElement.classList.toggle('dark', on)", theme == "dark")
+            probs = check_reconnect(page)
+        finally:
+            page.close()
+        fails.extend("toast reconnect (%s): %s" % (theme, p) for p in probs)
+        print("close: toast #parity-toasts-timeout via reconnect while closing (%s): %s"
+              % (theme, "ok" if not probs else "FAIL"))
+    return fails
+
+
 # An anchored overlay must sit against its anchor, not wherever position-area lands with
 # none (the viewport). Each entry: (component, label, selector, anchor selector, open js,
 # side). The overlay is opened with motion off on a fresh twin page and its rect is checked.
 ANCHOR_CHECKS = [
     ("tooltip", "hover", "al-tooltip[for=parity-tooltip-trigger]", "#parity-tooltip-trigger",
      "(el) => %s.dispatchEvent(new PointerEvent('pointerenter'))" % _TIP_TRIGGER, "above"),
+    ("popover", "anchor attr", "#parity-popover-elsewhere", "#parity-anchor-target",
+     "(el) => el.showPopover()", "below"),
 ]
 ANCHOR_GAP_PX = 12  # the tooltip's 5px offset, with room; an unanchored one is far off
 
@@ -540,7 +655,10 @@ RECT_JS = "(el) => { const r = el.getBoundingClientRect(); return [r.left, r.top
 
 def anchor_problems(rect, anchor, side):
     """What is wrong with an overlay's rect [left, top, right, bottom] against its anchor's:
-    it must be on `side` ("above"/"below") within ANCHOR_GAP_PX and centred on it (1px)."""
+    it must be on `side` ("above"/"below") within ANCHOR_GAP_PX and centred on it (1px).
+    Any other side is a ValueError, not "below"."""
+    if side not in ("above", "below"):
+        raise ValueError("anchor side must be 'above' or 'below', not %r" % (side,))
     if rect[2] - rect[0] <= 0:
         return ["has no size, so it did not open"]
     gap = anchor[1] - rect[3] if side == "above" else rect[1] - anchor[3]
@@ -554,7 +672,7 @@ def anchor_problems(rect, anchor, side):
     return out
 
 
-def run_anchor_checks(browser, base, comps):
+def run_anchor_checks(browser, base, comps, sink=None):
     """Every ANCHOR_CHECKS entry whose component is in comps, light theme only (placement
     does not depend on the theme). Returns failure lines."""
     fails = []
@@ -562,11 +680,21 @@ def run_anchor_checks(browser, base, comps):
         if comp not in comps:
             continue
         page = browser.new_page(viewport=VIEWPORT, color_scheme="light")
+        if sink:
+            sink.watch(page)
         try:
             page.goto(base + TWIN_URL, wait_until="load")
             page.wait_for_selector("html[data-ref-ready]", state="attached", timeout=20000)
             page.add_style_tag(content=NO_MOTION)
             el, anchor = page.query_selector(selector), page.query_selector(anchor_sel)
+            missing = [sel for sel, found in ((selector, el), (anchor_sel, anchor)) if found is None]
+            if missing:
+                fails.extend("%s %s %s: %s is not on the page" % (comp, selector, label, m) for m in missing)
+                print("anchor: %s %s via %s: FAIL" % (comp, selector, label))
+                continue
+            # Centred in the viewport, so position-try has room on either side and
+            # flips only when the overlay really is placed on the wrong side.
+            anchor.evaluate("(a) => a.scrollIntoView({ block: 'center' })")
             el.evaluate(open_js)
             page.evaluate(SETTLE_JS)
             probs = anchor_problems(el.evaluate(RECT_JS), anchor.evaluate(RECT_JS), side)
@@ -630,6 +758,31 @@ def _read_as(twin, markers, allow):
         return {}
     fixed = [m for m in markers if any(fnmatch.fnmatchcase(target(m, allow), g) for g in FIXED_WIDTH)]
     return twin.page.evaluate(READ_JS, [PROPS, fixed, markers])
+
+
+def expect_conflicts(page):
+    """Marker labels of elements on `page` that carry both data-ref and data-expect*."""
+    return sorted(page.page.evaluate(EXPECT_CONFLICT_JS))
+
+
+def page_error_lines(pages):
+    """One line per uncaught page error, prefixed by the page's name. `pages` are objects
+    with .name and .errors (a Page, or the collector the close/anchor checks fill)."""
+    return ["parity: %s page error: %s" % (p.name, e) for p in pages for e in p.errors]
+
+
+def font_gate(ref_fonts, twin_fonts, gating):
+    """(status, message) for the Geist fonts: the ref's must load; the twin's must too
+    while any component gates, else it is only a warning. message is None when all is well."""
+    if not (ref_fonts["geist"] and ref_fonts["mono"]):
+        return 1, "parity: FAIL the ref page's Geist fonts did not load: %s" % ref_fonts
+    if twin_fonts["geist"] and twin_fonts["mono"]:
+        return 0, None
+    if gating:
+        return 1, ("parity: FAIL the twin page's Geist fonts did not load (%s), and these "
+                   "components gate: %s" % (twin_fonts, ", ".join(gating)))
+    return 0, ("parity: WARNING the twin page's Geist fonts did not load (%s); every "
+               "compared component is pending, so this does not gate yet" % twin_fonts)
 
 
 def check_sets(ref, twin, allow):
@@ -770,46 +923,59 @@ def main(argv=None):
                 twin = Page(browser, base, TWIN_URL, "twin")
                 print("# parity: ref %d markers, twin %d markers, themes %s"
                       % (len(ref.inventory), len(twin.inventory), "/".join(THEMES)))
-                for p in (ref, twin):
-                    if p.errors:
-                        print("parity: %s page errors: %s" % (p.name, p.errors))
-                        status = 1
+                sink = ErrorSink("close/anchor checks")
+
+                printed = set()
+
+                def page_errors():  # each error is printed once, however often this runs
+                    lines = page_error_lines([ref, twin, sink])
+                    for line in lines:
+                        if line not in printed:
+                            printed.add(line)
+                            print(line)
+                    return 1 if lines else 0
+
+                status = page_errors()
                 problems = check_sets(ref, twin, allow)
+                for label in expect_conflicts(ref) + expect_conflicts(twin):
+                    problems.append("marker %s has both data-ref and data-expect (the expect is never checked)" % label)
                 for pr in problems:
                     print("parity: FAIL %s" % pr)
                 if problems:
                     return 1
                 if not (ref.fonts["geist"] and ref.fonts["mono"]):
-                    print("parity: FAIL the ref page's Geist fonts did not load: %s" % ref.fonts)
+                    print(font_gate(ref.fonts, twin.fonts, [])[1])
                     return 1
                 comps = sorted({component(target(m, allow)) for m in twin.inventory}
                                | {component(m) for m in ref.inventory})
                 if args.only and args.only not in comps:
                     print("parity: no component %r (have %s)" % (args.only, ", ".join(comps)))
                     return 2
-                twin_fonts = twin.fonts["geist"] and twin.fonts["mono"]
                 gating = [c for c in comps if c not in allow["pending"] and (args.only in (None, c))]
-                if not twin_fonts:
-                    if gating:
-                        print("parity: FAIL the twin page's Geist fonts did not load (%s), and these "
-                              "components gate: %s" % (twin.fonts, ", ".join(gating)))
-                        status = 1
-                    else:
-                        print("parity: WARNING the twin page's Geist fonts did not load (%s); every "
-                              "compared component is pending, so this does not gate yet" % twin.fonts)
+                font_status, font_msg = font_gate(ref.fonts, twin.fonts, gating)
+                if font_msg:
+                    print(font_msg)
+                status = max(status, font_status)
                 rows, expects = collect(ref, twin, allow, args.only)
+                status = max(status, page_errors())
                 text, failing = report(rows, allow, [c for c in comps if args.only in (None, c)], expects)
                 print(text)
                 if failing:
                     status = 1
-                close_fails = run_close_checks(browser, base, gating)
+                if not args.only:  # a one-component run cannot tell an entry is dead
+                    for e in unused_allow(rows, allow):
+                        print("WARN unused allow entry: %s %s" % (e["ref"], e["prop"]))
+                close_fails = run_close_checks(browser, base, gating, sink)
+                if "toast" in gating:
+                    close_fails += run_reconnect_check(browser, base, sink)
                 for f in close_fails:
                     print("parity: FAIL close %s" % f)
-                anchor_fails = run_anchor_checks(browser, base, gating)
+                anchor_fails = run_anchor_checks(browser, base, gating, sink)
                 for f in anchor_fails:
                     print("parity: FAIL anchor %s" % f)
                 if close_fails or anchor_fails:
                     status = 1
+                status = max(status, page_errors())
                 if args.strict and allow["pending"]:
                     print("parity: --strict and pending is not empty: %s" % ", ".join(allow["pending"]))
                     status = 1

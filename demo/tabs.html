@@ -34,6 +34,17 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
     <al-panel>The details panel.</al-panel>
   </al-tab>
 </al-tabs>
+<p>With <code>variant="line"</code> the checked label is underlined; without the script there is no muted pill (the labels and panels share one flex row).</p>
+<al-tabs variant="line">
+  <al-tab name="t-nojs-line">
+    <label><input type="radio" name="t-nojs-line" checked>Overview</label>
+    <al-panel>The overview panel.</al-panel>
+  </al-tab>
+  <al-tab name="t-nojs-line">
+    <label><input type="radio" name="t-nojs-line">Details</label>
+    <al-panel>The details panel.</al-panel>
+  </al-tab>
+</al-tabs>
 </section>
 
 <section>

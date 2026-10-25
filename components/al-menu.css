@@ -8,6 +8,15 @@
  * The parts map to shadcn's dropdown-menu: the element is DropdownMenuContent,
  * each a / button child a DropdownMenuItem (data-variant="destructive" for
  * the destructive one), an <hr> child the DropdownMenuSeparator.
+ *
+ * Position: like al-popover, anchor="<id>" names another element to anchor to.
+ * It needs al.js (al-shim.js sets position-anchor at each open; Chromium
+ * ignores the HTML attribute); without it the invoker is the anchor.
+ *
+ * Limit (#13): the transform-origin is the resting one (top left, top right
+ * under dir=rtl). When position-try flips the menu, the origin is not
+ * mirrored: @position-try cannot carry transform-origin or translate, and a
+ * container query cannot restyle its container, so that needs JS.
  */
 
 /* DropdownMenuContent: z-50 max-h-(--radix-dropdown-menu-content-available-height)
@@ -35,6 +44,12 @@ al-menu {
   box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-md);
   outline: none;
   transform-origin: top left;
+}
+
+/* the resting origin is the inline start (position-area: block-end
+   span-inline-end opens at the invoker's start edge) */
+al-menu:dir(rtl) {
+  transform-origin: top right;
 }
 
 al-menu:popover-open {
@@ -74,10 +89,21 @@ al-menu > :is(a, button) svg {
 }
 
 /* focus:bg-accent focus:text-accent-foreground   (Radix focuses the item the
-   pointer is over, so hover is the same) */
+   pointer is over, so hover is the same). A focused ref item computes
+   outline-width 1px (outline-style stays none), so hover matches it. */
 al-menu > :is(a, button):is(:hover, :focus-visible) {
   background: var(--accent);
   color: var(--accent-foreground);
+  outline-width: 1px;
+}
+
+/* Keyboard focus also draws an outline, which hover does not (a divergence from
+   shadcn, #15): the accent fill alone is too faint to find the focused item
+   (muted-foreground on popover is checked at 3:1 by test/check.py). The negative
+   offset keeps it inside the popover's clipped edge. Forced colors recolour it. */
+al-menu > :is(a, button):focus-visible {
+  outline: 2px solid var(--muted-foreground);
+  outline-offset: -2px;
 }
 
 /* data-[variant=destructive]:text-destructive

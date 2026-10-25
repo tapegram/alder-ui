@@ -83,3 +83,12 @@ al-badge:has(> a:focus-visible) {
 al-badge > a:focus-visible {
   outline: none;
 }
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-badge > a:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
+}

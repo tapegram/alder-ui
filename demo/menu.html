@@ -44,6 +44,19 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
   <button type="button" data-variant="destructive"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete</button>
 </al-menu>
 </section>
+
+<section>
+<h2>Anchored elsewhere</h2>
+<p><code>anchor</code> names another element by id; the menu opens against it, not its invoker (this needs <code>al.js</code>).</p>
+<al-stack direction="row" gap="sm">
+  <al-button variant="outline"><button type="button" id="m-target">Anchor</button></al-button>
+  <al-button variant="outline"><button type="button" commandfor="m-anchor" command="toggle-popover">Open anchored elsewhere</button></al-button>
+</al-stack>
+<al-menu popover id="m-anchor" anchor="m-target">
+  <a href="#profile">Profile</a>
+  <a href="#settings">Settings</a>
+</al-menu>
+</section>
 </al-stack>
 </al-page>
 </body>

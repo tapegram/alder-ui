@@ -23,6 +23,11 @@ al-button {
   --_al-hover-fg: var(--primary-foreground);
   --_al-ring: color-mix(in oklab, var(--ring) 50%, transparent);
   --_al-border: var(--border);
+  /* The transparent layers mirror how Tailwind composes box-shadow, so the
+     computed list matches the reference's. --_al-shadow (in variants that set a
+     shadow: 4 no-op layers + shadow; none otherwise) and --_al-shadow-end (the last layer, under the focus ring: 3
+     no-op layers + ring + shadow-end) must stay in step; change one, change
+     the other. */
   --_al-shadow: none;
   --_al-shadow-end: 0 0 transparent;
   --_al-border-focus: var(--ring);
@@ -272,4 +277,14 @@ al-button:has(> :is(button, a))[disabled] {
    is Alder's; on any other page the rule matches nothing. */
 form._alder-click {
   display: contents;
+}
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-button:not(:has(> :is(button, a))):focus-visible,
+  al-button > :is(button, a):focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
 }

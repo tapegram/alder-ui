@@ -37,7 +37,7 @@ README is the short version.
 
 `al.css` is the whole library (tokens and every component, inside
 `@layer al`). Copy it from a tagged release, or link the raw file at a tag
-(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.0/al.css`). Open
+(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.1/al.css`). Open
 `demo/index.html` to see every element, variant and state in both themes.
 
 ## Elements
@@ -59,8 +59,8 @@ declares each one with its type, default and description.
 | `al-alert` | `variant` (`info` default, `success`, `warning`, `destructive`), `heading`, `dismissible` | default |
 | `al-pagination` | `page`, `pages` | `prev`, default, `next` |
 | `al-dialog` | `heading`, `size` (`sm`, `md` default, `lg`), `dismissible` | `header`, default, `actions`, `description` |
-| `al-popover` | `placement` (`top`, `bottom` default, `left`, `right`), `offset` (`sm` default, `md`, `lg`), `anchor` | default |
-| `al-menu` | | default (links or buttons) |
+| `al-popover` | `placement` (`top`, `bottom` default, `left`, `right`), `offset` (`sm` default, `md`, `lg`), `anchor` (an id; needs `al.js`, without it the invoker is the anchor) | default |
+| `al-menu` | `anchor` (an id; needs `al.js`, without it the invoker is the anchor) | default (links or buttons) |
 | `al-tabs` | `variant` (`default`, `line`) | default (`al-tab`s) |
 | `al-tab` | `name`, `selected` | default (a `<label>` with a radio, then an `al-panel`) |
 | `al-panel` | | default |
@@ -279,7 +279,7 @@ dismissible dialog has the renderer's shape.
 `tabindex`) made from the labels' text and inserted before the panels, the radio
 labels hidden, `role=tabpanel` with `id` and `aria-labelledby` on each panel.
 Click and the arrow keys, Home and End check the (hidden) radio, so the CSS and
-`al-select` work as before. With no script nothing changes: radios and labels. `al-devpanel.js` hides the sections that are not
+`al-select` work as before. With no script nothing changes: radios and labels. `variant=line` applies to those labels too (a transparent checked label with the same underline), but the muted pill does not: the labels and panels share one flex row, so nothing wraps only the labels. `al-devpanel.js` hides the sections that are not
 selected and re-applies the selection after any DOM patch (a MutationObserver),
 so a server that patches the panel's inner content need not render `hidden`.
 
@@ -289,12 +289,14 @@ Every script (`al-tabs.js`, `al-devpanel.js`, ...) is at most 60 lines and optio
 `popovertarget`/`#id` links, tabs are a radio group, and a menu is a popover of
 links without it. `al-shim.js` polyfills `command` / `commandfor`
 (`show-modal`, `close`, `toggle-popover`, `show-popover`, `hide-popover`) and
-re-announces closing as `al-close`; `al-tooltip.js` shows tooltips on hover and
-focus, whether or not `popover="hint"` exists.
+re-announces closing as `al-close`, and makes `anchor=` on `al-popover` and
+`al-menu` work (Chromium ignores the HTML attribute); `al-tooltip.js` shows
+tooltips on hover and focus, whether or not `popover="hint"` exists.
 
 Browser support: invoker commands, `popover="hint"` and CSS anchor
 positioning need Chromium 135+, Safari 26 or Firefox 140. The shim covers
 invoker commands on older browsers that have `<dialog>` and popover. Without
 anchor positioning a popover, menu or tooltip appears at the browser's default
-popover position (usable, not anchored). Events: `al-close` (dialog, popover,
+popover position (usable, not anchored). `anchor=` needs al.js; without it
+the invoker is the anchor. Events: `al-close` (dialog, popover,
 menu, toasts) and `al-select` (menu, tabs).

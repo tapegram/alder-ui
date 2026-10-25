@@ -61,6 +61,16 @@ al-table tfoot > tr:last-child {
   border-bottom-width: 0;
 }
 
+/* dense: th h-8, cells p-1 */
+al-table[dense] th {
+  height: 2rem;
+}
+
+al-table[dense] th,
+al-table[dense] td {
+  padding: 0.25rem;
+}
+
 /* TableHead: h-10 px-2 text-left align-middle font-medium whitespace-nowrap
    text-foreground [&:has([role=checkbox])]:pr-0
    [&>[role=checkbox]]:translate-y-[2px] */
@@ -82,6 +92,7 @@ al-table td {
   white-space: nowrap;
 }
 
+/* after the dense block: dense cells keep the checkbox cell's pr-0 */
 al-table th:has([role="checkbox"]),
 al-table td:has([role="checkbox"]) {
   padding-right: 0;
@@ -104,12 +115,7 @@ al-table[striped] tbody tr:nth-child(even) {
   background: color-mix(in oklab, var(--muted) 50%, transparent);
 }
 
-/* dense: th h-8, cells p-1 */
-al-table[dense] th {
-  height: 2rem;
-}
-
-al-table[dense] th,
-al-table[dense] td {
-  padding: 0.25rem;
+/* data-[state=selected]:bg-muted wins over the even row (#13) */
+al-table[striped] tbody tr[aria-selected="true"]:nth-child(even) {
+  background: var(--muted);
 }

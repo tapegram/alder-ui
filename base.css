@@ -221,6 +221,9 @@ input:where([type="button"], [type="reset"], [type="submit"]),
   height: auto;
 }
 
+/* Tailwind Preflight's rule, kept as is. Inside `@layer al` this !important
+   still beats an unlayered app `!important`: for important declarations the
+   layer order inverts, so an earlier layer wins over the unlayered styles. */
 [hidden]:where(:not([hidden="until-found"])) {
   display: none !important;
 }

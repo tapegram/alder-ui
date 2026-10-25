@@ -3,13 +3,26 @@
  * popover attribute yourself and open it with a button carrying
  * popovertarget="<id>" or commandfor="<id>" command="toggle-popover"; both
  * work with no JavaScript. Position: CSS anchor positioning (the invoker is
- * the implicit anchor, or name another element with the HTML anchor="<id>"
- * attribute); position-try flips it to the other side when it would overflow.
- * placement and offset choose the side and the gap.
+ * the implicit anchor, or name another element with anchor="<id>");
+ * position-try flips it to the other side when it would overflow.
+ * placement and offset choose the side and the gap. anchor= needs al.js
+ * (al-shim.js sets position-anchor at each open; Chromium ignores the HTML
+ * attribute); without it the invoker is the anchor.
  *
  * The parts map to shadcn's: the element is PopoverContent; a heading inside
  * it is PopoverTitle and a paragraph PopoverDescription (PopoverHeader's
- * gap-1 is the paragraph's top margin after a heading).
+ * gap-1 is the paragraph's top margin after a heading). Children have no
+ * margin between them (`al-popover > * { margin: 0 }`): PopoverContent has no
+ * inter-child spacing either, only the header's gap-1.
+ *
+ * Typography (#11): the paragraph is text-sm, 20px (the reference computes the
+ * same), pinned in demo/parity.html. Every surface keeps shadcn's per-part
+ * values; none is reset uniformly (card and dialog body p are 24px).
+ *
+ * Limit (#13): when position-try flips the popover to the other side, its
+ * transform-origin and slide-in direction stay those of the first choice.
+ * @position-try cannot carry transform-origin or translate, and a container
+ * query cannot restyle its own container, so mirroring them needs JS.
  */
 
 /* PopoverContent: z-50 w-72 origin-(--radix-popover-content-transform-origin)
@@ -67,6 +80,7 @@ al-popover[offset="lg"] {
   margin: 1rem;
 }
 
+/* shadcn-faithful: no spacing between children (see the header) */
 al-popover > * {
   margin: 0;
 }

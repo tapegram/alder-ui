@@ -6,6 +6,7 @@ import json
 import pathlib
 import sys
 import tempfile
+import types
 import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -94,6 +95,95 @@ class AllowTest(unittest.TestCase):
         self.assertIsInstance(allow["pending"], list)
         self.assertTrue(all(isinstance(c, str) and c for c in allow["pending"]))
         self.assertEqual(len(set(allow["pending"])), len(allow["pending"]))
+        # #8: a wildcard prop hides everything, and box-* on the backdrop is two named props.
+        self.assertFalse([e for e in allow["allow"] if e["prop"] == "*"])
+        overlay = [e["prop"] for e in allow["allow"] if e["ref"] == "dialog/overlay/open"]
+        self.assertFalse([p for p in overlay if p.startswith("box-") and "*" in p], overlay)
+
+    def test_unused_entry(self):
+        allow = {"pending": [], "map": {}, "allow": [
+            {"ref": "button/*", "prop": "height", "reason": "t"},
+            {"ref": "card/*", "prop": "gap", "reason": "t"},
+            {"ref": "tabs/nojs-*/*", "prop": "*", "reason": "t"},
+        ]}
+        rows = [("button", "button/default/default", "light", "rest", "height", "1px", "2px"),
+                ("tabs", "tabs/list/default", "dark", "rest", "gap", "1px", "2px")]
+        unused = parity.unused_allow(rows, allow)
+        self.assertEqual([e["ref"] for e in unused], ["card/*", "tabs/nojs-*/*"])
+
+    def test_dark_only_row_counts_as_a_use(self):
+        allow = {"pending": [], "map": {"a/x": "a/y"}, "allow": [{"ref": "a/y", "prop": "gap", "reason": "t"}]}
+        rows = [("a", "a/x", "dark", "rest", "gap", "1px", "2px")]
+        self.assertEqual(parity.unused_allow(rows, allow), [])
+
+
+class CheckSetsTest(unittest.TestCase):
+    def pages(self, ref, twin):
+        mk = lambda d: types.SimpleNamespace(inventory={k: {"states": v} for k, v in d.items()})
+        return mk(ref), mk(twin)
+
+    def test_identical_sets_are_clean(self):
+        ref, twin = self.pages({"a/b/c": ["hover"]}, {"a/b/c": ["hover"]})
+        self.assertEqual(parity.check_sets(ref, twin, {}), [])
+
+    def test_marker_on_one_page_only(self):
+        ref, twin = self.pages({"a/b/c": [], "a/b/d": []}, {"a/b/c": [], "a/b/e": []})
+        probs = parity.check_sets(ref, twin, {})
+        self.assertEqual(len(probs), 2)
+        self.assertIn("a/b/d is on the ref page only", probs[0])
+        self.assertIn("a/b/e is on the twin page only", probs[1])
+
+    def test_states_differ(self):
+        ref, twin = self.pages({"a/b/c": ["hover"]}, {"a/b/c": ["hover", "focus"]})
+        probs = parity.check_sets(ref, twin, {})
+        self.assertEqual(len(probs), 1)
+        self.assertIn("states differ", probs[0])
+
+
+class ExpectConflictTest(unittest.TestCase):
+    def test_labels_come_from_the_page(self):
+        fake = types.SimpleNamespace(page=types.SimpleNamespace(evaluate=lambda js: ["a/b/c"]))
+        self.assertEqual(parity.expect_conflicts(fake), ["a/b/c"])
+        self.assertIn("data-expect", parity.EXPECT_CONFLICT_JS)
+        self.assertIn("data-ref", parity.EXPECT_CONFLICT_JS)
+
+
+class FontGateTest(unittest.TestCase):
+    OK = {"geist": True, "mono": True}
+    BAD = {"geist": False, "mono": True}
+
+    def test_missing_ref_font_fails(self):
+        status, msg = parity.font_gate(self.BAD, self.OK, ["button"])
+        self.assertEqual(status, 1)
+        self.assertIn("ref", msg)
+
+    def test_missing_twin_font_fails_when_gating(self):
+        status, msg = parity.font_gate(self.OK, self.BAD, ["button"])
+        self.assertEqual(status, 1)
+        self.assertIn("button", msg)
+
+    def test_missing_twin_font_warns_when_nothing_gates(self):
+        status, msg = parity.font_gate(self.OK, self.BAD, [])
+        self.assertEqual(status, 0)
+        self.assertIn("WARNING", msg)
+
+    def test_fonts_present(self):
+        self.assertEqual(parity.font_gate(self.OK, self.OK, ["button"]), (0, None))
+
+
+class PageErrorTest(unittest.TestCase):
+    def test_one_line_per_error_prefixed_by_page(self):
+        a = types.SimpleNamespace(name="ref", errors=["boom", "bang"])
+        b = types.SimpleNamespace(name="twin", errors=[])
+        c = types.SimpleNamespace(name="close checks", errors=["oops"])
+        lines = parity.page_error_lines([a, b, c])
+        self.assertEqual(len(lines), 3)
+        self.assertTrue(lines[0].startswith("parity: ref page error") and "boom" in lines[0])
+        self.assertIn("bang", lines[1])
+        self.assertIn("close checks", lines[2])
+
+    def test_no_errors(self):
+        self.assertEqual(parity.page_error_lines([types.SimpleNamespace(name="x", errors=[])]), [])
 
 
 class CloseVerdictTest(unittest.TestCase):
@@ -120,10 +210,54 @@ class CloseVerdictTest(unittest.TestCase):
         # R19: a node removed from the document is closed, whatever it last measured.
         self.assertEqual(parity.close_problems(self.state(connected=False, display="block", hit=True)), [])
 
+    def test_timeout_close_needs_motion(self):
+        # A timeout row that was removed without ever showing data-closing skipped its exit.
+        probs = parity.close_problems(self.state(connected=False, closing_seen=False))
+        self.assertEqual(len(probs), 1)
+        self.assertIn("exit transition", probs[0])
+        self.assertEqual(parity.close_problems(self.state(connected=False, closing_seen=True)), [])
+
     def test_never_opened_is_a_problem(self):
         # Otherwise a dialog that never opened would pass vacuously.
         self.assertEqual(len(parity.close_problems(self.state(opened=False))), 1)
         self.assertEqual(len(parity.close_problems(self.state(opened=False, connected=False))), 1)
+
+
+class ToastVerdictTest(unittest.TestCase):
+    """A toast that closed by its timeout, as check_closes measures it (9.4, 9.5)."""
+
+    def closed(self, **kw):
+        st = {"opened": True, "connected": False, "display": "", "hit": False, "closing_seen": True}
+        st.update(kw)
+        return st
+
+    def test_closed_with_its_exit_transition(self):
+        self.assertEqual(parity.close_problems(self.closed()), [])
+
+    def test_still_connected_after_300ms_fails(self):
+        self.assertTrue(parity.close_problems(self.closed(connected=True, display="block", hit=True)))
+
+
+class ReconnectVerdictTest(unittest.TestCase):
+    """A toast re-inserted while closing starts afresh (9.6)."""
+
+    def state(self, **kw):
+        st = {"survived_old_close": True, "closed_after_new_timeout": True}
+        st.update(kw)
+        return st
+
+    def test_survives_then_closes(self):
+        self.assertEqual(parity.reconnect_problems(self.state()), [])
+
+    def test_removed_by_the_old_close(self):
+        probs = parity.reconnect_problems(self.state(survived_old_close=False))
+        self.assertEqual(len(probs), 1)
+        self.assertIn("old close", probs[0])
+
+    def test_never_closes_again(self):
+        probs = parity.reconnect_problems(self.state(closed_after_new_timeout=False))
+        self.assertEqual(len(probs), 1)
+        self.assertIn("new timeout", probs[0])
 
 
 class CloseChecksTest(unittest.TestCase):
@@ -136,12 +270,13 @@ class CloseChecksTest(unittest.TestCase):
         for comp in ("dialog", "popover", "menu", "tooltip", "toast"):
             self.assertTrue(self.labels(comp), comp)
 
-    def test_toast_closes_by_timeout(self):
-        # The toast closes itself: close is the ms it does so after, and the toast the
-        # open js adds carries that timeout.
-        (entry,) = [c for c in parity.CLOSE_CHECKS if c[:2] == ("toast", "timeout")]
-        self.assertEqual(entry[4], 100)
-        self.assertIn("'timeout', '100'", entry[3])
+    def test_toast_timeout_rows_are_timed(self):
+        # A timeout row closes itself: close is the ms it does so after, and every
+        # such row is checked for the exit transition (closing_seen) in check_closes.
+        rows = [c for c in parity.CLOSE_CHECKS if c[0] == "toast"]
+        self.assertTrue(rows)
+        for c in rows:
+            self.assertIsInstance(c[4], (int, float), c[1])
 
     def test_popover_closes_every_way(self):
         self.assertIn("hidePopover()", self.labels("popover"))
@@ -165,7 +300,26 @@ class AnchorVerdictTest(unittest.TestCase):
     def test_not_open(self):
         self.assertEqual(len(parity.anchor_problems([0, 0, 0, 0], self.TRIGGER, "above")), 1)
 
+    def test_unknown_side(self):
+        with self.assertRaises(ValueError):
+            parity.anchor_problems([268, 949, 354, 977], self.TRIGGER, "below ")
+
+
 class ReportTest(unittest.TestCase):
+    def test_allowed_row_does_not_fail(self):
+        allow = {"pending": [], "map": {}, "allow": [{"ref": "button/*", "prop": "height", "reason": "t"}]}
+        rows = [("button", "button/default/default", "light", "rest", "height", "1px", "2px")]
+        text, failing = parity.report(rows, allow, ["button"], [])
+        self.assertEqual(failing, [])
+        self.assertIn("1 allowed", text)
+
+    def test_pending_component_does_not_fail(self):
+        allow = {"pending": ["button"], "map": {}, "allow": []}
+        rows = [("button", "button/default/default", "light", "rest", "height", "1px", "2px")]
+        text, failing = parity.report(rows, allow, ["button"], [])
+        self.assertEqual(failing, [])
+        self.assertIn("## pending: button", text)
+
     def test_expect_only_component_rows_are_printed(self):
         # A data-expect row whose component has no data-ref marker (stack, page) still
         # gates, so its rows must be shown, not only its name in the failing line.

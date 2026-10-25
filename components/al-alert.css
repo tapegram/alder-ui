@@ -11,6 +11,16 @@
  * shadcn has only default and destructive. info, success and warning are
  * the default look; they differ only in the icon (info, circle-check,
  * triangle-alert; destructive has octagon-x). No tinted backgrounds.
+ *
+ * Content (spec 5.2): a heading attribute plus bare text reads like a heading
+ * plus a p: the host takes the description colour and the title (::before),
+ * the icon and the close button take the title colour (--_al-title). An h1-h6
+ * child is styled as AlertTitle, not as Typography's heading. An empty
+ * ul.errors is hidden; with a heading the alert still draws the heading.
+ *
+ * Typography (#11): the description is text-sm, 20px, and a p nested in a
+ * block child is leading-relaxed (1.625), as in shadcn's [&_p]:leading-relaxed.
+ * Every surface keeps shadcn's per-part values; none is reset uniformly.
  */
 
 /* relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 rounded-lg
@@ -22,6 +32,7 @@
    column and gap-x-3 are the start padding: px-4 + size-4 + gap-x-3. */
 al-alert {
   --_al-icon: var(--_al-icon-info);
+  --_al-title: var(--card-foreground);
   display: block;
   position: relative;
   box-sizing: border-box;
@@ -63,7 +74,23 @@ al-alert[variant="warning"] {
    *:data-[slot=alert-description]:text-destructive/90 */
 al-alert[variant="destructive"] {
   --_al-icon: var(--_al-icon-octagon-x);
+  --_al-title: var(--destructive);
   color: var(--destructive);
+}
+
+/* heading + bare text: the text is the description (the p rules below give
+   the same colours to a block child, so the host keeps its own then) */
+al-alert[heading]:not(:has(> :is(p, div, ul:not(.errors:empty), ol))) {
+  color: var(--muted-foreground);
+}
+
+al-alert[heading][variant="destructive"]:not(:has(> :is(p, div, ul:not(.errors:empty), ol))) {
+  color: color-mix(in oklab, var(--destructive) 90%, transparent);
+}
+
+/* the icon is text-current on the title colour, not the description's */
+al-alert[heading]::after {
+  color: var(--_al-title);
 }
 
 /* AlertTitle: col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight
@@ -75,7 +102,29 @@ al-alert[heading]::before {
   min-height: 1rem;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
+  color: var(--_al-title);
   font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+/* gap-y-0.5 under the title when bare text follows it (a block child brings
+   its own 2px margin).
+   An empty errors list counts as a block child here: CSS cannot see bare text
+   beside it, and a heading-only alert (Alder's Errors form) must stay 46px. */
+al-alert[heading]:not(:has(> :is(p, div, ul, ol)))::before {
+  margin-block-end: 0.125rem;
+}
+
+/* an h1-h6 child is the AlertTitle: font-medium tracking-tight text-sm, with
+   no Typography margin, divider or size (scroll-m-20 h3 text-2xl) */
+al-alert > :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  padding: 0;
+  border-width: 0;
+  color: var(--_al-title);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
   letter-spacing: -0.025em;
 }
 
@@ -127,7 +176,8 @@ al-alert[dismissible] {
 
 /* The dismiss button: a ghost icon button, size-7, top right.
    hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50
-   focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 */
+   focus-visible:ring-[3px] focus-visible:ring-ring/50 (no border-ring: the
+   button's border is 0, so focus draws the ring as a box-shadow only) */
 al-alert > .al-alert-dismiss {
   position: absolute;
   top: 0.5rem;
@@ -143,7 +193,7 @@ al-alert > .al-alert-dismiss {
   border: 0;
   border-radius: var(--radius-md);
   background: transparent;
-  color: inherit;
+  color: var(--_al-title);
   cursor: pointer;
   outline: none;
 }
@@ -178,6 +228,21 @@ al-alert > .al-alert-dismiss:focus-visible {
 /* An alert that holds only an empty errors list (Alder's
    <al-alert variant="destructive"><Errors form /></al-alert>, before any
    error) is not drawn: no empty coloured box. */
-al-alert:has(> ul.errors:empty) {
+al-alert:not([heading]):has(> ul.errors:empty) {
   display: none;
+}
+
+/* with a heading the alert stays and only the empty list goes (it would
+   otherwise add a 2px gap and, as a grid, beat the plain display rule) */
+al-alert > ul.errors:empty {
+  display: none;
+}
+
+/* forced colors drop box-shadow rings and backgrounds: draw the focus indicator as an
+   outline in the system colour (#15) */
+@media (forced-colors: active) {
+  al-alert > .al-alert-dismiss:focus-visible {
+    outline: 2px solid CanvasText;
+    outline-offset: 2px;
+  }
 }

@@ -127,6 +127,11 @@ window.addEventListener("load", function () {
     <p slot="description" data-expect="line-height: 20px">Card Description</p>
     <p data-expect="line-height: 24px">Card body text.</p>
   </al-card>
+  <!-- twin-only (#13.1): a card with a description and no title does not pull it up by -1rem -->
+  <al-card>
+    <p slot="description" data-expect="margin-top: 0px">Card Description</p>
+    <div>Content</div>
+  </al-card>
 </al-stack>
 
 <al-stack gap="md" data-section="badge">
@@ -136,6 +141,11 @@ window.addEventListener("load", function () {
     <al-badge variant="secondary" data-ref="badge/secondary/default">Badge</al-badge>
     <al-badge variant="destructive" data-ref="badge/destructive/default">Badge</al-badge>
     <al-badge variant="outline" data-ref="badge/outline/default">Badge</al-badge>
+  </al-stack>
+  <!-- twin-only: link badges for the focus-ring pin (test/test_focus.py); a badge is not focusable in shadcn -->
+  <al-stack direction="row" gap="sm">
+    <al-badge><a href="#parity-badge-default" id="parity-badge-default">Link</a></al-badge>
+    <al-badge variant="destructive"><a href="#parity-badge-destructive" id="parity-badge-destructive">Link</a></al-badge>
   </al-stack>
 </al-stack>
 
@@ -151,7 +161,20 @@ window.addEventListener("load", function () {
        4px apart with no Typography li margin -->
   <al-alert variant="info" role="status" data-expect="height: 46px">Saved <code data-expect="display: inline">post.md</code> ok, <a href="#" data-expect="display: inline">view it</a>.</al-alert>
   <al-alert variant="info" heading="Alert Title" role="status" data-expect="height: 68px"><p data-expect="height: 20px">Saved <code>post.md</code> ok, <a href="#">view it</a>.</p></al-alert>
+  <al-alert variant="info" heading="Alert Title" role="status" id="parity-alert-bare-errors-info"><ul class="errors"></ul>Bare text</al-alert>
+  <al-alert variant="destructive" heading="Alert Title" role="alert" id="parity-alert-bare-errors-destructive"><ul class="errors"></ul>Bare text</al-alert>
   <al-alert variant="destructive" role="alert" data-expect="height: 70px"><ul class="errors" data-errors="alert-errors"><li data-expect="margin-top: 0px">That slug is taken.</li><li data-expect="margin-top: 0px">The title must not be empty.</li></ul></al-alert>
+  <!-- twin-only (#13.4): a heading plus an empty errors list draws the heading and hides the list -->
+  <al-alert heading="Alert Title" variant="destructive" role="alert" data-expect="height: 46px"><ul class="errors" data-errors="alert-heading-empty" data-expect="display: none"></ul></al-alert>
+  <al-alert heading="Alert Title" variant="destructive" role="alert" data-expect="height: 68px"><ul class="errors" data-errors="alert-heading-empty-p" data-expect="display: none"></ul><p>Text</p></al-alert>
+  <!-- twin-only (#13.5): a heading plus bare text matches the same heading plus a p (same
+       height here; the colours are pinned in test/test_page.py, they depend on the theme) -->
+  <al-alert variant="info" heading="Alert Title" role="status" id="parity-alert-bare-info" data-expect="height: 68px">Bare text</al-alert>
+  <al-alert variant="info" heading="Alert Title" role="status" id="parity-alert-p-info" data-expect="height: 68px"><p>Bare text</p></al-alert>
+  <al-alert variant="destructive" heading="Alert Title" role="alert" id="parity-alert-bare-destructive" data-expect="height: 68px">Bare text</al-alert>
+  <al-alert variant="destructive" heading="Alert Title" role="alert" id="parity-alert-p-destructive" data-expect="height: 68px"><p>Bare text</p></al-alert>
+  <!-- twin-only (#13.6): a heading inside an alert is styled as AlertTitle, not Typography's h3 -->
+  <al-alert heading="Alert Title" role="status"><h3 data-expect="margin-top: 0px; border-bottom-width: 0px; padding-bottom: 0px; font-size: 14px; line-height: 20px; font-weight: 500">Inner heading</h3></al-alert>
 </al-stack>
 
 <al-stack gap="md" data-section="table">
@@ -167,6 +190,18 @@ window.addEventListener("load", function () {
       </tbody>
     </table>
   </al-table>
+  <!-- twin-only (#13.2, #13.3): dense keeps the checkbox cell's pr-0; a selected row beats the
+       striped even row (the colour is pinned in test/test_page.py, it depends on the theme) -->
+  <al-table dense>
+    <table>
+      <tbody><tr><td data-expect="padding-right: 0px"><input type="checkbox" role="checkbox" aria-label="Select row"></td><td>Row</td></tr></tbody>
+    </table>
+  </al-table>
+  <al-table striped id="parity-table-striped">
+    <table>
+      <tbody><tr><td>One</td></tr><tr aria-selected="true"><td>Two</td></tr><tr><td>Three</td></tr></tbody>
+    </table>
+  </al-table>
 </al-stack>
 
 <al-stack gap="md" data-section="pagination">
@@ -176,7 +211,7 @@ window.addEventListener("load", function () {
     <a href="#" data-ref="pagination/link/default">1</a>
     <a href="#" aria-current="page" data-ref="pagination/active/default">2</a>
     <a href="#">3</a>
-    <span aria-hidden="true">&hellip;</span>
+    <span aria-hidden="true" data-ref="pagination/ellipsis/default">&hellip;</span>
     <a slot="next" href="#" data-ref="pagination/next/default">Next</a>
   </al-pagination>
 </al-stack>
@@ -266,15 +301,22 @@ window.addEventListener("load", function () {
   <button type="button" hidden commandfor="parity-popover" command="hide-popover">Close popover</button>
   <al-popover popover id="parity-popover" anchor="parity-popover-trigger" placement="bottom" data-ref="popover/content/open" data-ref-open>
     <h4>Popover Title</h4>
-    <p>Popover Description</p>
+    <p data-expect="line-height: 20px">Popover Description</p>
   </al-popover>
   <al-menu popover id="parity-menu" data-ref="menu/content/open" data-ref-open>
-    <a href="#" data-ref="menu/item/open">Profile</a>
+    <a href="#" data-ref="menu/item/open" data-ref-states="hover focus">Profile</a>
     <a href="#">Settings</a>
     <hr data-ref="menu/separator/open">
-    <button type="button" data-variant="destructive" data-ref="menu/item-destructive/open">Delete</button>
+    <button type="button" data-variant="destructive" data-ref="menu/item-destructive/open" data-ref-states="hover focus">Delete</button>
   </al-menu>
   <al-tooltip for="parity-tooltip-trigger" data-ref="tooltip/content/open" data-ref-after="tooltip/arrow/open" data-ref-open>Tooltip text</al-tooltip>
+  <!-- anchor= (#6): the popover opens from the invoker but sits under the target; only
+       al-shim.js can anchor it there (Chromium ignores the HTML anchor attribute). -->
+  <al-stack gap="sm">
+    <al-button variant="outline"><button type="button" id="parity-anchor-target">Anchor target</button></al-button>
+    <al-button variant="outline"><button type="button" id="parity-anchor-invoker" popovertarget="parity-popover-elsewhere">Open anchored elsewhere</button></al-button>
+  </al-stack>
+  <al-popover popover id="parity-popover-elsewhere" anchor="parity-anchor-target">Anchored to the target, not its invoker.</al-popover>
 </al-stack>
 
 <al-stack gap="md" data-section="toast">
@@ -287,6 +329,8 @@ window.addEventListener("load", function () {
     <al-toast variant="destructive" timeout="0" data-ref="toast/destructive/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
     <!-- twin-only: a one-line message that mixes text and an inline element stays one
          line and is all title; with no variant there is no icon, variant="info" has one -->
+    <!-- twin-only (#13.9): a button inside a toast keeps its own padding, border and font size -->
+    <al-toast timeout="0"><p>Saved</p><al-button data-expect="font-size: 14px"><button type="button" data-expect="padding-left: 16px; border-top-width: 0px">Undo</button></al-button></al-toast>
     <al-toast timeout="0" data-expect="font-weight: 500; padding-left: 16px" data-expect-before="content: none">Saved <code data-expect="display: inline">post.md</code></al-toast>
     <al-toast variant="info" timeout="0" data-expect="padding-left: 39px" data-expect-before="content: &quot;&quot;">Saved</al-toast>
   </al-toasts>
@@ -327,6 +371,18 @@ window.addEventListener("load", function () {
     <input type="hidden" name="flow-token-2" value="t">
     <template></template>
     <form data-expect="margin-top: 24px"></form>
+  </section>
+  <section>
+    <h2>Visible error</h2>
+    <!-- a visible alert is not bridged: the field after it keeps no flow margin -->
+    <al-alert variant="destructive" role="alert"><ul class="errors" data-errors="flow-visible"><li>Name is required</li></ul></al-alert>
+    <al-input label="Name" data-expect="margin-top: 0px"><label>Name<input name="flow-visible-name" type="text"></label><ul class="errors" data-errors="flow-visible-name"></ul></al-input>
+  </section>
+  <section>
+    <h2>Heading alert, empty errors</h2>
+    <!-- a heading alert with an empty errors list is visible: the field after it is not bridged -->
+    <al-alert variant="destructive" heading="Heads up" role="alert"><ul class="errors" data-errors="flow-heading"></ul></al-alert>
+    <al-input label="Name" data-expect="margin-top: 0px"><label>Name<input name="flow-heading-name" type="text"></label><ul class="errors" data-errors="flow-heading-name"></ul></al-input>
   </section>
   <x-box><p>A non-alder wrapper is not a flow container.</p><div data-expect="margin-top: 0px"></div></x-box>
   <al-card>

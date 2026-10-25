@@ -1,4 +1,4 @@
-/*! alder-ui v0.4.0 | Apache-2.0 | built by scripts/build.py from components/*.js; do not edit. */
+/*! alder-ui v0.4.1 | Apache-2.0 | built by scripts/build.py from components/*.js; do not edit. */
 
 // ---- components/al-shim.js ----
 {
@@ -6,9 +6,10 @@
 // Firefox < 140): <button commandfor="id" command="show-modal | close |
 // toggle-popover | show-popover | hide-popover"> works as the platform's.
 // Also re-announces closing as the bubbling al-close event on al-dialog,
-// al-popover and al-menu. (popover="hint" needs no shim: al-tooltip.js shows
-// and hides its tooltip on hover and focus, so an older browser treating
-// "hint" as "manual" behaves the same.)
+// al-popover and al-menu, and makes anchor="<id>" on al-popover / al-menu
+// work (Chromium ignores the HTML attribute). (popover="hint" needs no shim:
+// al-tooltip.js shows and hides its tooltip on hover and focus, so an older
+// browser treating "hint" as "manual" behaves the same.)
 if (!("commandForElement" in HTMLButtonElement.prototype)) {
   document.addEventListener("click", (e) => {
     const b = e.target.closest("button[commandfor]");
@@ -28,6 +29,26 @@ const closed = (e, sel) => {
 };
 document.addEventListener("close", (e) => closed(e, "al-dialog"), true);
 document.addEventListener("toggle", (e) => e.newState === "closed" && closed(e, "al-popover, al-menu"), true);
+// anchor="<id>": at every open the named element gets a generated anchor-name,
+// after any of its own, and the popover the same position-anchor. An id that
+// names nothing leaves the invoker as the implicit anchor. Names are generated
+// (ids need not be valid dashed-idents) and kept per element.
+const names = new WeakMap();
+let seq = 0;
+document.addEventListener("beforetoggle", (e) => {
+  const p = e.target;
+  if (e.newState !== "open" || !p.matches || !p.matches("al-popover, al-menu")) return;
+  const a = p.hasAttribute("anchor") && document.getElementById(p.getAttribute("anchor"));
+  const ours = p.style.getPropertyValue("position-anchor").startsWith("--al-anchor-");
+  if (!a) return ours && p.style.removeProperty("position-anchor");
+  if (!names.has(a)) names.set(a, "--al-anchor-" + ++seq);
+  // The inline value, else the cascaded one (an author stylesheet's anchor-name).
+  const n = names.get(a);
+  const own = a.style.getPropertyValue("anchor-name") || getComputedStyle(a).anchorName;
+  const list = own && own !== "none" ? own.split(",").map((s) => s.trim()) : [];
+  if (!list.includes(n)) a.style.setProperty("anchor-name", list.concat(n).join(", "));
+  p.style.setProperty("position-anchor", n);
+}, true);
 }
 
 // ---- components/al-alert.js ----

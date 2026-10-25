@@ -33,6 +33,22 @@ class ColourTest(unittest.TestCase):
         r = colour.parse("color-mix(in oklab, var(--p) 90%, transparent)", {"--p": "oklch(0.205 0 0)"})
         self.assertEqual(r[3], 0.9)
 
+    def test_var_case_kept(self):
+        r = colour.parse("color-mix(in oklab, var(--P) 90%, transparent)", {"--P": "oklch(0.2 0 0)"})
+        self.assertEqual(r[3], 0.9)
+
+    def test_mix_known_values(self):
+        # expected values from Chromium 156 getComputedStyle (oklab results converted to sRGB)
+        cases = [
+            ("color-mix(in oklab, #000 50%, #fff)", (0.38863, 0.38855, 0.38854, 1)),  # Chromium 156 oklab(0.499997 2.28e-5 1.0e-5)
+            ("color-mix(in srgb, rgb(255 0 0) 50%, rgb(0 0 255 / 0.5))", (0.666667, 0, 0.333333, 0.75)),  # Chromium 156
+            ("color-mix(in oklab, #3b82f6 30%, oklab(0.5 0.1 -0.1))", (0.46108, 0.35102, 0.70793, 1)),  # Chromium 156 oklab(0.53692 0.0600326 -0.125511)
+            ("color-mix(in srgb, #ff0000 25%, rgb(0 128 0))", (0.25, 0.376471, 0, 1)),  # Chromium 156
+        ]
+        for expr, want in cases:
+            got = colour.parse(expr, {})
+            self.assertTrue(close(got, want, 0.004), (expr, got, want))
+
     def test_contrast_known(self):
         self.assertAlmostEqual(colour.contrast("oklch(0.556 0 0)", "oklch(1 0 0)", {"--background": "oklch(1 0 0)"}), 4.73, delta=0.02)
 
@@ -74,6 +90,54 @@ class ManifestTest(unittest.TestCase):
             self.assertEqual(not self.manifest_failures(), ok, v)
 
 
+class TokenScanTest(unittest.TestCase):
+    def test_al_definitions(self):
+        self.assertEqual(check.al_definitions(":root{--al-x:1} @media print{:root{--al-y:2}}"), {"--al-x", "--al-y"})
+        self.assertEqual(check.al_definitions("/* --al-z: 1 */ a{color:red}"), set())
+
+
+class SelectorTest(unittest.TestCase):
+    def setUp(self):
+        self.saved = list(check.FAILURES)
+        check.FAILURES.clear()
+        self.m, self.els = check.load_manifest()
+
+    def tearDown(self):
+        check.FAILURES[:] = self.saved
+
+    def failures(self, sel, tag):
+        check.FAILURES.clear()
+        check.check_selector(sel, self.els, tag, set())
+        return list(check.FAILURES)
+
+    def test_attr_of_non_al_compound(self):
+        # [colspan] belongs to td, not to al-table
+        self.assertEqual(self.failures("al-table:has(td[colspan])", "al-table"), [])
+        self.assertEqual(self.failures("al-table td[colspan]", "al-table"), [])
+        self.assertEqual(self.failures(":is(al-card, .x[foo])", "al-card"), [])
+        # nested functional pseudos: [foo] belongs to td / .x, not to the al- element around them
+        self.assertEqual(self.failures("al-card:has(al-button:is(td[foo]))", "al-card"), [])
+        self.assertEqual(self.failures(":is(al-card:not(td[foo]))", "al-card"), [])
+        self.assertEqual(self.failures("al-card:is(td:not(.x[foo]), b)", "al-card"), [])
+        # ...but :not(.x[foo]) on an al- element is that element's attribute
+        self.assertTrue(self.failures("al-card:is(al-button:not(.x[foo]), b)", "al-card"))
+
+    def test_attr_only_compound_in_not(self):
+        self.assertTrue(self.failures(":where(al-page:not([nonesuch]))", "al-page"))
+        self.assertTrue(self.failures("al-card:not([nonesuch])", "al-card"))
+        self.assertEqual(self.failures("al-card:has([nonesuch])", "al-card"), [])
+        seen = set()
+        check.FAILURES.clear()
+        check.check_selector(":where(al-page:not([plain]))", self.els, "al-page", seen)
+        self.assertEqual(check.FAILURES, [])
+        self.assertIn(("al-page", "attr", "plain"), seen)
+
+    def test_attr_goes_to_own_compound(self):
+        self.assertTrue(self.failures("al-card[nonesuch]", "al-card"))
+        self.assertTrue(self.failures("al-card:has(al-button[nonesuch])", "al-card"))
+        self.assertTrue(self.failures("al-card:is(x):hover[nonesuch]", "al-card"))
+
+
 class MotionTest(unittest.TestCase):
     def test_unguarded_motion(self):
         css = """/* transition: all */
@@ -82,6 +146,18 @@ class MotionTest(unittest.TestCase):
         @media (prefers-reduced-motion: no-preference) { c { transition: all 1s } @starting-style { d { opacity: 0 } } }
         e::after { animation-name: spin }"""
         self.assertEqual(check.unguarded_motion(css), ["a", "e::after"])
+
+
+class FocusGuardTest(unittest.TestCase):
+    def test_unguarded_focus(self):
+        rule = "a:focus-visible{outline:none}"
+        self.assertTrue(check.unguarded_focus(rule))
+        self.assertFalse(check.unguarded_focus(rule + "@media (forced-colors: active){a:focus-visible{outline:2px solid CanvasText}}"))
+        self.assertTrue(check.unguarded_focus("a:focus{outline-style:none}"))
+        self.assertTrue(check.unguarded_focus("a:focus-visible{outline:1px none red}"))
+        self.assertFalse(check.unguarded_focus("a:focus-visible{outline:1px solid red}"))
+        self.assertFalse(check.unguarded_focus("a:hover{outline:none}"))
+        self.assertFalse(check.unguarded_focus("/* a:focus{outline:none} */ a{color:red}"))
 
 
 if __name__ == "__main__":

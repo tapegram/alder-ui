@@ -80,7 +80,7 @@ API.update({
     "al-tabs": ([], [""]),
     "al-tab": ([("name", "string"), ("selected", "boolean")], [""]),
     "al-panel": ([], [""]),
-    "al-menu": ([], [""]),
+    "al-menu": ([("anchor", "string")], [""]),
     "al-popover": ([("placement", '"top" | "bottom" | "left" | "right"'), ("offset", '"sm" | "md" | "lg"'), ("anchor", "string")], [""]),
     "al-dialog": ([("heading", "string"), ("size", '"sm" | "md" | "lg"'), ("dismissible", "boolean")], ["header", "", "actions"]),
 })
@@ -105,7 +105,8 @@ NOT_STYLED = {
     ("al-toast", "timeout"): "read by al-toast.js, which closes the toast",
     ("al-tab", "name"): "copied onto the radio input by al-tabs.js",
     ("al-tab", "selected"): "read by al-tabs.js, which checks the tab's radio",
-    ("al-popover", "anchor"): "the platform's anchor attribute: it anchors to the element with that id",
+    ("al-popover", "anchor"): "read by al-shim.js, which sets position-anchor to the element with that id",
+    ("al-menu", "anchor"): "read by al-shim.js, which sets position-anchor to the element with that id",
     ("al-dialog", "heading"): "rendered by the framework as the header slot's <h2>",
     ("al-button", "type"): "selects the native button's type; no look",
     ("al-input", "label"): "rendered as a real <label>",
@@ -268,6 +269,26 @@ THEME_CLASSES = {"dark", "light"}  # the token sheet's theme selectors (spec sec
 ALDER_CLASSES = {"errors", "help", "_alder-click"}
 
 
+def split_pseudos(comp):
+    """A compound -> (bare, args): the compound with every :pseudo(...) removed
+    (parentheses balanced), and the (name, argument) of each :has/:not/:is/:where."""
+    bare, args, i = "", [], 0
+    while i < len(comp):
+        m = re.compile(r":{1,2}([\w-]+)\(").match(comp, i)
+        if not m:
+            bare += comp[i]
+            i += 1
+            continue
+        depth, j = 1, m.end()
+        while j < len(comp) and depth:
+            depth += {"(": 1, ")": -1}.get(comp[j], 0)
+            j += 1
+        if m.group(1) in ("has", "not", "is", "where"):
+            args.append((m.group(1), comp[m.end():j - 1]))
+        i = j
+    return bare, args
+
+
 def check_selector(sel, els, file_tag, seen):
     if sel in ALDER_MARKUP:
         return
@@ -275,13 +296,12 @@ def check_selector(sel, els, file_tag, seen):
         fail("css", "%s.css: selector %r does not name <%s>" % (file_tag, sel, file_tag))
     last = None
     for comp in compounds(sel):
-        inner = re.findall(r":(?:has|not|is|where)\((.*)\)", comp)
-        for sub in inner:
-            for s in split_top(sub):
-                check_selector_inner(s, els, last, seen)
-        bare = re.sub(r":(?:has|not|is|where)\(.*\)", "", comp)
+        bare, inner = split_pseudos(comp)
         m = re.match(r"([a-zA-Z][\w-]*)", bare)
         tag = m.group(1) if m else None
+        for fn, sub in inner:
+            for s in split_top(sub):
+                check_selector_inner(s, els, last, seen, tag if fn != "has" else None)
         if tag and tag.startswith("al-"):
             if tag not in els:
                 fail("css", "%s.css: unknown element <%s> in %r" % (file_tag, tag, sel))
@@ -297,16 +317,24 @@ def check_selector(sel, els, file_tag, seen):
                 check_slot(last, val, els, sel, file_tag, seen)
 
 
-def check_selector_inner(sel, els, parent, seen):
-    for comp in compounds(sel):
-        m = re.match(r"(al-[\w-]+)", comp)
-        for name, op, val in ATTR_RE.findall(comp):
+def check_selector_inner(sel, els, parent, seen, host=None):
+    """host: the al- tag of the compound that owns this :not/:is/:where argument (same
+    element), so an attribute-only leading compound belongs to it. :has() passes None."""
+    for i, comp in enumerate(compounds(sel)):
+        bare, inner = split_pseudos(comp)
+        m = re.match(r"(al-[\w-]+)", bare)
+        owner = m.group(1) if m else (host if i == 0 and re.match(r"[.\[:]|$", bare) else None)
+        for name, op, val in ATTR_RE.findall(bare):
             if name == "slot" and val and parent:
                 check_slot(parent, val, els, sel, parent, seen)
-            elif m and m.group(1) in els and name != "slot":
+            elif owner and owner in els and name != "slot":
                 # an al- element inside :where()/:not()/:is()/:has(), e.g.
                 # typography.css's :where(al-page:not([plain]))
-                check_attr(m.group(1), name, op, val, els, sel, m.group(1), seen)
+                check_attr(owner, name, op, val, els, sel, owner, seen)
+        for fn, sub in inner:
+            for s in split_top(sub):
+                check_selector_inner(s, els, owner if owner in els else parent, seen,
+                                     owner if fn != "has" else None)
 
 
 def check_attr(tag, name, op, val, els, sel, file_tag, seen):
@@ -395,6 +423,27 @@ def unguarded_motion(css):
         elif c == ";" and stack and stack[-1].startswith("@"):
             start = i + 1
     return out
+
+
+FOCUS_HEAD = re.compile(r":focus(?:-visible)?\b")
+OUTLINE_NONE = re.compile(r"(?:^|[;{\s])outline(?:-style)?\s*:\s*(?:none\b|[^;]*\snone\b)")
+
+
+def unguarded_focus(css):
+    """True when a :focus or :focus-visible rule sets outline to none (outline: none,
+    outline-style: none, or outline: <w> none ...) and css has no @media (forced-colors:
+    active) block. Forced colors drops box-shadow rings, so the outline is the only
+    indicator left (#15)."""
+    css = strip_comments(css)
+    if re.search(r"@media[^{]*forced-colors\s*:\s*active", css):
+        return False
+    return any(FOCUS_HEAD.search(head) and OUTLINE_NONE.search(body) for head, body in rules(css))
+
+
+def check_focus():
+    for p in styled_files():
+        if unguarded_focus(p.read_text()):
+            fail("css", "%s: a focus rule sets outline: none and the file has no @media (forced-colors: active) block" % p.name)
 
 
 def check_motion():
@@ -625,9 +674,14 @@ PAIRS = [
     ("al-menu destructive item", "destructive", "popover", 4.5),
     ("al-tooltip", "background", "foreground", 4.5),
     ("field border (non-text)", "input", "background", 3.0),
+    ("menu keyboard focus outline (non-text)", "muted-foreground", "popover", 3.0),
     ("focus ring (non-text)", RING_50, "background", 3.0),
     ("invalid border (non-text)", "destructive", "background", 3.0),
 ]
+
+# Non-text pairings that fail the run (rather than WARN) when below their ratio: the
+# indicator is the only focus cue left in normal mode (#15, D4).
+NON_TEXT_FAIL = {"menu keyboard focus outline (non-text)"}
 
 SPEC_GAP_REASON = "verbatim shadcn token; spec \u00a74.2 fidelity"
 # Text pairings below 4.5 that come from shadcn's verbatim tokens: kept for
@@ -645,6 +699,11 @@ def tok(name, theme=None):
     return "var(%s)" % (name if name.startswith("--") else "--" + name)
 
 
+def al_definitions(css):
+    """The --al-* custom properties defined anywhere in css (comments stripped), at any nesting."""
+    return set(re.findall(r"(--al-[\w-]+)\s*:", strip_comments(css)))
+
+
 def check_tokens(light, dark, common):
     for theme, vals in (("light", light), ("dark", dark)):
         for n in SHADCN:
@@ -659,8 +718,8 @@ def check_tokens(light, dark, common):
     for banned in ("[data-theme", "prefers-color-scheme"):
         if banned in raw:
             fail("tokens", "tokens.css mentions %s (themes are .dark and .light only)" % banned)
-    for name in sorted(set(light) | set(dark) | set(common)):
-        if name.startswith("--al-") and name not in AL_TOKENS:
+    for name in sorted(al_definitions(raw)):
+        if name not in AL_TOKENS:
             fail("tokens", "tokens.css defines %s (only %s survive)" % (name, ", ".join(sorted(AL_TOKENS))))
     for p in styled_files():
         css = strip_comments(p.read_text())
@@ -690,7 +749,7 @@ def contrast_table(light, dark, common):
                 r = 0.0
             if r < need:
                 msg = "%s in %s: %s on %s is %.2f:1, needs %.1f:1" % (use, theme, fg_t, bg_t, r, need)
-                if need < 4.5:
+                if need < 4.5 and use not in NON_TEXT_FAIL:
                     WARNINGS.append("contrast: %s (non-text)" % msg)
                 elif (use, theme) in SPEC_GAPS:
                     WARNINGS.append("contrast: %s (%s)" % (msg, SPEC_GAPS[(use, theme)]))
@@ -885,6 +944,7 @@ def main(argv):
     check_css(els)
     check_typography_weight()
     check_motion()
+    check_focus()
     light, dark, common = load_tokens()
     defined = set(light) | set(dark) | set(common)
     check_tokens_only(defined)

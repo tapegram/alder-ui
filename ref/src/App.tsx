@@ -267,10 +267,10 @@ function PopperStage() {
               onCloseAutoFocus={keepFocus}
               onInteractOutside={keepFocus}
             >
-              <DropdownMenuItem data-ref="menu/item/open">Profile</DropdownMenuItem>
+              <DropdownMenuItem data-ref="menu/item/open" data-ref-states="hover focus">Profile</DropdownMenuItem>
               <DropdownMenuItem>Settings</DropdownMenuItem>
               <DropdownMenuSeparator data-ref="menu/separator/open" />
-              <DropdownMenuItem variant="destructive" data-ref="menu/item-destructive/open">
+              <DropdownMenuItem variant="destructive" data-ref="menu/item-destructive/open" data-ref-states="hover focus">
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -510,7 +510,7 @@ export default function App() {
                 <PaginationLink href="#">3</PaginationLink>
               </PaginationItem>
               <PaginationItem>
-                <PaginationEllipsis />
+                <PaginationEllipsis data-ref="pagination/ellipsis/default" />
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext href="#" data-ref="pagination/next/default" />
