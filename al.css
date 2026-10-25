@@ -1708,42 +1708,112 @@ al-table[dense] td {
 
 /*
  * al-card: a bordered surface. Children are placed by slot, whatever their
- * source order: header, the body (no slot), footer, then actions.
+ * source order. The slots map to shadcn's parts:
+ *   header = CardTitle, description = CardDescription, action = CardAction,
+ *   the body (no slot) = CardContent, footer = CardFooter,
+ *   actions = CardFooter with the buttons pushed to the end.
+ * shadcn's CardHeader is a wrapper element; Alder emits none, so the card
+ * itself is the grid: two columns (1fr auto), the action in the second.
+ * Title, description and action take their 1.5rem side gutter as margin, not
+ * padding, so they stay padding-free like shadcn's leaf elements; the body
+ * and footer take it as padding (px-6).
+ *
+ * Spec 12 choice: an unslotted leading h2/h3 is the title, and a p right
+ * after it the description. `:nth-child(1 of :not([slot]))` counts only the
+ * unslotted children, so a slotted element before the heading does not
+ * break the rule (:first-child would).
  */
 
+/* flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground
+   shadow-sm   (a grid rather than a flex column, to hold the action; the
+   gap is gap-6 both ways, and the header's gap-2 is a negative margin on the
+   description (rows) and on the action (columns)) */
 al-card {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-content: start;
+  align-items: start;
+  gap: 1.5rem;
+  padding-block: 1.5rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-xl);
   background: var(--card);
   color: var(--card-foreground);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-sm);
   font-family: var(--font-sans);
 }
 
+/* CardContent: px-6 (every child but the header parts, below) */
 al-card > * {
+  grid-column: 1 / -1;
   margin-block: 0;
 }
 
-al-card > [slot="header"] {
-  order: -1;
-  font-size: 1.125rem;
-  font-weight: 600;
-  line-height: 1.25;
+al-card > :not([slot="header"], [slot="description"], [slot="action"]) {
+  padding-inline: 1.5rem;
 }
 
-al-card > [slot="footer"] {
-  order: 1;
+/* CardTitle: leading-none font-semibold; CardDescription: text-sm
+   text-muted-foreground; CardAction: col-start-2 row-start-1 self-start
+   justify-self-end row-span-2 (span 2 only when a description exists, below:
+   otherwise it would leave an empty row); the -1rem start margin turns the
+   1.5rem column gap into CardHeader's gap-2. All inside CardHeader's px-6. */
+al-card > [slot="header"],
+al-card > [slot="description"],
+al-card > :is(h2, h3):nth-child(1 of :not([slot])),
+al-card > :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot])) {
+  padding-inline: 0;
+  margin-inline: 1.5rem;
+}
+
+al-card > [slot="header"],
+al-card > :is(h2, h3):nth-child(1 of :not([slot])) {
+  order: -3;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: normal;
+}
+
+al-card > [slot="description"],
+al-card > :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot])) {
+  order: -2;
+  margin-block-start: -1rem;
   color: var(--muted-foreground);
   font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
+al-card > [slot="action"] {
+  order: -3;
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  justify-self: end;
+  margin-inline: -1rem 1.5rem;
+}
+
+al-card:has(> [slot="action"]) > :is([slot="header"], [slot="description"], :is(h2, h3):nth-child(1 of :not([slot])), :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot]))) {
+  grid-column: 1;
+  margin-inline-end: 0;
+}
+
+al-card:has(> [slot="description"], > :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot]))) > [slot="action"] {
+  grid-row: 1 / span 2;
+}
+
+/* CardFooter: flex items-center px-6 */
+al-card > [slot="footer"] {
+  order: 1;
+  display: flex;
+  align-items: center;
+}
+
+/* actions: CardFooter, justify-end gap-2 */
 al-card > [slot="actions"] {
   order: 2;
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.5rem;
@@ -1753,44 +1823,84 @@ al-card > [slot="actions"] {
 
 /* al-badge: a small pill for a status or a count. */
 
+/* inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden
+   rounded-full border border-transparent px-2 py-0.5 text-xs font-medium
+   whitespace-nowrap  ([&>svg]:size-3 omitted: Alder emits no icon child)
+   default: bg-primary text-primary-foreground [a&]:hover:bg-primary/90 */
 al-badge {
+  --_al-hover: color-mix(in oklab, var(--primary) 90%, transparent);
   display: inline-flex;
   inline-size: fit-content;
+  flex-shrink: 0;
   align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  overflow: hidden;
   padding: 0.125rem 0.5rem;
-  border: 1px solid var(--primary);
-  border-radius: 9999px;
+  border: 1px solid transparent;
+  border-radius: calc(infinity * 1px);
   background: var(--primary);
   color: var(--primary-foreground);
   font-family: var(--font-sans);
   font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.5;
+  font-weight: 500;
+  line-height: 1rem;
   white-space: nowrap;
 }
 
-al-badge[variant="default"] {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: var(--primary-foreground);
-}
-
+/* secondary: bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90 */
 al-badge[variant="secondary"] {
-  border-color: var(--secondary);
+  --_al-hover: color-mix(in oklab, var(--secondary) 90%, transparent);
   background: var(--secondary);
   color: var(--secondary-foreground);
 }
 
+/* destructive: bg-destructive text-white focus-visible:ring-destructive/20
+   dark:bg-destructive/60 dark:focus-visible:ring-destructive/40
+   [a&]:hover:bg-destructive/90 */
+al-badge[variant="destructive"] {
+  --_al-hover: color-mix(in oklab, var(--destructive) 90%, transparent);
+  --_al-ring: color-mix(in oklab, var(--destructive) 20%, transparent);
+  background: var(--destructive);
+  color: var(--color-white);
+}
+
+.dark al-badge[variant="destructive"] {
+  --_al-ring: color-mix(in oklab, var(--destructive) 40%, transparent);
+  background: color-mix(in oklab, var(--destructive) 60%, transparent);
+}
+
+/* outline: border-border text-foreground [a&]:hover:bg-accent
+   [a&]:hover:text-accent-foreground */
 al-badge[variant="outline"] {
+  --_al-hover: var(--accent);
   border-color: var(--border);
   background: transparent;
   color: var(--foreground);
 }
 
-al-badge[variant="destructive"] {
-  border-color: var(--destructive);
-  background: var(--destructive);
-  color: var(--color-white);
+/* A badge that is a link: al-badge > a is the [a&] of shadcn. It takes the
+   badge's look; the badge shows the hover and the focus ring. */
+al-badge > a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* [a&]:hover:bg-... */
+al-badge:has(> a:hover) {
+  background: var(--_al-hover);
+}
+
+al-badge[variant="outline"]:has(> a:hover) {
+  color: var(--accent-foreground);
+}
+
+/* focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 */
+al-badge:has(> a:focus-visible) {
+  --_al-ring: color-mix(in oklab, var(--ring) 50%, transparent);
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px var(--_al-ring);
+  outline: none;
 }
 
 /* ---- components/al-alert.css ---- */
