@@ -91,7 +91,21 @@ class AllowTest(unittest.TestCase):
 
     def test_committed_allow_list_loads(self):
         allow = parity.load_allow(parity.ALLOW)
-        self.assertIn("button", allow["pending"])
+        self.assertIsInstance(allow["pending"], list)
+        self.assertTrue(all(isinstance(c, str) and c for c in allow["pending"]))
+        self.assertEqual(len(set(allow["pending"])), len(allow["pending"]))
+
+
+class ReportTest(unittest.TestCase):
+    def test_expect_only_component_rows_are_printed(self):
+        # A data-expect row whose component has no data-ref marker (stack, page) still
+        # gates, so its rows must be shown, not only its name in the failing line.
+        allow = {"pending": [], "map": {}, "allow": []}
+        rows = [("stack", "stack/expect/p-1", "light", "expect", "margin-top", "0px", "24px")]
+        text, failing = parity.report(rows, allow, ["button"], ["stack/expect/p-1"])
+        self.assertEqual(failing, ["stack"])
+        self.assertIn("### stack (1)", text)
+        self.assertIn("| stack/expect/p-1 | light | expect | margin-top | `0px` | `24px` |", text)
 
 
 if __name__ == "__main__":

@@ -16,17 +16,17 @@
             {
               "name": "variant",
               "type": {
-                "text": "\"primary\" | \"secondary\" | \"outline\" | \"ghost\" | \"destructive\""
+                "text": "\"primary\" | \"secondary\" | \"outline\" | \"ghost\" | \"destructive\" | \"link\""
               },
-              "description": "The button's look: `primary` (filled), `secondary` (soft), `outline` (bordered), `ghost` (no border until hover) or `destructive` (for deleting).",
+              "description": "The button's look: `primary` (filled), `secondary` (soft), `outline` (bordered), `ghost` (no border until hover) or `destructive` (for deleting) or `link` (text with an underline on hover).",
               "default": "\"primary\""
             },
             {
               "name": "size",
               "type": {
-                "text": "\"sm\" | \"md\" | \"lg\""
+                "text": "\"sm\" | \"md\" | \"lg\" | \"xs\" | \"icon\" | \"icon-sm\" | \"icon-lg\""
               },
-              "description": "The button's height and padding.",
+              "description": "The button's height and padding. `xs`, `sm`, `md` and `lg` size a labelled button; `icon`, `icon-sm` and `icon-lg` make a square button for a lone icon.",
               "default": "\"md\""
             },
             {

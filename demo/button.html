@@ -28,6 +28,7 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
     <al-button variant="outline" type="button"><button type="button">Cancel</button></al-button>
     <al-button variant="ghost" type="button"><button type="button">Ghost</button></al-button>
     <al-button variant="destructive" type="submit"><button type="submit">Delete</button></al-button>
+    <al-button variant="link" type="button"><button type="button">Link</button></al-button>
   </al-stack>
 </form>
 </section>
@@ -38,6 +39,17 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
   <al-button size="sm"><button type="button">Small</button></al-button>
   <al-button size="md"><button type="button">Medium</button></al-button>
   <al-button size="lg"><button type="button">Large</button></al-button>
+  <al-button size="xs"><button type="button">Extra small</button></al-button>
+</al-stack>
+</section>
+
+<section>
+<h2>Icons</h2>
+<al-stack direction="row" gap="sm">
+  <al-button size="icon-sm"><button type="button" aria-label="Next"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+  <al-button size="icon"><button type="button" aria-label="Next"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+  <al-button size="icon-lg"><button type="button" aria-label="Next"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+  <al-button><button type="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>Next</button></al-button>
 </al-stack>
 </section>
 
@@ -54,6 +66,7 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 <al-stack direction="row" gap="sm">
   <al-button variant="outline"><a href="#">All posts</a></al-button>
   <al-button variant="ghost"><a href="#">Cancel</a></al-button>
+  <al-button variant="link"><a href="#">Learn more</a></al-button>
 </al-stack>
 </section>
 
@@ -65,6 +78,7 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
   <al-button variant="outline">Outline</al-button>
   <al-button variant="ghost">Ghost</al-button>
   <al-button variant="destructive">Delete</al-button>
+  <al-button variant="link">Link</al-button>
   <al-button size="sm" disabled>Disabled</al-button>
 </al-stack>
 </section>

@@ -11,8 +11,8 @@
   see test/parity.py's docstring for the marker attributes. data-ref goes on the box that
   draws the look (the inner <button>, <input>, <dialog>, ...); data-ref-before / -after /
   -backdrop name a pseudo-element; data-ref-open marks an overlay the harness opens.
-  Variants shadcn has and alder-ui lacks today use the nearest one (button link -> ghost,
-  sizes xs / icon-sm -> sm, icon-lg -> lg); alert and toast variants alder-ui has and shadcn
+  Variants shadcn has and alder-ui lacks today use the nearest one (none left for button);
+  alert and toast variants alder-ui has and shadcn
   lacks are mapped to shadcn's default in test/parity-allow.json.
 -->
 <script>try{document.documentElement.classList.toggle("dark",localStorage.theme==="dark"||(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches))}catch(e){}</script>
@@ -46,15 +46,15 @@ window.addEventListener("load", function () {
     <al-button variant="outline"><button type="button" data-ref="button/outline/default" data-ref-states="hover focus">Button</button></al-button>
     <al-button variant="secondary"><button type="button" data-ref="button/secondary/default" data-ref-states="hover focus">Button</button></al-button>
     <al-button variant="ghost"><button type="button" data-ref="button/ghost/default" data-ref-states="hover focus">Button</button></al-button>
-    <al-button variant="ghost"><button type="button" data-ref="button/link/default" data-ref-states="hover focus">Button</button></al-button>
+    <al-button variant="link"><button type="button" data-ref="button/link/default" data-ref-states="hover focus">Button</button></al-button>
   </al-stack>
   <al-stack direction="row" gap="sm">
-    <al-button size="sm"><button type="button" data-ref="button/default/xs">Button</button></al-button>
+    <al-button size="xs"><button type="button" data-ref="button/default/xs">Button</button></al-button>
     <al-button size="sm"><button type="button" data-ref="button/default/sm">Button</button></al-button>
     <al-button size="lg"><button type="button" data-ref="button/default/lg">Button</button></al-button>
-    <al-button><button type="button" aria-label="Next" data-ref="button/default/icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
-    <al-button size="sm"><button type="button" aria-label="Next" data-ref="button/default/icon-sm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
-    <al-button size="lg"><button type="button" aria-label="Next" data-ref="button/default/icon-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+    <al-button size="icon"><button type="button" aria-label="Next" data-ref="button/default/icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+    <al-button size="icon-sm"><button type="button" aria-label="Next" data-ref="button/default/icon-sm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+    <al-button size="icon-lg"><button type="button" aria-label="Next" data-ref="button/default/icon-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
   </al-stack>
   <al-stack direction="row" gap="sm">
     <al-button disabled><button type="button" disabled data-ref="button/default/disabled">Button</button></al-button>
@@ -67,6 +67,9 @@ window.addEventListener("load", function () {
   <al-input label="Email" placeholder="Email" help="Enter your email address."><label data-ref="label/default/default">Email<input name="email" type="email" placeholder="Email" aria-describedby="help-email" data-ref="input/default/default" data-ref-states="focus"></label><small class="help" id="help-email" data-ref="input/description/default">Enter your email address.</small><ul class="errors" data-errors="email" data-expect="display: none"></ul></al-input>
   <al-input label="Email" placeholder="Email" disabled><label>Email<input name="email-disabled" type="email" placeholder="Email" disabled data-ref="input/default/disabled"></label><ul class="errors" data-errors="email-disabled"></ul></al-input>
   <al-input label="Email" placeholder="Email" invalid><label>Email<input name="email-invalid" type="email" placeholder="Email" aria-invalid="true" data-ref="input/default/invalid"></label><ul class="errors" data-errors="email-invalid" data-ref="input/error/default"><li>Enter a valid email address.</li></ul></al-input>
+  <al-input label="Name" data-expect="height: 58px"><label>Name<input name="field-h-bare" type="text"></label></al-input>
+  <al-input label="Name" data-expect="height: 58px"><label>Name<input name="field-h-empty" type="text"></label><ul class="errors" data-errors="field-h-empty" data-expect="display: none"></ul></al-input>
+  <al-alert variant="destructive" role="alert" data-expect="display: none"><ul class="errors" data-errors="field-h-form"></ul></al-alert>
 </al-stack>
 
 <al-stack gap="md" data-section="textarea">
@@ -79,6 +82,7 @@ window.addEventListener("load", function () {
   <h2>select</h2>
   <al-select label="Fruit"><label>Fruit<select name="fruit" data-ref="select/trigger/default"><option value="">Select a fruit</option><option value="apple">Apple</option><option value="banana">Banana</option></select></label><ul class="errors" data-errors="fruit"></ul></al-select>
   <al-select label="Fruit" disabled><label>Fruit<select name="fruit-disabled" disabled data-ref="select/trigger/disabled"><option value="">Select a fruit</option><option value="apple">Apple</option></select></label><ul class="errors" data-errors="fruit-disabled"></ul></al-select>
+  <al-select label="Fruit"><label data-expect="justify-self: start">Fruit<select name="fruit-anchor"><option value="apple">Apple</option></select></label></al-select>
 </al-stack>
 
 <al-stack gap="md" data-section="checkbox">
@@ -242,6 +246,53 @@ window.addEventListener("load", function () {
   </al-toasts>
 </al-stack>
 
+</al-stack>
+</al-page>
+<!-- Flow spacing after the grid (it shifts no marker): an element right after an h2/h3/h4 or a
+     p in a flow container gets the 1.5rem rhythm; al-stack's gap alone spaces its children;
+     the rule stops at component boundaries (al-dialog's footer after its description). -->
+<al-page>
+<al-stack gap="lg">
+  <p>A paragraph in a stack.</p>
+  <p data-expect="margin-top: 0px">The next one is spaced by the stack's gap alone.</p>
+  <section>
+    <h2>Section</h2>
+    <al-input label="Name" data-expect="margin-top: 24px"><label>Name<input name="flow-name" type="text"></label><ul class="errors" data-errors="flow-name"></ul></al-input>
+    <p>A paragraph between fields.</p>
+    <al-input label="Nickname" data-expect="margin-top: 24px"><label>Nickname<input name="flow-nickname" type="text"></label><ul class="errors" data-errors="flow-nickname"></ul></al-input>
+    <form data-expect="margin-top: 0px"></form>
+  </section>
+  <section>
+    <h3>Subsection</h3>
+    <form data-expect="margin-top: 24px"></form>
+    <p>Text.</p>
+    <form data-expect="margin-top: 24px"></form>
+  </section>
+  <section>
+    <h2>Hidden siblings</h2>
+    <al-alert variant="destructive" role="alert"><ul class="errors" data-errors="flow-form"></ul></al-alert>
+    <form data-expect="margin-top: 24px"></form>
+    <p>Text.</p>
+    <input type="hidden" name="flow-token" value="t">
+    <form data-expect="margin-top: 24px"></form>
+    <p>Text.</p>
+    <input type="hidden" name="flow-token-2" value="t">
+    <template></template>
+    <form data-expect="margin-top: 24px"></form>
+  </section>
+  <x-box><p>A non-alder wrapper is not a flow container.</p><div data-expect="margin-top: 0px"></div></x-box>
+  <al-card>
+    <h3 slot="header">Card Title</h3>
+    <p data-expect="margin-top: 0px">Card Description</p>
+    <div data-expect="margin-top: 0px">Card Action</div>
+  </al-card>
+  <al-dialog heading="Dialog Title">
+    <dialog aria-label="Dialog Title">
+      <h2 slot="header">Dialog Title</h2>
+      <p>Dialog Description</p>
+      <div slot="actions" data-expect="margin-top: 0px"><al-button><button type="button">Continue</button></al-button></div>
+    </dialog>
+  </al-dialog>
 </al-stack>
 </al-page>
 <!-- A plain page after the grid (it shifts no marker): typography.css is off inside it, so a
