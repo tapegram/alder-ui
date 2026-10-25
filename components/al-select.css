@@ -8,63 +8,151 @@
  * The native <select> keeps its own arrow and keyboard behaviour.
  */
 
+/* grid gap-2 text-sm */
 al-select {
+  position: relative;
   display: grid;
-  gap: 0.375rem;
+  gap: 0.5rem;
   font-family: var(--font-sans);
   font-size: 0.875rem;
   color: var(--foreground);
 }
 
+/* label: flex items-center gap-2 text-sm leading-none font-medium select-none
+   (the label wraps the control, so it is a grid of text and control) */
 al-select label {
+  position: relative;
   display: grid;
-  gap: 0.375rem;
+  justify-items: start;
+  gap: 0.5rem;
   order: 0;
+  font-size: 0.875rem;
   font-weight: 500;
-  line-height: 1.25;
+  line-height: 1;
+  user-select: none;
 }
 
+/* The chevron: <ChevronDownIcon className="size-4 opacity-50" />, drawn by the
+   label's ::after over the select's right padding (a <select> takes no
+   pseudo-element). right-3 is 0.75rem; the select is the label's last row. */
+al-select label::after {
+  content: "";
+  position: absolute;
+  right: 0.75rem;
+  bottom: calc(1.125rem - 0.5rem);
+  width: 1rem;
+  height: 1rem;
+  background: var(--muted-foreground);
+  mask: var(--_al-icon-chevron-down) center / contain no-repeat;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* group-data-[disabled=true]:opacity-50: the label text dims; the control
+   dims itself */
+al-select[disabled] label,
+al-select label:has(> select:disabled) {
+  color: color-mix(in oklab, var(--foreground) 50%, transparent);
+  cursor: not-allowed;
+}
+
+/* flex w-fit items-center justify-between gap-2 rounded-md border border-input
+   bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs
+   transition-[color,box-shadow] outline-none h-9 (appearance: none and
+   padding-right: 2rem make room for the chevron) */
 al-select select {
+  --_al-ring: color-mix(in oklab, var(--ring) 50%, transparent);
+  --_al-border: var(--input);
+  appearance: none;
+  display: block;
   box-sizing: border-box;
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
   height: 2.25rem;
   margin: 0;
-  padding: 0 0.75rem;
-  border: 1px solid var(--input);
-  border-radius: var(--radius);
-  background-color: var(--background);
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  border: 1px solid var(--_al-border);
+  border-radius: var(--radius-md);
+  background-color: transparent;
   color: var(--foreground);
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-xs);
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 400;
+  line-height: 1.25rem;
+  white-space: nowrap;
+  color-scheme: inherit;
+  cursor: pointer;
+  outline: 3px none color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
+/* dark:bg-input/30 dark:hover:bg-input/50 */
+.dark al-select select {
+  background-color: color-mix(in oklab, var(--input) 30%, transparent);
+}
+
+.dark al-select select:hover:not(:disabled) {
+  background-color: color-mix(in oklab, var(--input) 50%, transparent);
+}
+
+/* transition-[color,box-shadow] (150ms, cubic-bezier(.4, 0, .2, 1)) */
+@media (prefers-reduced-motion: no-preference) {
+  al-select select {
+    transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* data-[placeholder]:text-muted-foreground (the empty option is the
+   placeholder) */
+al-select select:has(option[value=""]:checked) {
+  color: var(--muted-foreground);
+}
+
+/* the open listbox is native: its options keep the page colours */
+al-select select option {
+  background-color: var(--popover);
+  color: var(--popover-foreground);
+}
+
+/* focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 */
 al-select select:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+  --_al-border: var(--ring);
+  outline-width: 1px;
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 0 3px var(--_al-ring), var(--shadow-xs);
 }
 
-al-select[invalid] select {
-  border-color: var(--destructive);
+/* aria-invalid:border-destructive aria-invalid:ring-destructive/20
+   dark:aria-invalid:ring-destructive/40 (the ring is only drawn on focus) */
+al-select[invalid] select,
+al-select select[aria-invalid="true"] {
+  --_al-border: var(--destructive);
+  --_al-ring: color-mix(in oklab, var(--destructive) 20%, transparent);
 }
 
-al-select[invalid] select:focus-visible {
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--destructive) 20%, transparent);
+.dark al-select[invalid] select,
+.dark al-select select[aria-invalid="true"] {
+  --_al-ring: color-mix(in oklab, var(--destructive) 40%, transparent);
 }
 
-/* Dim once: the whole field when the element is disabled, or just the
-   control when only it is. */
-al-select[disabled],
-al-select:not([disabled]) select:disabled {
+/* disabled:cursor-not-allowed disabled:opacity-50 */
+al-select select:disabled {
   cursor: not-allowed;
   opacity: 0.5;
 }
 
+/* the chevron dims with its control (the label's opacity is not used) */
+al-select label:has(> select:disabled)::after {
+  opacity: 0.25;
+}
+
+/* description: text-sm text-muted-foreground (the attribute form, drawn when
+   no <small class="help"> is given) */
 al-select[help]::after {
   content: attr(help);
   order: 1;
   color: var(--muted-foreground);
   font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
 /* The markup form, which Alder renders: <small class="help" id="help-…">
@@ -74,12 +162,14 @@ al-select > .help {
   order: 1;
   color: var(--muted-foreground);
   font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
 al-select:has(> .help)::after {
   content: none;
 }
 
+/* message: text-sm text-destructive font-medium */
 al-select ul.errors {
   order: 2;
   margin: 0;
@@ -88,8 +178,15 @@ al-select ul.errors {
   color: var(--destructive);
   font-size: 0.875rem;
   font-weight: 500;
+  line-height: 1.25rem;
 }
 
+al-select ul.errors > li {
+  margin: 0;
+  padding: 0;
+}
+
+/* An empty list takes no room (display: none). */
 al-select ul.errors:empty {
   display: none;
 }
