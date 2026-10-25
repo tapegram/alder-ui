@@ -79,7 +79,7 @@ declares each one with its type, default and description.
 | `al-badge` | `variant` (`default` default, `secondary`, `outline`, `destructive`) | default |
 | `al-alert` | `variant` (`info` default, `success`, `warning`, `destructive`), `heading`, `dismissible` | default |
 | `al-pagination` | `page`, `pages` | `prev`, default, `next` |
-| `al-dialog` | `heading`, `size` (`sm`, `md` default, `lg`, `xl`), `dismissible` | `header`, default, `actions`, `description` |
+| `al-dialog` | `heading`, `size` (`sm`, `md` default, `lg`), `dismissible` | `header`, default, `actions`, `description` |
 | `al-popover` | `placement` (`top`, `bottom` default, `left`, `right`), `offset` (`sm` default, `md`, `lg`), `anchor` (an id; needs `al.js`, without it the invoker is the anchor) | default |
 | `al-menu` | `anchor` (an id; needs `al.js`, without it the invoker is the anchor) | default (links or buttons) |
 | `al-tabs` | `variant` (`default`, `line`) | default (`al-tab`s) |
@@ -89,7 +89,7 @@ declares each one with its type, default and description.
 | `al-toasts` | `position` (`top-left`, `top-right`, `bottom-left`, `bottom-right` default) | default (`al-toast`s) |
 | `al-tooltip` | `for` | default (text) |
 | `al-devpanel` | `open` | default (a `<nav>` of buttons, then `<section>`s) |
-| `al-stack` | `gap` (`sm`, `md` default, `lg`), `direction` (`column` default, `row`) | default |
+| `al-stack` | `gap` (`sm`, `md` default, `lg`, `xl`), `direction` (`column` default, `row`) | default |
 | `al-page` | `width` (`narrow`, `normal` default, `wide`), `plain` | default |
 
 Notes:
