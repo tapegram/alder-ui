@@ -82,6 +82,7 @@ window.addEventListener("load", function () {
   <h2>select</h2>
   <al-select label="Fruit"><label>Fruit<select name="fruit" data-ref="select/trigger/default"><option value="">Select a fruit</option><option value="apple">Apple</option><option value="banana">Banana</option></select></label><ul class="errors" data-errors="fruit"></ul></al-select>
   <al-select label="Fruit" disabled><label>Fruit<select name="fruit-disabled" disabled data-ref="select/trigger/disabled"><option value="">Select a fruit</option><option value="apple">Apple</option></select></label><ul class="errors" data-errors="fruit-disabled"></ul></al-select>
+  <al-select label="Fruit"><label data-expect="justify-self: start">Fruit<select name="fruit-anchor"><option value="apple">Apple</option></select></label></al-select>
 </al-stack>
 
 <al-stack gap="md" data-section="checkbox">
