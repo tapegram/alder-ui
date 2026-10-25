@@ -1,5 +1,5 @@
 {
-  "pending": ["select", "checkbox", "card", "badge", "alert", "table", "pagination", "dialog", "popover", "menu", "tooltip", "toast", "tabs"],
+  "pending": ["card", "badge", "alert", "table", "pagination", "dialog", "popover", "menu", "tooltip", "toast", "tabs"],
   "map": {
     "alert/info/root": "alert/default/root",
     "alert/info/icon": "alert/default/icon",
@@ -19,6 +19,9 @@
     {"ref": "label/default/default", "prop": "height", "reason": "structural (spec 5.3 4a): the <label> wraps its control, so it is a grid of the text and the input (shadcn's Label is a leaf with only the text); the text itself matches (14px, leading-none, gap 8px)"},
     {"ref": "label/default/default", "prop": "box-height", "reason": "structural (spec 5.3 4a): same as height above; the label's box holds the control it wraps"},
     {"ref": "select/listbox/*", "prop": "*", "reason": "standing (spec 8.3): al-select keeps the native <select> listbox; shadcn's Radix SelectContent has no counterpart and is not compared"},
+    {"ref": "select/trigger/*", "prop": "padding", "reason": "structural: a native <select> has no child for the chevron, so padding-right is 2rem (the chevron's room) where shadcn's trigger has px-3 and a flex child"},
+    {"ref": "select/trigger/*", "prop": "gap", "reason": "structural: a native <select> is not a flex container; gap-2 between value and chevron is the 2rem padding-right"},
+    {"ref": "select/trigger/*", "prop": "box-width", "reason": "structural: w-fit is the native select's intrinsic width (widest option plus padding), a few px off the Radix trigger's text metrics"},
     {"ref": "tabs/nojs-*/*", "prop": "*", "reason": "standing (spec 8.3): the radio-backed tab labels shown when JavaScript is off have no shadcn counterpart; parity runs with al.js, comparing the JS-built tablist"},
     {"ref": "checkbox/*", "prop": "display", "reason": "standing (spec 8.3): al-checkbox is a native <input type=checkbox> (inline-block); shadcn's is a Radix <button> (inline-flex/grid)"},
     {"ref": "toast/*", "prop": "font-family", "reason": "standing (R5): sonner sets its own system font stack on the toaster; alder-ui forbids literal font families in components, so al-toast inherits Geist"}
