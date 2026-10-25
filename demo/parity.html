@@ -137,6 +137,11 @@ window.addEventListener("load", function () {
     <al-badge variant="destructive" data-ref="badge/destructive/default">Badge</al-badge>
     <al-badge variant="outline" data-ref="badge/outline/default">Badge</al-badge>
   </al-stack>
+  <!-- twin-only: link badges for the focus-ring pin (test/test_focus.py); a badge is not focusable in shadcn -->
+  <al-stack direction="row" gap="sm">
+    <al-badge><a href="#parity-badge-default" id="parity-badge-default">Link</a></al-badge>
+    <al-badge variant="destructive"><a href="#parity-badge-destructive" id="parity-badge-destructive">Link</a></al-badge>
+  </al-stack>
 </al-stack>
 
 <al-stack gap="md" data-section="alert">
@@ -334,6 +339,12 @@ window.addEventListener("load", function () {
     <input type="hidden" name="flow-token-2" value="t">
     <template></template>
     <form data-expect="margin-top: 24px"></form>
+  </section>
+  <section>
+    <h2>Visible error</h2>
+    <!-- a visible alert is not bridged: the field after it keeps no flow margin -->
+    <al-alert variant="destructive" role="alert"><ul class="errors" data-errors="flow-visible"><li>Name is required</li></ul></al-alert>
+    <al-input label="Name" data-expect="margin-top: 0px"><label>Name<input name="flow-visible-name" type="text"></label><ul class="errors" data-errors="flow-visible-name"></ul></al-input>
   </section>
   <x-box><p>A non-alder wrapper is not a flow container.</p><div data-expect="margin-top: 0px"></div></x-box>
   <al-card>

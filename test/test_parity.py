@@ -210,10 +210,54 @@ class CloseVerdictTest(unittest.TestCase):
         # R19: a node removed from the document is closed, whatever it last measured.
         self.assertEqual(parity.close_problems(self.state(connected=False, display="block", hit=True)), [])
 
+    def test_timeout_close_needs_motion(self):
+        # A timeout row that was removed without ever showing data-closing skipped its exit.
+        probs = parity.close_problems(self.state(connected=False, closing_seen=False))
+        self.assertEqual(len(probs), 1)
+        self.assertIn("exit transition", probs[0])
+        self.assertEqual(parity.close_problems(self.state(connected=False, closing_seen=True)), [])
+
     def test_never_opened_is_a_problem(self):
         # Otherwise a dialog that never opened would pass vacuously.
         self.assertEqual(len(parity.close_problems(self.state(opened=False))), 1)
         self.assertEqual(len(parity.close_problems(self.state(opened=False, connected=False))), 1)
+
+
+class ToastVerdictTest(unittest.TestCase):
+    """A toast that closed by its timeout, as check_closes measures it (9.4, 9.5)."""
+
+    def closed(self, **kw):
+        st = {"opened": True, "connected": False, "display": "", "hit": False, "closing_seen": True}
+        st.update(kw)
+        return st
+
+    def test_closed_with_its_exit_transition(self):
+        self.assertEqual(parity.close_problems(self.closed()), [])
+
+    def test_still_connected_after_300ms_fails(self):
+        self.assertTrue(parity.close_problems(self.closed(connected=True, display="block", hit=True)))
+
+
+class ReconnectVerdictTest(unittest.TestCase):
+    """A toast re-inserted while closing starts afresh (9.6)."""
+
+    def state(self, **kw):
+        st = {"survived_old_close": True, "closed_after_new_timeout": True}
+        st.update(kw)
+        return st
+
+    def test_survives_then_closes(self):
+        self.assertEqual(parity.reconnect_problems(self.state()), [])
+
+    def test_removed_by_the_old_close(self):
+        probs = parity.reconnect_problems(self.state(survived_old_close=False))
+        self.assertEqual(len(probs), 1)
+        self.assertIn("old close", probs[0])
+
+    def test_never_closes_again(self):
+        probs = parity.reconnect_problems(self.state(closed_after_new_timeout=False))
+        self.assertEqual(len(probs), 1)
+        self.assertIn("new timeout", probs[0])
 
 
 class CloseChecksTest(unittest.TestCase):
@@ -226,12 +270,13 @@ class CloseChecksTest(unittest.TestCase):
         for comp in ("dialog", "popover", "menu", "tooltip", "toast"):
             self.assertTrue(self.labels(comp), comp)
 
-    def test_toast_closes_by_timeout(self):
-        # The toast closes itself: close is the ms it does so after, and the toast the
-        # open js adds carries that timeout.
-        (entry,) = [c for c in parity.CLOSE_CHECKS if c[:2] == ("toast", "timeout")]
-        self.assertEqual(entry[4], 100)
-        self.assertIn("'timeout', '100'", entry[3])
+    def test_toast_timeout_rows_are_timed(self):
+        # A timeout row closes itself: close is the ms it does so after, and every
+        # such row is checked for the exit transition (closing_seen) in check_closes.
+        rows = [c for c in parity.CLOSE_CHECKS if c[0] == "toast"]
+        self.assertTrue(rows)
+        for c in rows:
+            self.assertIsInstance(c[4], (int, float), c[1])
 
     def test_popover_closes_every_way(self):
         self.assertIn("hidePopover()", self.labels("popover"))

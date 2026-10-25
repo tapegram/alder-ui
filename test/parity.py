@@ -83,6 +83,11 @@ NO_MOTION = "*, *::before, *::after, *::backdrop { transition: none !important; 
 # Colour parsing lives in test/colour.py (shared with check.py).
 from colour import COLOUR_FUNCS, normalise_colour  # noqa: E402
 
+try:
+    from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+except ImportError:  # the pure verdict helpers are used without Playwright
+    PlaywrightTimeoutError = TimeoutError
+
 
 # ------------------------------------------------------------------------ comparison
 
@@ -442,6 +447,8 @@ CLOSE_CHECKS = [
     ("popover", "command=hide-popover, commandForElement deleted", "#parity-popover", _SHOW_POPOVER, _INVOKE % "hide-popover", True),
     ("menu", "select an item", "#parity-menu", _SHOW_POPOVER,
      "(el) => el.querySelector(':scope > button').click()", False),
+    # #10.7: the tooltip's hit-test can never fail (it is pointer-events: none), so only
+    # display: none counts for the tooltip rows.
     ("tooltip", "blur", "al-tooltip[for=parity-tooltip-trigger]",
      "(el) => %s.focus()" % _TIP_TRIGGER, "(el) => %s.blur()" % _TIP_TRIGGER, False),
     ("tooltip", "pointerleave", "al-tooltip[for=parity-tooltip-trigger]",
@@ -468,13 +475,19 @@ CLOSED_JS = """([el, x, y]) => {
 }"""
 
 
+CLOSING_JS = "(el) => el.isConnected && el.hasAttribute('data-closing')"
+
+
 def close_problems(st):
     """What is wrong with an overlay measured CLOSE_WAIT_MS after closing: st holds
     opened (it was shown before closing), connected (el.isConnected), display (computed)
     and hit (elementFromPoint at its open centre lands inside it). A disconnected node is
-    closed (R19)."""
+    closed (R19). closing_seen is set for timeout rows only: False means the node went
+    without data-closing ever showing, i.e. without its exit transition."""
     if not st["opened"]:
         return ["did not open, so its closing proves nothing"]
+    if st.get("closing_seen") is False:
+        return ["closed without its exit transition (data-closing never showed)"]
     if not st["connected"]:
         return []
     out = []
@@ -498,6 +511,12 @@ def check_closes(page, selector, close_js, open_js=_SHOW_MODAL):
         # It closes itself: check it opened at once, then wait out its timeout as well.
         page.evaluate(SETTLE_JS)
         opened = el.evaluate(OPENED_JS)
+        # Poll for the exit transition's data-closing: the toast stays connected through it.
+        try:
+            page.wait_for_function(CLOSING_JS, arg=el, polling=10, timeout=close_js + 100)
+            closing_seen = True
+        except PlaywrightTimeoutError:
+            closing_seen = False
         page.wait_for_timeout(close_js)
     else:
         page.wait_for_timeout(CLOSE_WAIT_MS)
@@ -509,7 +528,52 @@ def check_closes(page, selector, close_js, open_js=_SHOW_MODAL):
     page.wait_for_timeout(CLOSE_WAIT_MS)
     st = page.evaluate(CLOSED_JS, [el, opened["x"], opened["y"]])
     st["opened"] = opened["opened"]
+    if isinstance(close_js, (int, float)):
+        st["closing_seen"] = closing_seen
     return close_problems(st)
+
+
+# A toast re-inserted while it closes (a morph) starts afresh (components/al-toast.js).
+RECONNECT_TIMEOUT_MS = 150
+RECONNECT_JS = ("(el) => { const t = document.createElement('al-toast'); t.setAttribute('timeout', '%d');"
+                " t.textContent = 'Reconnected toast'; el.appendChild(t); return t }" % RECONNECT_TIMEOUT_MS)
+ALIVE_JS = "(el) => el.isConnected && !el.hasAttribute('data-closing')"
+
+
+def reconnect_problems(st):
+    """What is wrong with a toast re-appended mid-close: survived_old_close (it was
+    still connected, not closing, before its fresh timeout ran, and still connected after
+    the old close would have removed it) and closed_after_new_timeout (it is gone once the
+    fresh timeout and exit transition have run)."""
+    out = []
+    if not st["survived_old_close"]:
+        out.append("was removed by the old close after it was re-inserted")
+    if not st["closed_after_new_timeout"]:
+        out.append("is still there after its new timeout and exit transition")
+    return out
+
+
+def check_reconnect(page, selector="#parity-toasts-timeout"):
+    """Add a timed toast, wait for data-closing, re-append it, and return reconnect_problems().
+    Timeline after the re-append (timeout 150ms, exit transition 150ms): alive at 100ms
+    (the fresh timeout has not fired), connected at 220ms (the old close, due at ~150ms,
+    did not remove it; the fresh one is mid-exit), gone 450ms later."""
+    region = page.query_selector(selector)
+    if region is None:
+        return ["%s is not on the page" % selector]
+    el = region.evaluate_handle(RECONNECT_JS).as_element()
+    try:
+        page.wait_for_function(CLOSING_JS, arg=el, polling=10, timeout=RECONNECT_TIMEOUT_MS + 100)
+    except PlaywrightTimeoutError:
+        return ["never started closing, so re-inserting it proves nothing"]
+    el.evaluate("(el) => el.parentNode.appendChild(el)")
+    page.wait_for_timeout(100)
+    alive = el.evaluate(ALIVE_JS)
+    page.wait_for_timeout(120)
+    alive = alive and el.evaluate("(el) => el.isConnected")
+    page.wait_for_timeout(450)
+    return reconnect_problems({"survived_old_close": alive,
+                               "closed_after_new_timeout": not el.evaluate("(el) => el.isConnected")})
 
 
 class ErrorSink:
@@ -548,6 +612,26 @@ def run_close_checks(browser, base, comps, sink=None):
                 page.close()
             fails.extend("%s %s %s (%s): %s" % (comp, selector, label, theme, p) for p in probs)
             print("close: %s %s via %s (%s): %s" % (comp, selector, label, theme, "ok" if not probs else "FAIL"))
+    return fails
+
+
+def run_reconnect_check(browser, base, sink=None):
+    """check_reconnect on a fresh twin page with motion on, light and dark. Failure lines."""
+    fails = []
+    for theme in THEMES:
+        page = browser.new_page(viewport=VIEWPORT, color_scheme="light")
+        if sink:
+            sink.watch(page)
+        try:
+            page.goto(base + TWIN_URL, wait_until="load")
+            page.wait_for_selector("html[data-ref-ready]", state="attached", timeout=20000)
+            page.evaluate("(on) => document.documentElement.classList.toggle('dark', on)", theme == "dark")
+            probs = check_reconnect(page)
+        finally:
+            page.close()
+        fails.extend("toast reconnect (%s): %s" % (theme, p) for p in probs)
+        print("close: toast #parity-toasts-timeout via reconnect while closing (%s): %s"
+              % (theme, "ok" if not probs else "FAIL"))
     return fails
 
 
@@ -878,6 +962,8 @@ def main(argv=None):
                     for e in unused_allow(rows, allow):
                         print("WARN unused allow entry: %s %s" % (e["ref"], e["prop"]))
                 close_fails = run_close_checks(browser, base, gating, sink)
+                if "toast" in gating:
+                    close_fails += run_reconnect_check(browser, base, sink)
                 for f in close_fails:
                     print("parity: FAIL close %s" % f)
                 anchor_fails = run_anchor_checks(browser, base, gating, sink)
