@@ -28,7 +28,7 @@ Checks:
                index.html links every page
   scripts      every components/*.js is in the manifest, exists, is at most 60
                lines; the interactive demos have a <!-- no-js --> section
-  bundle       al.css and al.js equal scripts/build.py's output
+  bundle       al.css, al.js and index.html equal scripts/build.py's output
 """
 import html.parser
 import json
@@ -956,6 +956,8 @@ def main(argv):
     check_tabs_nojs()
     if not (ROOT / "al.css").exists() or (ROOT / "al.css").read_text() != build.build():
         fail("bundle", "al.css is out of date: run python3 scripts/build.py")
+    if not (ROOT / "index.html").exists() or (ROOT / "index.html").read_text() != build.showcase.build():
+        fail("bundle", "index.html is out of date: run python3 scripts/build.py")
     if "--table" in argv:
         print("| use | foreground | background | needs | light | dark |")
         print("|---|---|---|---|---|---|")

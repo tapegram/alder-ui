@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-"""Build al.css and al.js: tokens.css, base.css, typography.css, components/icons.css
+"""Build al.css, al.js and index.html (the showcase; see scripts/showcase.py): tokens.css, base.css, typography.css, components/icons.css
 (once it exists), then every component's CSS in manifest order,
 all inside one cascade layer, @layer al, so a page's own (unlayered) CSS
 always wins over alder-ui's whatever the specificity.
 
-    python3 scripts/build.py          # write al.css and al.js
-    python3 scripts/build.py --check  # exit 1 if al.css is out of date
+    python3 scripts/build.py          # write al.css, al.js and index.html
+    python3 scripts/build.py --check  # exit 1 if any of them is out of date
 """
 import json
 import pathlib
 import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import showcase  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
@@ -60,7 +63,7 @@ def build():
 
 
 def main(argv):
-    outs = [(ROOT / "al.css", build()), (ROOT / "al.js", build_js())]
+    outs = [(ROOT / "al.css", build()), (ROOT / "al.js", build_js()), (ROOT / "index.html", showcase.build())]
     if "--check" in argv:
         for out, text in outs:
             if not out.exists() or out.read_text() != text:
