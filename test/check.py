@@ -407,7 +407,7 @@ def check_css(els):
                 if sl["name"] and (tag, "slot", sl["name"]) not in seen:
                     fail("css", "%s.css never places slot %r" % (tag, sl["name"]))
     for p in sorted((ROOT / "components").glob("*.css")):
-        if p.stem not in els:
+        if p.stem not in els and p.stem != "icons":
             fail("css", "%s is not in the manifest" % p.name)
 
 
@@ -460,6 +460,29 @@ def check_tokens_only(defined):
                     fail("tokens-only", "%s: %s { %s: %s } uses a named colour" % (p.name, head, prop, val))
                 if prop == "font-family" and not (val.startswith("var(") or val == "inherit"):
                     fail("tokens-only", "%s: %s { %s: %s } must use a token" % (p.name, head, prop, val))
+
+
+# ---------------------------------------------------------------- icons
+
+ICONS = ["check", "minus", "chevron-down", "chevron-left", "chevron-right", "x", "circle-check",
+         "info", "triangle-alert", "octagon-x", "loader-circle", "ellipsis"]
+
+
+def check_icons():
+    """components/icons.css defines the twelve --_al-icon-* masks (quoted,
+    URL-encoded SVG data URIs), and every --_al-icon-* used is one of them."""
+    p = ROOT / "components" / "icons.css"
+    css = strip_comments(p.read_text()) if p.exists() else ""
+    defined = dict(re.findall(r"(--_al-icon-[\w-]+)\s*:\s*(url\(\"data:image/svg\+xml,[^\"]+\"\))\s*;", css))
+    for n in ICONS:
+        if "--_al-icon-" + n not in defined:
+            fail("icons", "icons.css does not define --_al-icon-%s" % n)
+    for q in sorted(ROOT.glob("components/*.css")):
+        if q.name == "icons.css":
+            continue
+        for name in re.findall(r"var\((--_al-icon-[\w-]+)", q.read_text()):
+            if name not in defined:
+                fail("icons", "%s uses undefined %s" % (q.name, name))
 
 
 # ---------------------------------------------------------------- tokens + contrast
@@ -797,6 +820,7 @@ def main(argv):
     light, dark, common = load_tokens()
     defined = set(light) | set(dark) | set(common)
     check_tokens_only(defined)
+    check_icons()
     check_tokens(light, dark, common)
     rows = contrast_table(light, dark, common)
     check_demos(els)
