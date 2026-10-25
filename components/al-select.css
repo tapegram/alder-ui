@@ -164,6 +164,7 @@ al-select > .help {
   order: 1;
   color: var(--muted-foreground);
   font-size: 0.875rem;
+  font-weight: 400;
   line-height: 1.25rem;
 }
 

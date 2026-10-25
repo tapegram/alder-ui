@@ -146,7 +146,7 @@ class CloseChecksTest(unittest.TestCase):
     def test_popover_closes_every_way(self):
         self.assertIn("hidePopover()", self.labels("popover"))
         self.assertIn("light dismiss", self.labels("popover"))
-        self.assertTrue(any(c[5] for c in parity.CLOSE_CHECKS if c[0] == "popover"), "no shim run")
+        self.assertTrue(any(c[5] for c in parity.CLOSE_CHECKS if c[0] == "popover"), "no run with commandForElement deleted")
 
 class AnchorVerdictTest(unittest.TestCase):
     """anchor_problems: an overlay must sit against its anchor (R21: al-tooltip above)."""

@@ -405,8 +405,11 @@ class Page:
 # the region). close is js, a Python callable (page, element) for a real pointer or key,
 # or a number: the overlay closes itself after that many ms (a toast's timeout). shim=True
 # deletes HTMLButtonElement.prototype.commandForElement before load, so
-# components/al-shim.js polyfills the invoker commands. Chromium's own invokers still act
-# (R20), so the shim runs use idempotent commands: a toggle would run twice and cancel out.
+# components/al-shim.js installs its polyfill. Chromium's native invoker handling still
+# runs on click (R20), so these runs do not isolate the shim: they show that the close and
+# its CSS exit path still work with the shim loaded alongside the native path (which is
+# what Review Focus 4 pins), and they use idempotent commands because a toggle would run
+# twice and cancel out. Their labels say what was done, not "shim".
 _SHOW_MODAL = "(el) => el.showModal()"
 _SHOW_POPOVER = "(el) => el.showPopover()"
 _INVOKE = "(el) => document.querySelector('[commandfor=\"' + el.id + '\"][command=\"%s\"]').click()"
@@ -419,11 +422,11 @@ CLOSE_CHECKS = [
     ("dialog", "close button", "#parity-dialog", _SHOW_MODAL,
      "(el) => el.querySelector(':scope > form[method=dialog] > button').click()", False),
     ("dialog", "command=close", "#parity-dialog", _INVOKE % "show-modal", _INVOKE % "close", False),
-    ("dialog", "shim command=close", "#parity-dialog", _INVOKE % "show-modal", _INVOKE % "close", True),
+    ("dialog", "command=close, commandForElement deleted", "#parity-dialog", _INVOKE % "show-modal", _INVOKE % "close", True),
     ("dialog", ":target", "#parity-dialog", "(el) => { location.hash = el.id }", "() => { location.hash = '' }", False),
     ("popover", "hidePopover()", "#parity-popover", _SHOW_POPOVER, "(el) => el.hidePopover()", False),
     ("popover", "light dismiss", "#parity-popover", _POPOVERTARGET, lambda page, el: page.mouse.click(2, 2), False),
-    ("popover", "shim command=hide-popover", "#parity-popover", _SHOW_POPOVER, _INVOKE % "hide-popover", True),
+    ("popover", "command=hide-popover, commandForElement deleted", "#parity-popover", _SHOW_POPOVER, _INVOKE % "hide-popover", True),
     ("menu", "select an item", "#parity-menu", _SHOW_POPOVER,
      "(el) => el.querySelector(':scope > button').click()", False),
     ("tooltip", "blur", "al-tooltip[for=parity-tooltip-trigger]",
@@ -512,7 +515,7 @@ def run_close_checks(browser, base, comps):
                 page.wait_for_selector("html[data-ref-ready]", state="attached", timeout=20000)
                 page.evaluate("(on) => document.documentElement.classList.toggle('dark', on)", theme == "dark")
                 if shim and page.evaluate("() => 'commandForElement' in HTMLButtonElement.prototype"):
-                    fails.append("%s %s (%s): commandForElement is still defined; the shim path did not run"
+                    fails.append("%s %s (%s): commandForElement is still defined after deleting it"
                                  % (comp, label, theme))
                     continue
                 probs = check_closes(page, selector, close_js, open_js)

@@ -74,5 +74,15 @@ class ManifestTest(unittest.TestCase):
             self.assertEqual(not self.manifest_failures(), ok, v)
 
 
+class MotionTest(unittest.TestCase):
+    def test_unguarded_motion(self):
+        css = """/* transition: all */
+        a { color: red; transition: opacity 1s }
+        b { transition: none }
+        @media (prefers-reduced-motion: no-preference) { c { transition: all 1s } @starting-style { d { opacity: 0 } } }
+        e::after { animation-name: spin }"""
+        self.assertEqual(check.unguarded_motion(css), ["a", "e::after"])
+
+
 if __name__ == "__main__":
     unittest.main()

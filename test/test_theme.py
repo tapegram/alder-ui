@@ -75,7 +75,7 @@ class ThemeTest(unittest.TestCase):
         self.set_dark(True)
         self.assertColour(self.style(PRIMARY, "background-color"), "oklch(0.7 0.2 140)")
 
-    def test_light_subtree_in_dark(self):
+    def add_cards(self):
         self.page.evaluate("""() => {
             for (const [id, cls] of [['light-card', 'light'], ['dark-card', '']]) {
                 const c = document.createElement('al-card');
@@ -85,12 +85,33 @@ class ThemeTest(unittest.TestCase):
                 document.querySelector('al-page').append(c);
             }
         }""")
+
+    def test_light_subtree_in_dark(self):
+        self.add_cards()
         self.set_dark(True)
         # The page really is dark: a card outside the subtree takes .dark's --card.
         self.assertColour(self.style("#dark-card", "background-color"), "oklch(0.205 0 0)")
         self.assertEqual(self.style("#dark-card", "color-scheme"), "dark")
         self.assertColour(self.style("#light-card", "background-color"), "oklch(1 0 0)")
         self.assertEqual(self.style("#light-card", "color-scheme"), "light")
+
+    def test_pasted_theme_in_light_subtree(self):
+        # README "Light and dark": a pasted light block written as `:root, .light`
+        # reaches a .light subtree of a dark page (Review Focus 2, clause 3) ...
+        self.page.add_style_tag(content=":root, .light{--card:oklch(0.6 0.2 260)} .dark{--card:oklch(0.3 0.1 140)}")
+        self.add_cards()
+        self.set_dark(True)
+        self.assertColour(self.style("#dark-card", "background-color"), "oklch(0.3 0.1 140)")
+        self.assertColour(self.style("#light-card", "background-color"), "oklch(0.6 0.2 260)")
+
+    def test_bare_root_paste_misses_light_subtree(self):
+        # ... and a bare `:root` block does not: the subtree keeps alder-ui's layered
+        # .light default (pins the README's warning; if this starts failing, the
+        # README sentence is stale).
+        self.page.add_style_tag(content=":root{--card:oklch(0.6 0.2 260)} .dark{--card:oklch(0.3 0.1 140)}")
+        self.add_cards()
+        self.set_dark(True)
+        self.assertColour(self.style("#light-card", "background-color"), "oklch(1 0 0)")
 
 
 if __name__ == "__main__":

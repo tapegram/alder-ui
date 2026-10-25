@@ -74,8 +74,10 @@ window.addEventListener("load", function () {
 
 <al-stack gap="md" data-section="textarea">
   <h2>textarea</h2>
-  <al-textarea label="Message" placeholder="Message"><label>Message<textarea name="message" placeholder="Message" data-ref="textarea/default/default"></textarea></label><ul class="errors" data-errors="message"></ul></al-textarea>
+  <al-textarea label="Message" placeholder="Message"><label>Message<textarea name="message" placeholder="Message" data-ref="textarea/default/default" data-ref-states="focus"></textarea></label><ul class="errors" data-errors="message"></ul></al-textarea>
   <al-textarea label="Message" placeholder="Message" invalid><label>Message<textarea name="message-invalid" placeholder="Message" aria-invalid="true" data-ref="textarea/default/invalid"></textarea></label><ul class="errors" data-errors="message-invalid"></ul></al-textarea>
+  <!-- twin-only: textarea help text matches input's (input/description/default) -->
+  <al-textarea label="Message" help="Markdown is fine."><label>Message<textarea name="message-help" aria-describedby="help-message-help"></textarea></label><small class="help" id="help-message-help" data-expect="font-weight: 400; font-size: 14px; line-height: 20px">Markdown is fine.</small><ul class="errors" data-errors="message-help"></ul></al-textarea>
 </al-stack>
 
 <al-stack gap="md" data-section="select">
@@ -83,6 +85,8 @@ window.addEventListener("load", function () {
   <al-select label="Fruit"><label>Fruit<select name="fruit" data-ref="select/trigger/default"><option value="">Select a fruit</option><option value="apple">Apple</option><option value="banana">Banana</option></select></label><ul class="errors" data-errors="fruit"></ul></al-select>
   <al-select label="Fruit" disabled><label>Fruit<select name="fruit-disabled" disabled data-ref="select/trigger/disabled"><option value="">Select a fruit</option><option value="apple">Apple</option></select></label><ul class="errors" data-errors="fruit-disabled"></ul></al-select>
   <al-select label="Fruit"><label data-expect="justify-self: start">Fruit<select name="fruit-anchor"><option value="apple">Apple</option></select></label></al-select>
+  <!-- twin-only (final review I3): help text is font-normal, not Typography's small font-medium -->
+  <al-select label="Fruit" help="Pick one."><label>Fruit<select name="fruit-help" aria-describedby="help-fruit-help"><option value="apple">Apple</option></select></label><small class="help" id="help-fruit-help" data-expect="font-weight: 400; font-size: 14px; line-height: 20px">Pick one.</small><ul class="errors" data-errors="fruit-help"></ul></al-select>
 </al-stack>
 
 <al-stack gap="md" data-section="checkbox">
@@ -91,6 +95,8 @@ window.addEventListener("load", function () {
   <al-checkbox label="Accept terms"><label>Accept terms<input name="terms-2" type="checkbox" value="True" checked data-ref="checkbox/default/checked"></label><ul class="errors" data-errors="terms-2"></ul></al-checkbox>
   <al-checkbox label="Accept terms" disabled><label>Accept terms<input name="terms-3" type="checkbox" value="True" disabled data-ref="checkbox/default/disabled"></label><ul class="errors" data-errors="terms-3"></ul></al-checkbox>
   <al-checkbox label="Accept terms" invalid><label>Accept terms<input name="terms-4" type="checkbox" value="True" aria-invalid="true" data-ref="checkbox/default/invalid"></label><ul class="errors" data-errors="terms-4"></ul></al-checkbox>
+  <!-- twin-only (final review I3): help text is font-normal, not Typography's small font-medium -->
+  <al-checkbox label="Accept terms" help="You can change this later."><label>Accept terms<input name="terms-help" type="checkbox" value="True" aria-describedby="help-terms-help"></label><small class="help" id="help-terms-help" data-expect="font-weight: 400; font-size: 14px; line-height: 20px">You can change this later.</small><ul class="errors" data-errors="terms-help"></ul></al-checkbox>
 </al-stack>
 
 <al-stack gap="md" data-section="card">
@@ -102,12 +108,24 @@ window.addEventListener("load", function () {
     <div data-ref="card/content/default">Card Content</div>
     <div slot="footer" data-ref="card/footer/default">Card Footer</div>
   </al-card>
-  <!-- twin: an unslotted leading heading and the p after it are title and description -->
+  <!-- twin: an unslotted leading heading and the p after it are title and description
+       (an h2, so Typography's h2 divider, border-b pb-2, must not reach a card title) -->
   <al-card>
-    <h3 data-ref="card/title/unslotted">Card Title</h3>
+    <h2 data-ref="card/title/unslotted">Card Title</h2>
     <p data-ref="card/description/unslotted">Card Description</p>
     <div slot="action">Card Action</div>
     <div>Card Content</div>
+  </al-card>
+  <!-- twin-only (final review I2): a slotted h2 title has no Typography divider either -->
+  <al-card>
+    <h2 slot="header" data-expect="border-bottom-width: 0px; padding-bottom: 0px; margin-top: 0px">Card Title</h2>
+    <div>Card Content</div>
+  </al-card>
+  <!-- twin-only (R27): a body paragraph inherits shadcn's 24px leading, not Typography's leading-7 -->
+  <al-card>
+    <h3 slot="header">Card Title</h3>
+    <p slot="description" data-expect="line-height: 20px">Card Description</p>
+    <p data-expect="line-height: 24px">Card body text.</p>
   </al-card>
 </al-stack>
 
@@ -127,6 +145,13 @@ window.addEventListener("load", function () {
   <al-alert variant="success" heading="Alert Title" role="status" data-ref="alert/success/root" data-ref-before="alert/success/title" data-ref-after="alert/success/icon"><p data-ref="alert/success/description">Alert Description</p></al-alert>
   <al-alert variant="warning" heading="Alert Title" role="alert" data-ref="alert/warning/root" data-ref-before="alert/warning/title" data-ref-after="alert/warning/icon"><p data-ref="alert/warning/description">Alert Description</p></al-alert>
   <al-alert variant="destructive" heading="Alert Title" role="alert" data-ref="alert/destructive/root" data-ref-before="alert/destructive/title" data-ref-after="alert/destructive/icon"><p data-ref="alert/destructive/description">Alert Description</p></al-alert>
+  <!-- twin-only (I1, I4): a message that mixes text and inline elements stays one line
+       (46px = py-3, one 20px line, the border), in bare text or in a paragraph under a
+       heading (68px, the same as the grid rows above); an errors list is plain lines
+       4px apart with no Typography li margin -->
+  <al-alert variant="info" role="status" data-expect="height: 46px">Saved <code data-expect="display: inline">post.md</code> ok, <a href="#" data-expect="display: inline">view it</a>.</al-alert>
+  <al-alert variant="info" heading="Alert Title" role="status" data-expect="height: 68px"><p data-expect="height: 20px">Saved <code>post.md</code> ok, <a href="#">view it</a>.</p></al-alert>
+  <al-alert variant="destructive" role="alert" data-expect="height: 70px"><ul class="errors" data-errors="alert-errors"><li data-expect="margin-top: 0px">That slug is taken.</li><li data-expect="margin-top: 0px">The title must not be empty.</li></ul></al-alert>
 </al-stack>
 
 <al-stack gap="md" data-section="table">
@@ -225,6 +250,8 @@ window.addEventListener("load", function () {
   <al-dialog heading="Small" size="sm"><dialog data-expect="max-width: 448px"><h2 slot="header">Small</h2></dialog></al-dialog>
   <al-dialog heading="Medium" size="md"><dialog data-expect="max-width: 512px"><h2 slot="header">Medium</h2></dialog></al-dialog>
   <al-dialog heading="Large" size="lg"><dialog data-expect="max-width: 672px"><h2 slot="header">Large</h2></dialog></al-dialog>
+  <!-- twin-only (R27): a body paragraph inherits shadcn's 24px leading, not Typography's leading-7 -->
+  <al-dialog heading="Body"><dialog aria-label="Body"><h2 slot="header">Body</h2><p slot="description" data-expect="line-height: 20px">Dialog Description</p><p data-expect="line-height: 24px">Dialog body text.</p></dialog></al-dialog>
 </al-stack>
 
 <al-stack gap="md" data-section="popover, menu, tooltip">
@@ -234,8 +261,8 @@ window.addEventListener("load", function () {
     <al-button variant="outline"><button type="button" id="parity-menu-trigger" popovertarget="parity-menu">Open menu</button></al-button>
     <al-button variant="outline"><button type="button" id="parity-tooltip-trigger">Hover</button></al-button>
   </al-stack>
-  <!-- The close check's shim run clicks this (hide-popover is idempotent; toggle-popover
-       would run twice, the shim's and Chromium's, and cancel out). -->
+  <!-- The close check's "commandForElement deleted" run clicks this (hide-popover is
+       idempotent; toggle-popover would run twice, the shim's and Chromium's, and cancel out). -->
   <button type="button" hidden commandfor="parity-popover" command="hide-popover">Close popover</button>
   <al-popover popover id="parity-popover" anchor="parity-popover-trigger" placement="bottom" data-ref="popover/content/open" data-ref-open>
     <h4>Popover Title</h4>
