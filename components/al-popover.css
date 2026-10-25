@@ -6,36 +6,53 @@
  * the implicit anchor, or name another element with the HTML anchor="<id>"
  * attribute); position-try flips it to the other side when it would overflow.
  * placement and offset choose the side and the gap.
+ *
+ * The parts map to shadcn's: the element is PopoverContent; a heading inside
+ * it is PopoverTitle and a paragraph PopoverDescription (PopoverHeader's
+ * gap-1 is the paragraph's top margin after a heading).
  */
 
+/* PopoverContent: z-50 w-72 origin-(--radix-popover-content-transform-origin)
+   rounded-md border bg-popover p-4 text-popover-foreground shadow-md
+   outline-hidden   (sideOffset={4}: the margin) */
 al-popover {
+  --_al-from: 0 -0.5rem;
   position: fixed;
   inset: auto;
   position-area: block-end;
   position-try-fallbacks: flip-block, flip-inline;
+  z-index: 50;
+  inline-size: 18rem;
+  max-inline-size: calc(100dvw - 2rem);
   margin: 0.25rem;
-  padding: 0.75rem;
+  padding: 1rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-md);
   background: var(--popover);
   color: var(--popover-foreground);
-  box-shadow: var(--shadow-sm);
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  max-inline-size: calc(100dvw - 2rem);
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-md);
+  outline-style: none;
+  transform-origin: top;
 }
 
+/* data-[side=…]:slide-in-from-…-2: --_al-from is the 0.5rem the content
+   slides in from, away from the anchor; the zoom grows out of the anchored side. */
 al-popover[placement="top"] {
+  --_al-from: 0 0.5rem;
   position-area: block-start;
+  transform-origin: bottom;
 }
 
 al-popover[placement="left"] {
+  --_al-from: 0.5rem 0;
   position-area: inline-start;
+  transform-origin: right;
 }
 
 al-popover[placement="right"] {
+  --_al-from: -0.5rem 0;
   position-area: inline-end;
+  transform-origin: left;
 }
 
 al-popover[offset="sm"] {
@@ -43,17 +60,59 @@ al-popover[offset="sm"] {
 }
 
 al-popover[offset="md"] {
-  margin: 0.75rem;
+  margin: 0.5rem;
 }
 
 al-popover[offset="lg"] {
-  margin: 1.5rem;
+  margin: 1rem;
 }
 
-al-popover > :first-child {
-  margin-top: 0;
+al-popover > * {
+  margin: 0;
 }
 
-al-popover > :last-child {
-  margin-bottom: 0;
+/* PopoverHeader: flex flex-col gap-1 text-sm   PopoverTitle: font-medium */
+al-popover > :is(h1, h2, h3, h4, h5, h6) {
+  padding: 0;
+  border-width: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  letter-spacing: normal;
+}
+
+/* PopoverDescription: text-muted-foreground   (text-sm from PopoverHeader) */
+al-popover > p {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+al-popover > :is(h1, h2, h3, h4, h5, h6) + p {
+  margin-block-start: 0.25rem;
+}
+
+/* data-[state=open]:animate-in fade-in-0 zoom-in-95 slide-in-from-…-2,
+   data-[state=closed]:animate-out fade-out-0 zoom-out-95 */
+@media (prefers-reduced-motion: no-preference) {
+  al-popover {
+    transition-property: opacity, scale, translate, display, overlay;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-behavior: allow-discrete;
+  }
+
+  al-popover[popover]:not(:popover-open) {
+    opacity: 0;
+    scale: 0.95;
+    translate: var(--_al-from);
+  }
+
+  @starting-style {
+    al-popover:popover-open {
+      opacity: 0;
+      scale: 0.95;
+      translate: var(--_al-from);
+    }
+  }
 }

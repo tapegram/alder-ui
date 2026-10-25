@@ -8,6 +8,10 @@ demo/parity.html (alder-ui, the markup Alder emits) in Chromium at 1280x2000, li
 dark (.dark on <html>), and for every marker compares getComputedStyle on spec section
 8.3's property list plus the bounding-box size, at rest and in each state the marker's
 data-ref-states lists (hover, focus-visible). Prints a Markdown table per component.
+Then, for each gating component in CLOSE_CHECKS, opens and closes its overlay on a fresh
+twin page with motion on (light and dark) and checks it is display: none and takes no
+clicks once the exit transition has run (Review Focus 4).
+And for each in ANCHOR_CHECKS, opens it and checks it sits against its anchor.
 
 Markers (both pages):
   data-ref="<component>/<variant>/<state>"   the element whose computed style is read
@@ -24,6 +28,7 @@ Twin-only:
                                              against the twin's own computed style (for
                                              things shadcn lacks); its component is the
                                              nearest al-* ancestor-or-self, less "al-"
+  data-expect-before="prop:value; ..."       the same, against the element's ::before
 
 test/parity-allow.json:
   pending   components reported but not gating (every one, until its restyle lands)
@@ -72,7 +77,7 @@ FIXED_WIDTH = [
 ]
 SIZE_PROPS = {"height", "width", "box-width", "box-height"}
 
-NO_MOTION = "*, *::before, *::after { transition: none !important; animation: none !important }"
+NO_MOTION = "*, *::before, *::after, *::backdrop { transition: none !important; animation: none !important }"
 
 
 # Colour parsing lives in test/colour.py (shared with check.py).
@@ -250,20 +255,23 @@ READ_JS = """([props, fixed, only]) => {
 EXPECT_JS = """() => {
   const out = [];
   const seen = {};
-  for (const el of document.querySelectorAll('[data-expect]:not([data-ref])')) {
+  for (const el of document.querySelectorAll('[data-expect]:not([data-ref]), [data-expect-before]:not([data-ref])')) {
     let host = el;
     while (host && !host.localName.startsWith('al-')) host = host.parentElement;
     const comp = host ? host.localName.slice(3) : 'page';
     const n = seen[comp] = (seen[comp] || 0) + 1;
-    const want = {};
-    for (const decl of el.getAttribute('data-expect').split(';')) {
-      const i = decl.indexOf(':');
-      if (i > 0) want[decl.slice(0, i).trim()] = decl.slice(i + 1).trim();
+    for (const [attr, pseudo] of [['data-expect', null], ['data-expect-before', '::before']]) {
+      if (!el.hasAttribute(attr)) continue;
+      const want = {};
+      for (const decl of el.getAttribute(attr).split(';')) {
+        const i = decl.indexOf(':');
+        if (i > 0) want[decl.slice(0, i).trim()] = decl.slice(i + 1).trim();
+      }
+      const cs = getComputedStyle(el, pseudo);
+      const got = {};
+      for (const p of Object.keys(want)) got[p] = cs.getPropertyValue(p);
+      out.push([comp + '/expect/' + el.localName + '-' + n + (pseudo || ''), want, got]);
     }
-    const cs = getComputedStyle(el);
-    const got = {};
-    for (const p of Object.keys(want)) got[p] = cs.getPropertyValue(p);
-    out.push([comp + '/expect/' + el.localName + '-' + n, want, got]);
   }
   return out;
 }"""
@@ -282,7 +290,9 @@ FONTS_JS = """async () => {
 
 OPEN_JS = """(i) => {
   const el = document.querySelectorAll('[data-ref-open]')[i];
-  if (el instanceof HTMLDialogElement) { if (!el.open) el.showModal(); }
+  // The ref keeps focus where it was on open (onOpenAutoFocus prevented), so the twin's
+  // autofocused close button is blurred: rest is read unfocused.
+  if (el instanceof HTMLDialogElement) { if (!el.open) { el.showModal(); document.activeElement.blur(); } }
   else if (el.hasAttribute('popover')) { if (!el.matches(':popover-open')) el.showPopover(); }
 }"""
 
@@ -292,6 +302,11 @@ CLOSE_JS = """(i) => {
     if (el instanceof HTMLDialogElement) { if (el.open) el.close(); }
     else if (el.hasAttribute('popover') && el.matches(':popover-open')) el.hidePopover();
   }
+}"""
+
+BLUR_IN_JS = """(i) => {
+  const el = document.querySelectorAll('[data-ref-open]')[i];
+  if (el.contains(document.activeElement)) document.activeElement.blur();
 }"""
 
 SETTLE_JS = "() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))"
@@ -373,10 +388,190 @@ class Page:
     def open(self, group):
         self.page.evaluate(OPEN_JS, group)
         self.settle()
+        # al-menu.js focuses the first item on the (async) toggle event; rest is unfocused.
+        self.page.evaluate(BLUR_IN_JS, group)
+        self.settle()
 
     def close(self, group=None):
         self.page.evaluate(CLOSE_JS, group)
         self.settle()
+
+
+# ----------------------------------------------------------------------- close checks
+
+# Review Focus 4: with motion on, an overlay must be gone once its exit transition has run.
+# Each entry: (component, label, selector, open js, close, shim). The js take the element;
+# open js may return another element, which is then the one checked (a toast it adds to
+# the region). close is js, a Python callable (page, element) for a real pointer or key,
+# or a number: the overlay closes itself after that many ms (a toast's timeout). shim=True
+# deletes HTMLButtonElement.prototype.commandForElement before load, so
+# components/al-shim.js polyfills the invoker commands. Chromium's own invokers still act
+# (R20), so the shim runs use idempotent commands: a toggle would run twice and cancel out.
+_SHOW_MODAL = "(el) => el.showModal()"
+_SHOW_POPOVER = "(el) => el.showPopover()"
+_INVOKE = "(el) => document.querySelector('[commandfor=\"' + el.id + '\"][command=\"%s\"]').click()"
+_POPOVERTARGET = "(el) => document.querySelector('[popovertarget=\"' + el.id + '\"]').click()"
+_TIP_TRIGGER = "document.getElementById(el.getAttribute('for'))"
+_ADD_TOAST = ("(el) => { const t = document.createElement('al-toast'); t.setAttribute('timeout', '100');"
+              " t.textContent = 'Timed toast'; el.appendChild(t); %s return t }")
+CLOSE_CHECKS = [
+    ("dialog", "close()", "#parity-dialog", _SHOW_MODAL, "(el) => el.close()", False),
+    ("dialog", "close button", "#parity-dialog", _SHOW_MODAL,
+     "(el) => el.querySelector(':scope > form[method=dialog] > button').click()", False),
+    ("dialog", "command=close", "#parity-dialog", _INVOKE % "show-modal", _INVOKE % "close", False),
+    ("dialog", "shim command=close", "#parity-dialog", _INVOKE % "show-modal", _INVOKE % "close", True),
+    ("dialog", ":target", "#parity-dialog", "(el) => { location.hash = el.id }", "() => { location.hash = '' }", False),
+    ("popover", "hidePopover()", "#parity-popover", _SHOW_POPOVER, "(el) => el.hidePopover()", False),
+    ("popover", "light dismiss", "#parity-popover", _POPOVERTARGET, lambda page, el: page.mouse.click(2, 2), False),
+    ("popover", "shim command=hide-popover", "#parity-popover", _SHOW_POPOVER, _INVOKE % "hide-popover", True),
+    ("menu", "select an item", "#parity-menu", _SHOW_POPOVER,
+     "(el) => el.querySelector(':scope > button').click()", False),
+    ("tooltip", "blur", "al-tooltip[for=parity-tooltip-trigger]",
+     "(el) => %s.focus()" % _TIP_TRIGGER, "(el) => %s.blur()" % _TIP_TRIGGER, False),
+    ("tooltip", "pointerleave", "al-tooltip[for=parity-tooltip-trigger]",
+     "(el) => %s.dispatchEvent(new PointerEvent('pointerenter'))" % _TIP_TRIGGER,
+     "(el) => %s.dispatchEvent(new PointerEvent('pointerleave'))" % _TIP_TRIGGER, False),
+    ("toast", "timeout", "#parity-toasts-timeout", _ADD_TOAST % "", 100, False),
+    # An app's infinite animation on the toast must not hold up its removal (R24).
+    ("toast", "timeout, infinite animation", "#parity-toasts-timeout",
+     _ADD_TOAST % "t.animate([{ outlineColor: 'red' }, { outlineColor: 'blue' }], { duration: 1000, iterations: Infinity });",
+     100, False),
+]
+CLOSE_WAIT_MS = 300  # longer than the 200ms dialog / 150ms overlay exit transitions
+
+OPENED_JS = """(el) => {
+  const r = el.getBoundingClientRect();
+  return { opened: getComputedStyle(el).display !== 'none' && r.width > 0 && r.height > 0,
+           x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}"""
+
+CLOSED_JS = """([el, x, y]) => {
+  if (!el.isConnected) return { connected: false, display: '', hit: false };
+  const at = document.elementFromPoint(x, y);
+  return { connected: true, display: getComputedStyle(el).display, hit: !!at && el.contains(at) };
+}"""
+
+
+def close_problems(st):
+    """What is wrong with an overlay measured CLOSE_WAIT_MS after closing: st holds
+    opened (it was shown before closing), connected (el.isConnected), display (computed)
+    and hit (elementFromPoint at its open centre lands inside it). A disconnected node is
+    closed (R19)."""
+    if not st["opened"]:
+        return ["did not open, so its closing proves nothing"]
+    if not st["connected"]:
+        return []
+    out = []
+    if st["display"] != "none":
+        out.append("display is %r after the exit transition, not 'none'" % st["display"])
+    if st["hit"]:
+        out.append("still takes clicks at its centre")
+    return out
+
+
+def check_closes(page, selector, close_js, open_js=_SHOW_MODAL):
+    """Open the overlay `selector` names (or the element open_js returns), close it with
+    close_js (js, a callable taking the page and the element, or the ms after which it
+    closes itself), wait out the exit transition, and return close_problems() for it. The
+    page must have motion on."""
+    el = page.query_selector(selector)
+    if el is None:
+        return ["%s is not on the page" % selector]
+    el = el.evaluate_handle(open_js).as_element() or el
+    if isinstance(close_js, (int, float)):
+        # It closes itself: check it opened at once, then wait out its timeout as well.
+        page.evaluate(SETTLE_JS)
+        opened = el.evaluate(OPENED_JS)
+        page.wait_for_timeout(close_js)
+    else:
+        page.wait_for_timeout(CLOSE_WAIT_MS)
+        opened = el.evaluate(OPENED_JS)
+        if callable(close_js):
+            close_js(page, el)
+        else:
+            el.evaluate(close_js)
+    page.wait_for_timeout(CLOSE_WAIT_MS)
+    st = page.evaluate(CLOSED_JS, [el, opened["x"], opened["y"]])
+    st["opened"] = opened["opened"]
+    return close_problems(st)
+
+
+def run_close_checks(browser, base, comps):
+    """Every CLOSE_CHECKS entry whose component is in comps, light and dark, each on a fresh
+    twin page with motion on. Returns failure lines."""
+    fails = []
+    for comp, label, selector, open_js, close_js, shim in CLOSE_CHECKS:
+        if comp not in comps:
+            continue
+        for theme in THEMES:
+            page = browser.new_page(viewport=VIEWPORT, color_scheme="light")
+            try:
+                if shim:
+                    page.add_init_script("delete HTMLButtonElement.prototype.commandForElement")
+                page.goto(base + TWIN_URL, wait_until="load")
+                page.wait_for_selector("html[data-ref-ready]", state="attached", timeout=20000)
+                page.evaluate("(on) => document.documentElement.classList.toggle('dark', on)", theme == "dark")
+                if shim and page.evaluate("() => 'commandForElement' in HTMLButtonElement.prototype"):
+                    fails.append("%s %s (%s): commandForElement is still defined; the shim path did not run"
+                                 % (comp, label, theme))
+                    continue
+                probs = check_closes(page, selector, close_js, open_js)
+            finally:
+                page.close()
+            fails.extend("%s %s %s (%s): %s" % (comp, selector, label, theme, p) for p in probs)
+            print("close: %s %s via %s (%s): %s" % (comp, selector, label, theme, "ok" if not probs else "FAIL"))
+    return fails
+
+
+# An anchored overlay must sit against its anchor, not wherever position-area lands with
+# none (the viewport). Each entry: (component, label, selector, anchor selector, open js,
+# side). The overlay is opened with motion off on a fresh twin page and its rect is checked.
+ANCHOR_CHECKS = [
+    ("tooltip", "hover", "al-tooltip[for=parity-tooltip-trigger]", "#parity-tooltip-trigger",
+     "(el) => %s.dispatchEvent(new PointerEvent('pointerenter'))" % _TIP_TRIGGER, "above"),
+]
+ANCHOR_GAP_PX = 12  # the tooltip's 5px offset, with room; an unanchored one is far off
+
+RECT_JS = "(el) => { const r = el.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom] }"
+
+
+def anchor_problems(rect, anchor, side):
+    """What is wrong with an overlay's rect [left, top, right, bottom] against its anchor's:
+    it must be on `side` ("above"/"below") within ANCHOR_GAP_PX and centred on it (1px)."""
+    if rect[2] - rect[0] <= 0:
+        return ["has no size, so it did not open"]
+    gap = anchor[1] - rect[3] if side == "above" else rect[1] - anchor[3]
+    out = []
+    if not 0 <= gap <= ANCHOR_GAP_PX:
+        out.append("is %spx from the anchor's %s edge, not 0-%dpx %s it"
+                   % (round(gap, 1), "top" if side == "above" else "bottom", ANCHOR_GAP_PX, side))
+    off = (rect[0] + rect[2]) / 2 - (anchor[0] + anchor[2]) / 2
+    if abs(off) > 1:
+        out.append("is %spx off the anchor's centre" % round(off, 1))
+    return out
+
+
+def run_anchor_checks(browser, base, comps):
+    """Every ANCHOR_CHECKS entry whose component is in comps, light theme only (placement
+    does not depend on the theme). Returns failure lines."""
+    fails = []
+    for comp, label, selector, anchor_sel, open_js, side in ANCHOR_CHECKS:
+        if comp not in comps:
+            continue
+        page = browser.new_page(viewport=VIEWPORT, color_scheme="light")
+        try:
+            page.goto(base + TWIN_URL, wait_until="load")
+            page.wait_for_selector("html[data-ref-ready]", state="attached", timeout=20000)
+            page.add_style_tag(content=NO_MOTION)
+            el, anchor = page.query_selector(selector), page.query_selector(anchor_sel)
+            el.evaluate(open_js)
+            page.evaluate(SETTLE_JS)
+            probs = anchor_problems(el.evaluate(RECT_JS), anchor.evaluate(RECT_JS), side)
+        finally:
+            page.close()
+        fails.extend("%s %s %s: %s" % (comp, selector, label, p) for p in probs)
+        print("anchor: %s %s via %s: %s" % (comp, selector, label, "ok" if not probs else "FAIL"))
+    return fails
 
 
 def collect(ref, twin, allow, only):
@@ -406,10 +601,15 @@ def collect(ref, twin, allow, only):
         ref_state = {}
         for m in twin_markers:
             t = target(m, allow)
+            g = twin.inventory[m]["group"]
             for state in twin.inventory[m]["states"]:
                 if (t, state) not in ref_state:
                     ref_state[(t, state)] = ref.drive(t, state, t)
+                if g != -1:  # a marker inside an overlay is driven with its overlay open
+                    twin.open(g)
                 got = twin.drive(m, state, t)
+                if g != -1:
+                    twin.close(g)
                 for prop, a, b in diff(ref_state[(t, state)], got):
                     rows.append((component(t), m, theme, state, prop, a, b))
         for label, want, got in twin.page.evaluate(EXPECT_JS):
@@ -598,6 +798,14 @@ def main(argv=None):
                 text, failing = report(rows, allow, [c for c in comps if args.only in (None, c)], expects)
                 print(text)
                 if failing:
+                    status = 1
+                close_fails = run_close_checks(browser, base, gating)
+                for f in close_fails:
+                    print("parity: FAIL close %s" % f)
+                anchor_fails = run_anchor_checks(browser, base, gating)
+                for f in anchor_fails:
+                    print("parity: FAIL anchor %s" % f)
+                if close_fails or anchor_fails:
                     status = 1
                 if args.strict and allow["pending"]:
                     print("parity: --strict and pending is not empty: %s" % ", ".join(allow["pending"]))

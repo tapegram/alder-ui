@@ -8,26 +8,170 @@
  * attribute, and the al-select event.
  */
 
+/* Tabs: group/tabs flex flex-col gap-2. Written as a wrapping row so the no-JS
+   labels sit side by side; each panel takes a full row beneath them. */
 al-tabs {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
-  border-bottom: 1px solid var(--border);
+  align-content: flex-start;
+  row-gap: 0.5rem;
   font-family: var(--font-sans);
-  font-size: 0.875rem;
-  line-height: 1.5;
 }
 
 al-tabs > al-tab {
   display: contents;
 }
 
+/* TabsList (the built tablist): inline-flex h-9 w-fit items-center
+   justify-center rounded-lg bg-muted p-[3px] text-muted-foreground;
+   line: gap-1 rounded-none bg-transparent */
+al-tabs > [role="tablist"] {
+  display: inline-flex;
+  order: 1;
+  align-items: center;
+  justify-content: center;
+  inline-size: fit-content;
+  block-size: 2.25rem;
+  padding: 3px;
+  border-radius: var(--radius-lg);
+  background: var(--muted);
+  outline-color: currentcolor;
+  color: var(--muted-foreground);
+}
+
+al-tabs[variant="line"] > [role="tablist"] {
+  gap: 0.25rem;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* TabsTrigger: relative inline-flex h-[calc(100%-1px)] flex-1 items-center
+   justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm
+   font-medium whitespace-nowrap text-foreground/60 transition-all
+   hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px]
+   focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring
+   dark:text-muted-foreground dark:hover:text-foreground */
+al-tabs > [role="tablist"] > [role="tab"] {
+  position: relative;
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  block-size: calc(100% - 1px);
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: color-mix(in oklab, var(--foreground) 60%, transparent);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  white-space: nowrap;
+  cursor: pointer;
+  outline-style: none;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark al-tabs > [role="tablist"] > [role="tab"] {
+  color: var(--muted-foreground);
+}
+
+al-tabs > [role="tablist"] > [role="tab"]:hover {
+  color: var(--foreground);
+}
+
+al-tabs > [role="tablist"] > [role="tab"]:focus-visible {
+  border-color: var(--ring);
+  outline: 1px solid var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+}
+
+/* data-[state=active]:bg-background data-[state=active]:text-foreground
+   data-[state=active]:shadow-sm  dark:data-[state=active]:border-input
+   dark:data-[state=active]:bg-input/30 */
+al-tabs > [role="tablist"] > [role="tab"][aria-selected="true"] {
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-sm);
+}
+
+.dark al-tabs > [role="tablist"] > [role="tab"][aria-selected="true"] {
+  border-color: var(--input);
+  background: color-mix(in oklab, var(--input) 30%, transparent);
+  color: var(--foreground);
+}
+
+/* line: bg-transparent, shadow-none, dark border-transparent (the no-op layers
+   mirror how Tailwind composes box-shadow, so the computed list matches) */
+al-tabs[variant="line"] > [role="tablist"] > [role="tab"][aria-selected="true"],
+.dark al-tabs[variant="line"] > [role="tablist"] > [role="tab"][aria-selected="true"] {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent;
+}
+
+al-tabs[variant="line"] > [role="tablist"] > [role="tab"]:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+}
+
+/* after:absolute after:inset-x-0 after:bottom-[-5px] after:h-0.5
+   after:bg-foreground after:opacity-0 after:transition-opacity; line + active:
+   after:opacity-100 */
+al-tabs > [role="tablist"] > [role="tab"]::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -5px;
+  block-size: 2px;
+  background: var(--foreground);
+  opacity: 0;
+  transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+al-tabs[variant="line"] > [role="tablist"] > [role="tab"][aria-selected="true"]::after {
+  opacity: 1;
+}
+
+/* TabsContent: flex-1 outline-none */
+al-tabs > al-tab > al-panel {
+  display: none;
+  order: 2;
+  flex: 1 1 100%;
+  outline-style: none;
+  color: var(--foreground);
+}
+
+al-tabs > al-tab:has(> label > input:checked) > al-panel {
+  display: block;
+}
+
+/* Enter only: opacity 0 and scale .95 to rest, as the other overlays do. There
+   is no exit transition (no `display` allow-discrete): panels are in flow, so a
+   fading old panel would stack with the new one and jump the layout; Radix
+   tabs content unmounts at once. */
+@media (prefers-reduced-motion: no-preference) {
+  al-tabs > al-tab > al-panel {
+    transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1), scale 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @starting-style {
+    al-tabs > al-tab:has(> label > input:checked) > al-panel {
+      opacity: 0;
+      scale: 0.95;
+    }
+  }
+}
+
+/* No script: the radio labels are the tab row (no shadcn counterpart). */
 al-tabs > al-tab > label {
   order: 1;
   position: relative;
-  padding: 0.5rem 1rem;
-  border-bottom: 2px solid transparent;
-  color: var(--muted-foreground);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-md);
+  color: color-mix(in oklab, var(--foreground) 60%, transparent);
   font-weight: 500;
   cursor: pointer;
 }
@@ -43,66 +187,12 @@ al-tabs > al-tab > label:hover {
 }
 
 al-tabs > al-tab > label:has(> input:checked) {
-  border-bottom-color: var(--primary);
+  background: var(--background);
   color: var(--foreground);
+  box-shadow: var(--shadow-sm);
 }
 
 al-tabs > al-tab > label:has(> input:focus-visible) {
   outline: none;
-  box-shadow: inset 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
-}
-
-al-tabs > al-tab > al-panel {
-  display: none;
-  order: 2;
-  flex-basis: 100%;
-  padding: 1rem 0;
-  color: var(--foreground);
-}
-
-al-tabs > al-tab:has(> label > input:checked) > al-panel {
-  display: block;
-}
-
-/* With the script: the tab strip it builds (the labels are hidden). */
-al-tabs:has(> [role="tablist"]) {
-  border-bottom: 0;
-}
-
-al-tabs > [role="tablist"] {
-  display: flex;
-  flex-wrap: wrap;
-  flex-basis: 100%;
-  align-items: flex-end;
-  order: 1;
-  border-bottom: 1px solid var(--border);
-}
-
-al-tabs > [role="tablist"] > [role="tab"] {
-  margin: 0;
-  padding: 0.5rem 1rem;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  background: transparent;
-  color: var(--muted-foreground);
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: 500;
-  line-height: inherit;
-  cursor: pointer;
-}
-
-al-tabs > [role="tablist"] > [role="tab"]:hover {
-  color: var(--foreground);
-}
-
-al-tabs > [role="tablist"] > [role="tab"][aria-selected="true"] {
-  border-bottom-color: var(--primary);
-  color: var(--foreground);
-}
-
-al-tabs > [role="tablist"] > [role="tab"]:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }

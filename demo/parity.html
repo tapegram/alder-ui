@@ -168,7 +168,7 @@ window.addEventListener("load", function () {
       <al-panel>Password Content</al-panel>
     </al-tab>
   </al-tabs>
-  <al-tabs data-ref-tablist="tabs/list/line" data-ref-tab-selected="tabs/trigger-active/line">
+  <al-tabs variant="line" data-ref-tablist="tabs/list/line" data-ref-tab-selected="tabs/trigger-active/line">
     <al-tab name="parity-tabs-line" selected>
       <label><input type="radio">Account</label>
       <al-panel>Tab Content</al-panel>
@@ -209,17 +209,22 @@ window.addEventListener("load", function () {
 
 <al-stack gap="md" data-section="dialog">
   <h2>dialog</h2>
+  <al-button variant="outline"><button type="button" commandfor="parity-dialog" command="show-modal">Open dialog</button></al-button>
   <al-dialog heading="Dialog Title" dismissible>
     <dialog id="parity-dialog" aria-labelledby="parity-dialog-heading" data-ref="dialog/content/open" data-ref-backdrop="dialog/overlay/open" data-ref-open>
       <form method="dialog"><button type="submit" aria-label="Close Dialog Title" data-ref="dialog/close/open">&times;</button></form>
       <h2 slot="header" id="parity-dialog-heading" data-ref="dialog/title/open">Dialog Title</h2>
-      <p data-ref="dialog/description/open">Dialog Description</p>
+      <p slot="description" data-ref="dialog/description/open">Dialog Description</p>
       <div slot="actions" data-ref="dialog/footer/open">
-        <al-button variant="outline"><button type="button">Cancel</button></al-button>
+        <al-button variant="outline"><button type="button" commandfor="parity-dialog" command="close">Cancel</button></al-button>
         <al-button><button type="button">Continue</button></al-button>
       </div>
     </dialog>
   </al-dialog>
+  <!-- size: shadcn has one width (sm:max-w-lg); sm and lg are sm:max-w-md and sm:max-w-2xl. -->
+  <al-dialog heading="Small" size="sm"><dialog data-expect="max-width: 448px"><h2 slot="header">Small</h2></dialog></al-dialog>
+  <al-dialog heading="Medium" size="md"><dialog data-expect="max-width: 512px"><h2 slot="header">Medium</h2></dialog></al-dialog>
+  <al-dialog heading="Large" size="lg"><dialog data-expect="max-width: 672px"><h2 slot="header">Large</h2></dialog></al-dialog>
 </al-stack>
 
 <al-stack gap="md" data-section="popover, menu, tooltip">
@@ -229,6 +234,9 @@ window.addEventListener("load", function () {
     <al-button variant="outline"><button type="button" id="parity-menu-trigger" popovertarget="parity-menu">Open menu</button></al-button>
     <al-button variant="outline"><button type="button" id="parity-tooltip-trigger">Hover</button></al-button>
   </al-stack>
+  <!-- The close check's shim run clicks this (hide-popover is idempotent; toggle-popover
+       would run twice, the shim's and Chromium's, and cancel out). -->
+  <button type="button" hidden commandfor="parity-popover" command="hide-popover">Close popover</button>
   <al-popover popover id="parity-popover" anchor="parity-popover-trigger" placement="bottom" data-ref="popover/content/open" data-ref-open>
     <h4>Popover Title</h4>
     <p>Popover Description</p>
@@ -244,13 +252,19 @@ window.addEventListener("load", function () {
 
 <al-stack gap="md" data-section="toast">
   <h2>toast</h2>
-  <al-toasts popover="manual" position="bottom-right" data-ref-open>
-    <al-toast timeout="0" data-ref="toast/default/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
+  <al-toasts popover="manual" position="bottom-right" data-ref-open data-expect="bottom: 24px; right: 24px; gap: 14px; flex-direction: column">
+    <al-toast timeout="0" data-ref="toast/default/default"><strong data-expect="font-size: 13px; font-weight: 500; line-height: 19.5px">Toast title</strong><div data-expect="font-size: 13px; font-weight: 400; line-height: 18.2px; opacity: 0.8">Toast description</div></al-toast>
     <al-toast variant="success" timeout="0" data-ref="toast/success/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
     <al-toast variant="info" timeout="0" data-ref="toast/info/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
     <al-toast variant="warning" timeout="0" data-ref="toast/warning/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
     <al-toast variant="destructive" timeout="0" data-ref="toast/destructive/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
+    <!-- twin-only: a one-line message that mixes text and an inline element stays one
+         line and is all title; with no variant there is no icon, variant="info" has one -->
+    <al-toast timeout="0" data-expect="font-weight: 500; padding-left: 16px" data-expect-before="content: none">Saved <code data-expect="display: inline">post.md</code></al-toast>
+    <al-toast variant="info" timeout="0" data-expect="padding-left: 39px" data-expect-before="content: &quot;&quot;">Saved</al-toast>
   </al-toasts>
+  <!-- the timeout close check (test/parity.py CLOSE_CHECKS) adds a toast here -->
+  <al-toasts popover="manual" position="top-right" id="parity-toasts-timeout" data-expect="top: 24px; right: 24px; flex-direction: column-reverse"></al-toasts>
 </al-stack>
 
 </al-stack>
@@ -316,5 +330,11 @@ window.addEventListener("load", function () {
   <al-stack gap="lg" data-expect="row-gap: 24px"><span>a</span><span>b</span></al-stack>
   <al-stack direction="row" gap="lg" data-expect="column-gap: 24px; flex-direction: row"><span>a</span><span>b</span></al-stack>
 </al-page>
+<!-- al-devpanel has no shadcn counterpart: what it relies on under Preflight is pinned here. -->
+<al-devpanel open data-expect="font-family: &quot;Geist Mono&quot;, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace; box-sizing: border-box; margin-top: 0px; line-height: 18px">
+  <nav><button type="button" aria-controls="px-sql" data-expect="padding-top: 4px; padding-left: 8px; border-top-width: 0px; margin-top: 0px; box-sizing: border-box; font-family: &quot;Geist Mono&quot;, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace; font-size: 12px">SQL</button><button type="button" aria-controls="px-msgs" data-expect="padding-top: 4px; padding-left: 8px; background-color: rgba(0, 0, 0, 0); border-top-width: 0px; margin-top: 0px; box-sizing: border-box; font-size: 12px">Messages</button></nav>
+  <section id="px-sql" data-expect="box-sizing: border-box"><ul data-expect="list-style-type: none; margin-top: 0px; padding-left: 0px"><li>SELECT 1;</li><li>SELECT 2;</li></ul></section>
+  <section id="px-msgs">Msg: PostSaved</section>
+</al-devpanel>
 </body>
 </html>

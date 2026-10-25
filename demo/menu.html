@@ -33,13 +33,15 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 
 <section>
 <h2>Enhanced</h2>
-<p>With the script: arrow keys, Home/End, focus on the first item, closes on select. Try it with the keyboard.</p>
+<p>With the script: arrow keys, Home/End, focus on the first item, closes on select. Try it with the keyboard. An <code>&lt;hr&gt;</code> is a separator; <code>data-variant="destructive"</code> tints an item (and its icon) with the destructive colour.</p>
 <al-button variant="outline"><button type="button" commandfor="m-main" command="toggle-popover">Actions</button></al-button>
 <al-menu popover id="m-main">
   <a href="#edit">Edit</a>
   <a href="#duplicate">Duplicate</a>
   <button type="button">Archive</button>
-  <button type="button" disabled>Delete (disabled)</button>
+  <button type="button" disabled>Move (disabled)</button>
+  <hr>
+  <button type="button" data-variant="destructive"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete</button>
 </al-menu>
 </section>
 </al-stack>

@@ -2412,99 +2412,209 @@ al-page[plain] {
  * heading is rendered by the framework as the header slot's <h2>. The close
  * button of a dismissible dialog is a <form method="dialog"> with a button,
  * the first child of the <dialog>; closedby="any" adds backdrop clicks.
+ *
+ * The slots map to shadcn's parts: header = DialogTitle, description =
+ * DialogDescription, the body (no slot) = DialogContent's own children,
+ * actions = DialogFooter, the close form's button = the Close. shadcn's
+ * DialogHeader is a wrapper element; Alder emits none, so the <dialog> itself
+ * is the grid, and the header's gap-2 is a negative margin on the
+ * description. Children are placed by slot, whatever their source order.
  */
 
 al-dialog {
   display: contents;
 }
 
+/* DialogContent: fixed top-[50%] left-[50%] z-50 grid w-full
+   max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4
+   rounded-lg border bg-background p-6 shadow-lg duration-200 outline-none
+   sm:max-w-lg   (centred by inset 0 + margin auto, as the platform centres a
+   modal <dialog>; width calc(100% - 2rem) with max-width 32rem is the same
+   width at every viewport) */
 al-dialog > dialog {
   position: fixed;
-  inline-size: calc(var(--al-width-narrow) * 0.75);
-  max-inline-size: calc(100dvw - 2rem);
+  inset: 0;
+  z-index: 50;
+  inline-size: calc(100% - 2rem);
+  max-inline-size: 32rem;
   max-block-size: calc(100dvh - 2rem);
   margin: auto;
-  padding: 0;
+  padding: 1.5rem;
+  gap: 1rem;
+  overflow: auto;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--popover);
-  color: var(--popover-foreground);
-  box-shadow: var(--shadow-sm);
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-
-al-dialog > dialog::backdrop {
+  border-radius: var(--radius-lg);
+  background: var(--background);
   color: var(--foreground);
-  background: color-mix(in srgb, currentColor 50%, transparent);
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-lg);
+  outline-style: none;
 }
 
-/* No JavaScript: the dialog the URL fragment names is shown. */
-al-dialog > dialog:target:not([open]) {
-  display: block;
+/* grid only while shown: a closed <dialog> keeps the platform's display: none.
+   No JavaScript: the dialog the URL fragment names is shown (not modal). */
+al-dialog > dialog:is([open], :target) {
+  display: grid;
 }
 
+/* sm:max-w-md / sm:max-w-lg / sm:max-w-2xl */
 al-dialog[size="sm"] > dialog {
-  inline-size: calc(var(--al-width-narrow) / 2);
+  max-inline-size: 28rem;
 }
 
 al-dialog[size="lg"] > dialog {
-  inline-size: var(--al-width-narrow);
+  max-inline-size: 42rem;
 }
 
-al-dialog [slot="header"] {
+/* DialogOverlay: fixed inset-0 z-50 bg-black/50 */
+al-dialog > dialog::backdrop {
+  background: color-mix(in oklab, var(--color-black) 50%, transparent);
+}
+
+al-dialog > dialog > * {
   margin: 0;
-  padding: 1rem 1.5rem 0;
+}
+
+/* DialogHeader: flex flex-col gap-2 text-center sm:text-left
+   DialogTitle: text-lg leading-none font-semibold */
+al-dialog > dialog > [slot="header"] {
+  order: -2;
+  padding: 0;
+  border-width: 0;
   font-size: 1.125rem;
   font-weight: 600;
-  line-height: 1.25;
+  line-height: 1;
+  letter-spacing: normal;
+  text-align: center;
 }
 
-al-dialog > dialog > :not([slot]):not(form) {
-  padding: 1rem 1.5rem;
+/* DialogDescription: text-sm text-muted-foreground   (the -0.5rem top margin
+   turns the grid's gap-4 into DialogHeader's gap-2) */
+al-dialog > dialog > [slot="description"] {
+  order: -1;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  text-align: center;
 }
 
-al-dialog [slot="actions"] {
+al-dialog > dialog > [slot="header"] + [slot="description"] {
+  margin-block-start: -0.5rem;
+}
+
+/* DialogFooter: flex flex-col-reverse gap-2 sm:flex-row sm:justify-end */
+al-dialog > dialog > [slot="actions"] {
+  order: 1;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  flex-direction: column-reverse;
   gap: 0.5rem;
-  padding: 0 1.5rem 1rem;
 }
 
-al-dialog[dismissible] [slot="header"] {
-  padding-inline-end: 2.5rem;
+/* In the column, shadcn's buttons stretch (align-items: stretch); an
+   al-button is a flex row around its <button> or <a>, so the inner one grows. */
+al-dialog > dialog > [slot="actions"] > al-button > :is(button, a) {
+  flex: auto;
 }
 
-al-dialog[dismissible] > dialog > form[method="dialog"] {
+@media (min-width: 40rem) {
+  al-dialog > dialog > [slot="actions"] > al-button > :is(button, a) {
+    flex: none;
+  }
+
+  al-dialog > dialog > :is([slot="header"], [slot="description"]) {
+    text-align: start;
+  }
+
+  al-dialog > dialog > [slot="actions"] {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}
+
+/* A dismissible dialog's first-child close form is no box: its button is
+   placed against the dialog. (A <form method="dialog"> elsewhere in the body
+   is the app's own form, left alone.) */
+al-dialog[dismissible] > dialog > form[method="dialog"]:first-child {
+  display: contents;
+}
+
+/* DialogClose: absolute top-4 right-4 rounded-xs opacity-70
+   ring-offset-background transition-opacity hover:opacity-100 focus:ring-2
+   focus:ring-ring focus:ring-offset-2 focus:outline-hidden
+   disabled:pointer-events-none [&_svg]:size-4   with <XIcon />: the glyph
+   Alder writes (&times;) is pushed out of the 1rem box and the x is a mask
+   on ::before. */
+al-dialog[dismissible] > dialog > form[method="dialog"]:first-child > button {
   position: absolute;
-  top: 0.75rem;
-  inset-inline-end: 0.75rem;
-  margin: 0;
-}
-
-al-dialog[dismissible] > dialog > form[method="dialog"] > button {
-  margin: 0;
-  padding: 0.25rem 0.5rem;
-  border: 0;
-  border-radius: var(--radius-sm);
+  top: 1rem;
+  inset-inline-end: 1rem;
+  inline-size: 1rem;
+  block-size: 1rem;
+  overflow: hidden;
+  border-radius: 0.125rem;
   background: transparent;
   color: inherit;
-  font-family: inherit;
-  font-size: 1rem;
-  line-height: 1.25;
+  font: inherit;
+  white-space: nowrap;
+  text-indent: 100%;
+  opacity: 0.7;
   cursor: pointer;
+  transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-al-dialog[dismissible] > dialog > form[method="dialog"] > button:hover {
-  background: var(--accent);
-  color: var(--accent-foreground);
+al-dialog[dismissible] > dialog > form[method="dialog"]:first-child > button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  mask: var(--_al-icon-x) center / contain no-repeat;
+  pointer-events: none;
 }
 
-al-dialog[dismissible] > dialog > form[method="dialog"] > button:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+al-dialog[dismissible] > dialog > form[method="dialog"]:first-child > button:hover {
+  opacity: 1;
+}
+
+al-dialog[dismissible] > dialog > form[method="dialog"]:first-child > button:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+}
+
+al-dialog[dismissible] > dialog > form[method="dialog"]:first-child > button:disabled {
+  pointer-events: none;
+}
+
+/* data-[state=open]:animate-in fade-in-0 zoom-in-95, data-[state=closed]:
+   animate-out fade-out-0 zoom-out-95, duration-200; the overlay fades.
+   The :target form shows and hides with no motion. */
+@media (prefers-reduced-motion: no-preference) {
+  al-dialog > dialog,
+  al-dialog > dialog::backdrop {
+    transition-property: opacity, scale, display, overlay;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-behavior: allow-discrete;
+  }
+
+  al-dialog > dialog:not([open], :target) {
+    opacity: 0;
+    scale: 0.95;
+  }
+
+  al-dialog > dialog:not([open], :target)::backdrop {
+    opacity: 0;
+  }
+
+  @starting-style {
+    al-dialog > dialog[open] {
+      opacity: 0;
+      scale: 0.95;
+    }
+
+    al-dialog > dialog[open]::backdrop {
+      opacity: 0;
+    }
+  }
 }
 
 /* ---- components/al-popover.css ---- */
@@ -2517,36 +2627,53 @@ al-dialog[dismissible] > dialog > form[method="dialog"] > button:focus-visible {
  * the implicit anchor, or name another element with the HTML anchor="<id>"
  * attribute); position-try flips it to the other side when it would overflow.
  * placement and offset choose the side and the gap.
+ *
+ * The parts map to shadcn's: the element is PopoverContent; a heading inside
+ * it is PopoverTitle and a paragraph PopoverDescription (PopoverHeader's
+ * gap-1 is the paragraph's top margin after a heading).
  */
 
+/* PopoverContent: z-50 w-72 origin-(--radix-popover-content-transform-origin)
+   rounded-md border bg-popover p-4 text-popover-foreground shadow-md
+   outline-hidden   (sideOffset={4}: the margin) */
 al-popover {
+  --_al-from: 0 -0.5rem;
   position: fixed;
   inset: auto;
   position-area: block-end;
   position-try-fallbacks: flip-block, flip-inline;
+  z-index: 50;
+  inline-size: 18rem;
+  max-inline-size: calc(100dvw - 2rem);
   margin: 0.25rem;
-  padding: 0.75rem;
+  padding: 1rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-md);
   background: var(--popover);
   color: var(--popover-foreground);
-  box-shadow: var(--shadow-sm);
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  max-inline-size: calc(100dvw - 2rem);
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-md);
+  outline-style: none;
+  transform-origin: top;
 }
 
+/* data-[side=…]:slide-in-from-…-2: --_al-from is the 0.5rem the content
+   slides in from, away from the anchor; the zoom grows out of the anchored side. */
 al-popover[placement="top"] {
+  --_al-from: 0 0.5rem;
   position-area: block-start;
+  transform-origin: bottom;
 }
 
 al-popover[placement="left"] {
+  --_al-from: 0.5rem 0;
   position-area: inline-start;
+  transform-origin: right;
 }
 
 al-popover[placement="right"] {
+  --_al-from: -0.5rem 0;
   position-area: inline-end;
+  transform-origin: left;
 }
 
 al-popover[offset="sm"] {
@@ -2554,19 +2681,61 @@ al-popover[offset="sm"] {
 }
 
 al-popover[offset="md"] {
-  margin: 0.75rem;
+  margin: 0.5rem;
 }
 
 al-popover[offset="lg"] {
-  margin: 1.5rem;
+  margin: 1rem;
 }
 
-al-popover > :first-child {
-  margin-top: 0;
+al-popover > * {
+  margin: 0;
 }
 
-al-popover > :last-child {
-  margin-bottom: 0;
+/* PopoverHeader: flex flex-col gap-1 text-sm   PopoverTitle: font-medium */
+al-popover > :is(h1, h2, h3, h4, h5, h6) {
+  padding: 0;
+  border-width: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  letter-spacing: normal;
+}
+
+/* PopoverDescription: text-muted-foreground   (text-sm from PopoverHeader) */
+al-popover > p {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+al-popover > :is(h1, h2, h3, h4, h5, h6) + p {
+  margin-block-start: 0.25rem;
+}
+
+/* data-[state=open]:animate-in fade-in-0 zoom-in-95 slide-in-from-…-2,
+   data-[state=closed]:animate-out fade-out-0 zoom-out-95 */
+@media (prefers-reduced-motion: no-preference) {
+  al-popover {
+    transition-property: opacity, scale, translate, display, overlay;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-behavior: allow-discrete;
+  }
+
+  al-popover[popover]:not(:popover-open) {
+    opacity: 0;
+    scale: 0.95;
+    translate: var(--_al-from);
+  }
+
+  @starting-style {
+    al-popover:popover-open {
+      opacity: 0;
+      scale: 0.95;
+      translate: var(--_al-from);
+    }
+  }
 }
 
 /* ---- components/al-menu.css ---- */
@@ -2577,67 +2746,141 @@ al-popover > :last-child {
  * Home/End, and closes the menu on select. Open it with a button carrying
  * commandfor="<id>" command="toggle-popover" (or popovertarget). Without the
  * script it is a popover of links, which still works.
+ *
+ * The parts map to shadcn's dropdown-menu: the element is DropdownMenuContent,
+ * each a / button child a DropdownMenuItem (data-variant="destructive" for
+ * the destructive one), an <hr> child the DropdownMenuSeparator.
  */
 
+/* DropdownMenuContent: z-50 max-h-(--radix-dropdown-menu-content-available-height)
+   min-w-[8rem] origin-(--radix-dropdown-menu-content-transform-origin)
+   overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1
+   text-popover-foreground shadow-md   (sideOffset={4}: the margin; Radix
+   writes outline: none on the content) */
 al-menu {
   position: fixed;
   inset: auto;
   position-area: block-end span-inline-end;
   position-try-fallbacks: flip-block, flip-inline;
+  z-index: 50;
   display: none;
-  min-inline-size: calc(var(--al-width-narrow) / 4);
+  min-inline-size: 8rem;
+  max-block-size: calc(100dvh - 0.5rem);
   margin: 0.25rem;
   padding: 0.25rem;
+  overflow-x: hidden;
+  overflow-y: auto;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-md);
   background: var(--popover);
   color: var(--popover-foreground);
-  box-shadow: var(--shadow-sm);
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  line-height: 1.5;
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-md);
+  outline: none;
+  transform-origin: top left;
 }
 
 al-menu:popover-open {
-  display: flex;
-  flex-direction: column;
+  display: block;
 }
 
+/* DropdownMenuItem: relative flex cursor-default items-center gap-2 rounded-sm
+   px-2 py-1.5 text-sm outline-hidden select-none [&_svg]:pointer-events-none
+   [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4
+   [&_svg:not([class*='text-'])]:text-muted-foreground */
 al-menu > a,
 al-menu > button {
-  display: block;
-  margin: 0;
-  padding: 0.375rem 0.75rem;
-  border: 0;
+  position: relative;
+  display: flex;
+  inline-size: 100%;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 0.5rem;
   border-radius: var(--radius-sm);
-  background: transparent;
   color: inherit;
-  font-family: inherit;
-  font-size: inherit;
-  line-height: 1.5;
+  font-size: 0.875rem;
+  font-weight: inherit;
+  line-height: 1.25rem;
   text-align: start;
   text-decoration: none;
-  cursor: pointer;
+  outline-style: none;
+  cursor: default;
+  user-select: none;
 }
 
-al-menu > a:hover,
-al-menu > button:hover,
-al-menu > a:focus-visible,
-al-menu > button:focus-visible {
+al-menu > :is(a, button) svg {
+  inline-size: 1rem;
+  block-size: 1rem;
+  flex: none;
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+/* focus:bg-accent focus:text-accent-foreground   (Radix focuses the item the
+   pointer is over, so hover is the same) */
+al-menu > :is(a, button):is(:hover, :focus-visible) {
   background: var(--accent);
   color: var(--accent-foreground);
 }
 
-al-menu > a:focus-visible,
-al-menu > button:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+/* data-[variant=destructive]:text-destructive
+   data-[variant=destructive]:*:[svg]:text-destructive! */
+al-menu > [data-variant="destructive"],
+al-menu > [data-variant="destructive"] > svg {
+  color: var(--destructive);
 }
 
+/* data-[variant=destructive]:focus:bg-destructive/10
+   data-[variant=destructive]:focus:text-destructive
+   dark:data-[variant=destructive]:focus:bg-destructive/20 */
+al-menu > [data-variant="destructive"]:is(:hover, :focus-visible) {
+  background: color-mix(in oklab, var(--destructive) 10%, transparent);
+  color: var(--destructive);
+}
+
+.dark al-menu > [data-variant="destructive"]:is(:hover, :focus-visible) {
+  background: color-mix(in oklab, var(--destructive) 20%, transparent);
+}
+
+/* data-[disabled]:pointer-events-none data-[disabled]:opacity-50 */
 al-menu > [aria-disabled="true"],
 al-menu > button:disabled {
   opacity: 0.5;
   pointer-events: none;
+}
+
+/* DropdownMenuSeparator: -mx-1 my-1 h-px bg-border   (auto width, not the
+   typography hr's w-full, so the negative margins reach the menu's border) */
+al-menu > hr {
+  inline-size: auto;
+  block-size: 1px;
+  margin: 0.25rem -0.25rem;
+  border-width: 0;
+  background: var(--border);
+}
+
+/* data-[state=open]:animate-in fade-in-0 zoom-in-95 slide-in-from-top-2,
+   data-[state=closed]:animate-out fade-out-0 zoom-out-95 */
+@media (prefers-reduced-motion: no-preference) {
+  al-menu {
+    transition-property: opacity, scale, translate, display, overlay;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-behavior: allow-discrete;
+  }
+
+  al-menu:not(:popover-open) {
+    opacity: 0;
+    scale: 0.95;
+    translate: 0 -0.5rem;
+  }
+
+  @starting-style {
+    al-menu:popover-open {
+      opacity: 0;
+      scale: 0.95;
+      translate: 0 -0.5rem;
+    }
+  }
 }
 
 /* ---- components/al-tabs.css ---- */
@@ -2652,26 +2895,170 @@ al-menu > button:disabled {
  * attribute, and the al-select event.
  */
 
+/* Tabs: group/tabs flex flex-col gap-2. Written as a wrapping row so the no-JS
+   labels sit side by side; each panel takes a full row beneath them. */
 al-tabs {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
-  border-bottom: 1px solid var(--border);
+  align-content: flex-start;
+  row-gap: 0.5rem;
   font-family: var(--font-sans);
-  font-size: 0.875rem;
-  line-height: 1.5;
 }
 
 al-tabs > al-tab {
   display: contents;
 }
 
+/* TabsList (the built tablist): inline-flex h-9 w-fit items-center
+   justify-center rounded-lg bg-muted p-[3px] text-muted-foreground;
+   line: gap-1 rounded-none bg-transparent */
+al-tabs > [role="tablist"] {
+  display: inline-flex;
+  order: 1;
+  align-items: center;
+  justify-content: center;
+  inline-size: fit-content;
+  block-size: 2.25rem;
+  padding: 3px;
+  border-radius: var(--radius-lg);
+  background: var(--muted);
+  outline-color: currentcolor;
+  color: var(--muted-foreground);
+}
+
+al-tabs[variant="line"] > [role="tablist"] {
+  gap: 0.25rem;
+  border-radius: 0;
+  background: transparent;
+}
+
+/* TabsTrigger: relative inline-flex h-[calc(100%-1px)] flex-1 items-center
+   justify-center gap-1.5 rounded-md border border-transparent px-2 py-1 text-sm
+   font-medium whitespace-nowrap text-foreground/60 transition-all
+   hover:text-foreground focus-visible:border-ring focus-visible:ring-[3px]
+   focus-visible:ring-ring/50 focus-visible:outline-1 focus-visible:outline-ring
+   dark:text-muted-foreground dark:hover:text-foreground */
+al-tabs > [role="tablist"] > [role="tab"] {
+  position: relative;
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  block-size: calc(100% - 1px);
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: color-mix(in oklab, var(--foreground) 60%, transparent);
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  white-space: nowrap;
+  cursor: pointer;
+  outline-style: none;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark al-tabs > [role="tablist"] > [role="tab"] {
+  color: var(--muted-foreground);
+}
+
+al-tabs > [role="tablist"] > [role="tab"]:hover {
+  color: var(--foreground);
+}
+
+al-tabs > [role="tablist"] > [role="tab"]:focus-visible {
+  border-color: var(--ring);
+  outline: 1px solid var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+}
+
+/* data-[state=active]:bg-background data-[state=active]:text-foreground
+   data-[state=active]:shadow-sm  dark:data-[state=active]:border-input
+   dark:data-[state=active]:bg-input/30 */
+al-tabs > [role="tablist"] > [role="tab"][aria-selected="true"] {
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-sm);
+}
+
+.dark al-tabs > [role="tablist"] > [role="tab"][aria-selected="true"] {
+  border-color: var(--input);
+  background: color-mix(in oklab, var(--input) 30%, transparent);
+  color: var(--foreground);
+}
+
+/* line: bg-transparent, shadow-none, dark border-transparent (the no-op layers
+   mirror how Tailwind composes box-shadow, so the computed list matches) */
+al-tabs[variant="line"] > [role="tablist"] > [role="tab"][aria-selected="true"],
+.dark al-tabs[variant="line"] > [role="tablist"] > [role="tab"][aria-selected="true"] {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent;
+}
+
+al-tabs[variant="line"] > [role="tablist"] > [role="tab"]:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+}
+
+/* after:absolute after:inset-x-0 after:bottom-[-5px] after:h-0.5
+   after:bg-foreground after:opacity-0 after:transition-opacity; line + active:
+   after:opacity-100 */
+al-tabs > [role="tablist"] > [role="tab"]::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -5px;
+  block-size: 2px;
+  background: var(--foreground);
+  opacity: 0;
+  transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+al-tabs[variant="line"] > [role="tablist"] > [role="tab"][aria-selected="true"]::after {
+  opacity: 1;
+}
+
+/* TabsContent: flex-1 outline-none */
+al-tabs > al-tab > al-panel {
+  display: none;
+  order: 2;
+  flex: 1 1 100%;
+  outline-style: none;
+  color: var(--foreground);
+}
+
+al-tabs > al-tab:has(> label > input:checked) > al-panel {
+  display: block;
+}
+
+/* Enter only: opacity 0 and scale .95 to rest, as the other overlays do. There
+   is no exit transition (no `display` allow-discrete): panels are in flow, so a
+   fading old panel would stack with the new one and jump the layout; Radix
+   tabs content unmounts at once. */
+@media (prefers-reduced-motion: no-preference) {
+  al-tabs > al-tab > al-panel {
+    transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1), scale 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @starting-style {
+    al-tabs > al-tab:has(> label > input:checked) > al-panel {
+      opacity: 0;
+      scale: 0.95;
+    }
+  }
+}
+
+/* No script: the radio labels are the tab row (no shadcn counterpart). */
 al-tabs > al-tab > label {
   order: 1;
   position: relative;
-  padding: 0.5rem 1rem;
-  border-bottom: 2px solid transparent;
-  color: var(--muted-foreground);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-md);
+  color: color-mix(in oklab, var(--foreground) 60%, transparent);
   font-weight: 500;
   cursor: pointer;
 }
@@ -2687,68 +3074,14 @@ al-tabs > al-tab > label:hover {
 }
 
 al-tabs > al-tab > label:has(> input:checked) {
-  border-bottom-color: var(--primary);
+  background: var(--background);
   color: var(--foreground);
+  box-shadow: var(--shadow-sm);
 }
 
 al-tabs > al-tab > label:has(> input:focus-visible) {
   outline: none;
-  box-shadow: inset 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
-}
-
-al-tabs > al-tab > al-panel {
-  display: none;
-  order: 2;
-  flex-basis: 100%;
-  padding: 1rem 0;
-  color: var(--foreground);
-}
-
-al-tabs > al-tab:has(> label > input:checked) > al-panel {
-  display: block;
-}
-
-/* With the script: the tab strip it builds (the labels are hidden). */
-al-tabs:has(> [role="tablist"]) {
-  border-bottom: 0;
-}
-
-al-tabs > [role="tablist"] {
-  display: flex;
-  flex-wrap: wrap;
-  flex-basis: 100%;
-  align-items: flex-end;
-  order: 1;
-  border-bottom: 1px solid var(--border);
-}
-
-al-tabs > [role="tablist"] > [role="tab"] {
-  margin: 0;
-  padding: 0.5rem 1rem;
-  border: 0;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  background: transparent;
-  color: var(--muted-foreground);
-  font-family: inherit;
-  font-size: inherit;
-  font-weight: 500;
-  line-height: inherit;
-  cursor: pointer;
-}
-
-al-tabs > [role="tablist"] > [role="tab"]:hover {
-  color: var(--foreground);
-}
-
-al-tabs > [role="tablist"] > [role="tab"][aria-selected="true"] {
-  border-bottom-color: var(--primary);
-  color: var(--foreground);
-}
-
-al-tabs > [role="tablist"] > [role="tab"]:focus-visible {
-  outline: none;
-  box-shadow: inset 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 /* ---- components/al-toast.css ---- */
@@ -2759,47 +3092,124 @@ al-tabs > [role="tablist"] > [role="tab"]:focus-visible {
  * shows the region when a toast connects, closes the toast after timeout ms
  * (0 keeps it) and gives it role="status". Without JavaScript the region
  * stays hidden: render the message as an al-alert in the page instead.
+ *
+ * The look is sonner's under shadcn's Toaster: the popover surface, a border
+ * and, with a variant, its icon (info, circle-check, triangle-alert,
+ * octagon-x) drawn as an absolute ::before in the start padding; with no
+ * variant attribute there is no icon, like sonner's plain toast(). No tinted
+ * backgrounds and no tinted text. The toast is block flow, so a one-line
+ * message may mix text and inline elements ("Saved <code>post.md</code>").
+ * A message with no block child is all title; with blocks (div, p, ul, ol),
+ * the text or strong/heading before them is the title and the blocks are
+ * the description.
  */
 
+/* [data-sonner-toast]: width var(--width) 356px; padding 16px; gap 6px;
+   display flex; align-items center; border-radius var(--border-radius);
+   border 1px solid var(--normal-border); background var(--normal-bg);
+   color var(--normal-text); box-shadow 0 4px 12px rgb(0 0 0 / .1);
+   font-size 13px; outline 0   (the Toaster's --normal-bg, --normal-text,
+   --normal-border and --border-radius are var(--popover),
+   var(--popover-foreground), var(--border) and var(--radius)). Block flow
+   here, not flex: sonner wraps title and description in [data-content] and
+   Alder emits no wrapper. */
 al-toast {
   display: block;
-  inline-size: calc(var(--al-width-narrow) / 2);
-  max-inline-size: calc(100dvw - 2rem);
-  padding: 0.75rem 1rem;
+  position: relative;
+  box-sizing: border-box;
+  inline-size: 356px;
+  max-inline-size: calc(100dvw - 48px);
+  padding: 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--popover);
   color: var(--popover-foreground);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 12px color-mix(in oklab, var(--color-black) 10%, transparent);
+  outline: 0;
   font-family: var(--font-sans);
-  font-size: 0.875rem;
+  font-size: 13px;
+  font-weight: 400;
   line-height: 1.5;
 }
 
+/* [data-icon]: size-4 (the Toaster's icons); margin-left -3px;
+   margin-right 4px; then the 6px gap: the text starts 16 - 3 + 16 + 4 + 6
+   = 39px in, and the icon is centred on the title and description */
+al-toast[variant] {
+  --_al-icon: var(--_al-icon-info);
+  padding-inline-start: 39px;
+}
+
+al-toast[variant]::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 13px;
+  inset-block-start: 50%;
+  width: 1rem;
+  height: 1rem;
+  translate: 0 -50%;
+  background: currentColor;
+  mask: var(--_al-icon) center / contain no-repeat;
+}
+
 al-toast[variant="success"] {
-  border-color: var(--border);
-  background: var(--popover);
-  color: var(--popover-foreground);
+  --_al-icon: var(--_al-icon-circle-check);
 }
 
 al-toast[variant="warning"] {
-  border-color: var(--border);
-  background: var(--popover);
-  color: var(--popover-foreground);
+  --_al-icon: var(--_al-icon-triangle-alert);
 }
 
+/* sonner's error type: the icon only (shadcn's Toaster sets no richColors) */
 al-toast[variant="destructive"] {
-  border-color: var(--border);
-  background: var(--popover);
-  color: var(--destructive);
+  --_al-icon: var(--_al-icon-octagon-x);
 }
 
+/* headings, paragraphs and lists inside reset to the toast's own recipe */
+al-toast > * {
+  margin: 0;
+  padding: 0;
+  border-width: 0;
+  font-size: 13px;
+  letter-spacing: normal;
+}
+
+/* [data-title]: font-weight 500; line-height 1.5; color inherit   (a message
+   with no description block is all title) */
+al-toast:not(:has(> :is(div, p, ul, ol))),
+al-toast > :is(strong, b, h1, h2, h3, h4, h5, h6) {
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* [data-description]: font-weight 400; line-height 1.4; opacity .8 on the
+   toast's colour (sonner's literal #3f3f3f is not a token); [data-content]'s
+   gap 2px is the top margin */
+al-toast > :is(div, p, ul, ol) {
+  font-weight: 400;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+al-toast > :is(div, p, ul, ol):not(:first-child) {
+  margin-block-start: 2px;
+}
+
+al-toast > :is(ul, ol) {
+  list-style: none;
+}
+
+/* [data-sonner-toaster]: position fixed; --offset 24px (VIEWPORT_OFFSET);
+   --gap 14px; the front toast sits at the region's edge */
 al-toasts {
+  --_al-from: 0 100%;
   position: fixed;
   inset: auto;
-  inset-block-end: 1rem;
-  inset-inline-end: 1rem;
+  inset-block-end: 24px;
+  inset-inline-end: 24px;
   display: none;
+  flex-direction: column;
+  gap: 14px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -2809,21 +3219,51 @@ al-toasts {
 
 al-toasts:popover-open {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+}
+
+al-toasts[position="top-left"],
+al-toasts[position="top-right"] {
+  --_al-from: 0 -100%;
+  flex-direction: column-reverse;
 }
 
 al-toasts[position="top-left"] {
-  inset-block: 1rem auto;
-  inset-inline: 1rem auto;
+  inset-block: 24px auto;
+  inset-inline: 24px auto;
 }
 
 al-toasts[position="top-right"] {
-  inset-block: 1rem auto;
+  inset-block: 24px auto;
 }
 
 al-toasts[position="bottom-left"] {
-  inset-inline: 1rem auto;
+  inset-inline: 24px auto;
+}
+
+/* Spec section 7's toast row: "slide-in from the edge". Sonner slides and
+   fades and does not scale, so there is no scale .95 here (R22).
+   [data-sonner-toast][data-mounted=false]: translate from the region's edge,
+   opacity 0; [data-removed=true]: back out the same way. --_al-from is the
+   toast's own height toward the edge; al-toast.js sets data-closing and
+   removes the toast once the exit transition has run. */
+@media (prefers-reduced-motion: no-preference) {
+  al-toast {
+    transition-property: opacity, translate;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  al-toast[data-closing] {
+    opacity: 0;
+    translate: var(--_al-from);
+  }
+
+  @starting-style {
+    al-toast {
+      opacity: 0;
+      translate: var(--_al-from);
+    }
+  }
 }
 
 /* ---- components/al-tooltip.css ---- */
@@ -2840,22 +3280,80 @@ al-tooltip:not(:popover-open) {
   display: none;
 }
 
+/* TooltipContent: z-50 w-fit origin-(--radix-tooltip-content-transform-origin)
+   rounded-md bg-foreground px-3 py-1.5 text-xs text-balance text-background
+   (sideOffset={0}; Radix adds the arrow's 5px height to the offset, so the
+   margin is 5px). It sits above its trigger (shadcn's side="top"), or below
+   when there is no room. */
 al-tooltip {
   position: fixed;
   inset: auto;
-  position-area: block-end;
+  position-area: block-start;
   position-try-fallbacks: flip-block, flip-inline;
-  margin: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  border: 0;
-  border-radius: var(--radius-sm);
+  container-type: anchored;
+  z-index: 50;
+  inline-size: fit-content;
+  max-inline-size: calc(var(--al-width-narrow) / 2);
+  margin: 5px;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-md);
   background: var(--foreground);
   color: var(--background);
-  font-family: var(--font-sans);
   font-size: 0.75rem;
-  line-height: 1.25;
-  max-inline-size: calc(var(--al-width-narrow) / 2);
+  line-height: 1rem;
+  text-wrap: balance;
   pointer-events: none;
+  transform-origin: bottom;
+}
+
+/* TooltipArrow: z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45
+   rounded-[2px] bg-foreground fill-foreground   (its centre 2px inside the
+   edge that faces the trigger) */
+al-tooltip::after {
+  content: "";
+  position: absolute;
+  inset-block-end: -3px;
+  inset-inline-start: calc(50% - 5px);
+  z-index: 50;
+  inline-size: 10px;
+  block-size: 10px;
+  border-radius: 2px;
+  background: var(--foreground);
+  rotate: 45deg;
+}
+
+/* Flipped below the trigger: the arrow moves to the top edge. */
+@container anchored(fallback: flip-block) {
+  al-tooltip::after {
+    inset-block: -3px auto;
+  }
+}
+
+/* animate-in fade-in-0 zoom-in-95 data-[side=top]:slide-in-from-bottom-2
+   data-[state=closed]:animate-out fade-out-0 zoom-out-95   (a container
+   query cannot restyle the tooltip itself, so a flipped tooltip slides the
+   same way) */
+@media (prefers-reduced-motion: no-preference) {
+  al-tooltip {
+    transition-property: opacity, scale, translate, display, overlay;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-behavior: allow-discrete;
+  }
+
+  al-tooltip:not(:popover-open) {
+    opacity: 0;
+    scale: 0.95;
+    translate: 0 0.5rem;
+  }
+
+  @starting-style {
+    al-tooltip:popover-open {
+      opacity: 0;
+      scale: 0.95;
+      translate: 0 0.5rem;
+    }
+  }
 }
 
 /* ---- components/al-devpanel.css ---- */
@@ -2867,6 +3365,11 @@ al-tooltip {
  * <button>s (aria-controls="<section id>") and the <section>s. al-devpanel.js
  * hides the other sections, re-applies that after DOM patches, and toggles `open`; without it, every section shows
  * when open. Monospace for SQL and other code.
+ *
+ * Preflight (base.css) zeroes margins, borders, list markers and button
+ * chrome. The panel states what it relies on (box-sizing, border, margin,
+ * list-style, line-height, button background/font/colour) on its own rules,
+ * so it does not depend on the reset's values.
  */
 
 al-devpanel {
@@ -2879,6 +3382,21 @@ al-devpanel {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   line-height: 1.5;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+al-devpanel *,
+al-devpanel ::before,
+al-devpanel ::after {
+  box-sizing: border-box;
+}
+
+al-devpanel ul,
+al-devpanel ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 al-devpanel > nav {
@@ -2891,12 +3409,13 @@ al-devpanel > nav {
 al-devpanel > nav > button {
   margin: 0;
   padding: 0.25rem 0.5rem;
-  border: 0;
+  border: 0 solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--muted-foreground);
   font-family: inherit;
   font-size: inherit;
+  line-height: inherit;
   cursor: pointer;
 }
 

@@ -39,7 +39,7 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 <section>
 <h2>Enhanced</h2>
 <p>With the script: the ARIA roles and states, Home and End, <code>selected</code> picks the open tab (here the second), and a <code>name</code> on the tab supplies the radio's group.</p>
-<al-tabs>
+<al-tabs variant="default">
   <al-tab name="t-main">
     <label><input type="radio">Posts</label>
     <al-panel>Three posts.</al-panel>
@@ -51,6 +51,21 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
   <al-tab name="t-main">
     <label><input type="radio">Settings</label>
     <al-panel>Settings live here.</al-panel>
+  </al-tab>
+</al-tabs>
+</section>
+
+<section>
+<h2>Line</h2>
+<p><code>variant="line"</code> drops the muted pill and underlines the active tab.</p>
+<al-tabs variant="line">
+  <al-tab name="t-line" selected>
+    <label><input type="radio">Overview</label>
+    <al-panel>The overview panel.</al-panel>
+  </al-tab>
+  <al-tab name="t-line">
+    <label><input type="radio">Details</label>
+    <al-panel>The details panel.</al-panel>
   </al-tab>
 </al-tabs>
 </section>

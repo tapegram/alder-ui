@@ -206,9 +206,15 @@ customElements.get("al-devpanel") || customElements.define("al-devpanel", class 
 // Optional enhancement for <al-toast> inside <al-toasts popover="manual">:
 // shows the region when a toast connects, sets role="status", closes the toast
 // after `timeout` ms (default 5000; 0 keeps it) and hides an empty region.
-// Fires al-close on the region when a toast closes. Load with <script type="module">.
+// close() sets data-closing, lets the exit transition run (al-toast.css) and
+// then removes the toast; with no transition running (reduced motion, or the
+// toast not shown) it removes it at once. A toast re-inserted while closing
+// (a morph) starts afresh. Fires al-close on the region when a toast closes.
+// Load with <script type="module">.
 customElements.get("al-toast") || customElements.define("al-toast", class extends HTMLElement {
   connectedCallback() {
+    this.closing = null;
+    this.removeAttribute("data-closing");
     this.hasAttribute("role") || this.setAttribute("role", "status");
     const region = this.closest("al-toasts");
     if (region && region.hasAttribute("popover") && !region.matches(":popover-open")) region.showPopover();
@@ -219,11 +225,23 @@ customElements.get("al-toast") || customElements.define("al-toast", class extend
     clearTimeout(this.timer);
   }
   close() {
+    if (this.closing) return;
+    const token = this.closing = {};
+    clearTimeout(this.timer);
+    this.setAttribute("data-closing", "");
     const region = this.closest("al-toasts");
-    this.remove();
-    if (!region) return;
-    region.dispatchEvent(new CustomEvent("al-close", { bubbles: true, detail: { toast: this } }));
-    if (!region.querySelector("al-toast") && region.matches(":popover-open")) region.hidePopover();
+    const done = () => {
+      if (this.closing !== token) return; // re-inserted meanwhile: it lives on
+      this.remove();
+      if (!region) return;
+      region.dispatchEvent(new CustomEvent("al-close", { bubbles: true, detail: { toast: this } }));
+      if (!region.querySelector("al-toast") && region.matches(":popover-open")) region.hidePopover();
+    };
+    // getAnimations() flushes style, so the exit transition (if any) has started;
+    // a cancelled one (the toast hidden or removed meanwhile) settles too. Only
+    // transitions end by themselves: an app's infinite animation must not block.
+    const running = this.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.finished);
+    running.length ? Promise.allSettled(running).then(done) : done();
   }
 });
 }
@@ -232,8 +250,10 @@ customElements.get("al-toast") || customElements.define("al-toast", class extend
 {
 // Optional enhancement for <al-tooltip for="id">text</al-tooltip>: makes it a
 // popover="hint" (the browser treats it as "manual" where "hint" is unknown;
-// the behaviour is the same), anchors it to the trigger, wires
-// aria-describedby, and shows it on hover and keyboard focus; Escape hides it.
+// the behaviour is the same), wires aria-describedby, and shows it on hover and
+// keyboard focus; Escape hides it. Showing it with the trigger as its source
+// makes the trigger its implicit anchor for CSS anchor positioning (the anchor
+// attribute is kept for browsers that read it).
 // The setup is re-applied each time it is shown, so a morph that drops the
 // attributes the script added (the server never writes them) does not break it.
 customElements.get("al-tooltip") || customElements.define("al-tooltip", class extends HTMLElement {
@@ -250,7 +270,7 @@ customElements.get("al-tooltip") || customElements.define("al-tooltip", class ex
       trigger.setAttribute("aria-describedby", this.id);
     };
     wire();
-    const show = () => (wire(), this.matches(":popover-open") || this.showPopover());
+    const show = () => (wire(), this.matches(":popover-open") || this.showPopover({ source: trigger }));
     const hide = () => this.matches(":popover-open") && this.hidePopover();
     for (const [type, f] of [["pointerenter", show], ["focus", show], ["pointerleave", hide], ["blur", hide]]) trigger.addEventListener(type, f);
     trigger.addEventListener("keydown", (e) => e.key === "Escape" && hide());

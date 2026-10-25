@@ -563,6 +563,10 @@
             {
               "name": "actions",
               "description": "The buttons along the bottom, right-aligned."
+            },
+            {
+              "name": "description",
+              "description": "A line under the heading, in muted text."
             }
           ],
           "events": [
@@ -664,7 +668,16 @@
           "tagName": "al-tabs",
           "customElement": true,
           "description": "Tabs backed by a radio group: selection and arrow keys work with no JavaScript. Children are `<al-tab>`s; each holds a `<label>` wrapping a radio input (same `name`, one `checked`) and its `<al-panel>`. `al-tabs.js` builds the tabs ARIA pattern: a `<div role=\"tablist\">` of `<button role=\"tab\">` (with `aria-selected`, `aria-controls` and a roving `tabindex`) made from the labels' text and placed before the panels, the radio labels hidden, each panel given `role=\"tabpanel\"`, an `id` and `aria-labelledby`; it rebuilds all of it (and keeps the chosen tab) after a DOM patch such as a morph, and `al-tabs-keys.js` adds the click and arrow keys, Home/End), plus `selected` and the `al-select` event.",
-          "attributes": [],
+          "attributes": [
+            {
+              "name": "variant",
+              "type": {
+                "text": "\"default\" | \"line\""
+              },
+              "default": "\"default\"",
+              "description": "`line` drops the muted pill behind the tabs and underlines the active one."
+            }
+          ],
           "slots": [
             {
               "name": "",

@@ -96,6 +96,75 @@ class AllowTest(unittest.TestCase):
         self.assertEqual(len(set(allow["pending"])), len(allow["pending"]))
 
 
+class CloseVerdictTest(unittest.TestCase):
+    """check_closes' decision on what it measured after the exit transition (Review Focus 4)."""
+
+    def state(self, **kw):
+        st = {"opened": True, "connected": True, "display": "none", "hit": False}
+        st.update(kw)
+        return st
+
+    def test_closed_completely(self):
+        self.assertEqual(parity.close_problems(self.state()), [])
+
+    def test_still_displayed(self):
+        probs = parity.close_problems(self.state(display="grid"))
+        self.assertEqual(len(probs), 1)
+        self.assertIn("grid", probs[0])
+
+    def test_still_takes_clicks(self):
+        self.assertEqual(len(parity.close_problems(self.state(hit=True))), 1)
+        self.assertEqual(len(parity.close_problems(self.state(display="block", hit=True))), 2)
+
+    def test_disconnected_is_closed(self):
+        # R19: a node removed from the document is closed, whatever it last measured.
+        self.assertEqual(parity.close_problems(self.state(connected=False, display="block", hit=True)), [])
+
+    def test_never_opened_is_a_problem(self):
+        # Otherwise a dialog that never opened would pass vacuously.
+        self.assertEqual(len(parity.close_problems(self.state(opened=False))), 1)
+        self.assertEqual(len(parity.close_problems(self.state(opened=False, connected=False))), 1)
+
+
+class CloseChecksTest(unittest.TestCase):
+    """Review Focus 4 covers every overlay, and the popover by each way it closes."""
+
+    def labels(self, comp):
+        return [c[1] for c in parity.CLOSE_CHECKS if c[0] == comp]
+
+    def test_every_overlay_is_checked(self):
+        for comp in ("dialog", "popover", "menu", "tooltip", "toast"):
+            self.assertTrue(self.labels(comp), comp)
+
+    def test_toast_closes_by_timeout(self):
+        # The toast closes itself: close is the ms it does so after, and the toast the
+        # open js adds carries that timeout.
+        (entry,) = [c for c in parity.CLOSE_CHECKS if c[:2] == ("toast", "timeout")]
+        self.assertEqual(entry[4], 100)
+        self.assertIn("'timeout', '100'", entry[3])
+
+    def test_popover_closes_every_way(self):
+        self.assertIn("hidePopover()", self.labels("popover"))
+        self.assertIn("light dismiss", self.labels("popover"))
+        self.assertTrue(any(c[5] for c in parity.CLOSE_CHECKS if c[0] == "popover"), "no shim run")
+
+class AnchorVerdictTest(unittest.TestCase):
+    """anchor_problems: an overlay must sit against its anchor (R21: al-tooltip above)."""
+    TRIGGER = [275, 982, 347, 1018]
+
+    def test_above_and_centred(self):
+        self.assertEqual(parity.anchor_problems([268, 949, 354, 977], self.TRIGGER, "above"), [])
+
+    def test_unanchored_at_the_viewport_corner(self):
+        self.assertEqual(len(parity.anchor_problems([5, 5, 90, 33], self.TRIGGER, "above")), 2)
+
+    def test_wrong_side(self):
+        self.assertEqual(len(parity.anchor_problems([268, 1023, 354, 1051], self.TRIGGER, "above")), 1)
+        self.assertEqual(parity.anchor_problems([268, 1023, 354, 1051], self.TRIGGER, "below"), [])
+
+    def test_not_open(self):
+        self.assertEqual(len(parity.anchor_problems([0, 0, 0, 0], self.TRIGGER, "above")), 1)
+
 class ReportTest(unittest.TestCase):
     def test_expect_only_component_rows_are_printed(self):
         # A data-expect row whose component has no data-ref marker (stack, page) still

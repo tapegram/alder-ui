@@ -30,7 +30,7 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 <al-dialog heading="About" size="sm">
   <dialog id="about-nojs">
     <h2 slot="header">About</h2>
-    <p>Shown by the URL fragment alone.</p>
+    <p slot="description">Shown by the URL fragment alone.</p>
     <div slot="actions"><al-button variant="primary"><a href="#">Close</a></al-button></div>
   </dialog>
 </al-dialog>
@@ -68,13 +68,13 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 
 <section>
 <h2>Dismissible, with actions</h2>
-<p>The shape Alder emits for <code>dismissible</code>: the close form first, the heading <code>&lt;h2 slot="header"&gt;</code> with an id the dialog's <code>aria-labelledby</code> names.</p>
+<p>The shape Alder emits for <code>dismissible</code>: the close form first, the heading <code>&lt;h2 slot="header"&gt;</code> with an id the dialog's <code>aria-labelledby</code> names, then a <code>slot="description"</code> line in muted text.</p>
 <al-button variant="destructive"><button type="button" commandfor="d-confirm" command="show-modal">Delete post</button></al-button>
 <al-dialog heading="Delete this post?" dismissible>
   <dialog id="d-confirm" aria-labelledby="d-confirm-heading" closedby="any">
     <form method="dialog"><button type="submit" aria-label="Close Delete this post?">&times;</button></form>
     <h2 slot="header" id="d-confirm-heading">Delete this post?</h2>
-    <p>This cannot be undone.</p>
+    <p slot="description">This cannot be undone.</p>
     <div slot="actions">
       <al-button variant="outline"><button type="button" commandfor="d-confirm" command="close">Cancel</button></al-button>
       <al-button variant="destructive"><button type="button" commandfor="d-confirm" command="close">Delete</button></al-button>

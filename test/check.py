@@ -88,6 +88,7 @@ ADDED = {
     "al-select": [("help", "string")],
     "al-checkbox": [("invalid", "boolean"), ("help", "string")],
     "al-page": [("plain", "boolean")],
+    "al-tabs": [("variant", '"default" | "line"')],
 }
 # Additive growth since the API above (restyle): extra members appended to an
 # attribute's string union, and extra slots appended after the original ones.
@@ -95,7 +96,7 @@ ADDED_VALUES = {  # (tag, attribute) -> [value, ...]
     ("al-button", "variant"): ["link"],
     ("al-button", "size"): ["xs", "icon", "icon-sm", "icon-lg"],
 }
-ADDED_SLOTS = {"al-card": ["description", "action"]}  # tag -> [slot, ...]
+ADDED_SLOTS = {"al-card": ["description", "action"], "al-dialog": ["description"]}  # tag -> [slot, ...]
 
 # Attributes the stylesheet deliberately does not draw: the framework copies
 # them onto the native control, or renders them as markup.

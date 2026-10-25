@@ -41,6 +41,16 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 <al-popover popover id="p-right" placement="right">To the right.</al-popover>
 <al-popover popover id="p-anchor" anchor="b-top" placement="bottom">Anchored to the Top button, not its invoker.</al-popover>
 </section>
+
+<section>
+<h2>Title and description</h2>
+<p>A heading inside the popover is its title and a paragraph its description.</p>
+<al-button variant="outline"><button type="button" commandfor="p-header" command="toggle-popover">Dimensions</button></al-button>
+<al-popover popover id="p-header">
+  <h4>Dimensions</h4>
+  <p>Set the dimensions for the layer.</p>
+</al-popover>
+</section>
 </al-stack>
 </al-page>
 </body>
