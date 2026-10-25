@@ -2179,7 +2179,9 @@ al-alert:has(> ul.errors:empty) {
  * page to go to can be <span slot="prev" aria-disabled="true">. Children
  * without a slot go in the middle and replace the generated text: page
  * links (<a>) are 2.25rem square buttons, the current one
- * (aria-current="page") outlined; anything else is muted text.
+ * (aria-current="page") outlined; anything else is muted text, except the
+ * ellipsis (<span aria-hidden="true">&hellip;</span>), which is shadcn's
+ * size-9 PaginationEllipsis: the mask icon replaces the text (kept for no-CSS).
  * Content: flex flex-row items-center gap-1 (centred, as Pagination's
  * mx-auto flex w-full justify-center)
  */
@@ -2223,6 +2225,37 @@ al-pagination > [slot="next"] {
 al-pagination > :not([slot]):not(a) {
   padding-inline: 0.5rem;
   color: var(--muted-foreground);
+}
+
+/* PaginationEllipsis: flex size-9 items-center justify-center, with a size-4
+   more-horizontal icon (inherits the foreground colour and the 16px/24px body
+   type, as in shadcn). The text stays for no-CSS and is pushed out of the
+   clipped box; the icon is centred on it. */
+al-pagination > [aria-hidden="true"]:not([slot]):not(a) {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.25rem;
+  block-size: 2.25rem;
+  padding: 0;
+  overflow: hidden;
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  text-indent: 4rem;
+  white-space: nowrap;
+}
+
+al-pagination > [aria-hidden="true"]:not([slot]):not(a)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  inline-size: 1rem;
+  block-size: 1rem;
+  background: currentColor;
+  mask: var(--_al-icon-ellipsis) center / contain no-repeat;
 }
 
 /* Link: buttonVariants({ variant: "ghost" | "outline", size: "icon" }) =

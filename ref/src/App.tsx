@@ -510,7 +510,7 @@ export default function App() {
                 <PaginationLink href="#">3</PaginationLink>
               </PaginationItem>
               <PaginationItem>
-                <PaginationEllipsis />
+                <PaginationEllipsis data-ref="pagination/ellipsis/default" />
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext href="#" data-ref="pagination/next/default" />
