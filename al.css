@@ -395,12 +395,25 @@ input:where([type="button"], [type="reset"], [type="submit"]),
  *   (and al-panel, a tab's content). A component's own children (al-dialog's
  *   <dialog> > p + footer, al-card's description, al-input's help) are not reached.
  *   al-stack is left out: its gap spaces its children (al-stack.css).
+ * - Hidden siblings do not break the adjacency: up to two of them (an al-alert
+ *   holding only an empty errors list, which al-alert.css hides; <input
+ *   type=hidden>; <template>; <script>) may sit between the h2/h3/h4/p and what
+ *   follows, as in Alder's <h2> <al-alert><Errors form/></al-alert> <al-input>.
+ *   Three or more in a row are not bridged.
  * - These rules come first so the element rules below, at the same (0,0,1),
  *   win where they set their own margin: p then h2 keeps h2's mt-10, ul/ol keep my-6. */
 :where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h2 + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h2 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h2 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
 :where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h3 + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h3 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h3 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
 :where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h4 + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + * {
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h4 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h4 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + * {
   margin-top: 1.5rem;
 }
 

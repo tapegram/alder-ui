@@ -264,6 +264,19 @@ window.addEventListener("load", function () {
     <p>Text.</p>
     <form data-expect="margin-top: 24px"></form>
   </section>
+  <section>
+    <h2>Hidden siblings</h2>
+    <al-alert variant="destructive" role="alert"><ul class="errors" data-errors="flow-form"></ul></al-alert>
+    <form data-expect="margin-top: 24px"></form>
+    <p>Text.</p>
+    <input type="hidden" name="flow-token" value="t">
+    <form data-expect="margin-top: 24px"></form>
+    <p>Text.</p>
+    <input type="hidden" name="flow-token-2" value="t">
+    <template></template>
+    <form data-expect="margin-top: 24px"></form>
+  </section>
+  <x-box><p>A non-alder wrapper is not a flow container.</p><div data-expect="margin-top: 0px"></div></x-box>
   <al-card>
     <h3 slot="header">Card Title</h3>
     <p data-expect="margin-top: 0px">Card Description</p>
