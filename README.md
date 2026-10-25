@@ -141,20 +141,17 @@ Notes:
   ```js
   function toggleTheme(){var d=document.documentElement.classList.toggle("dark");try{localStorage.theme=d?"dark":"light"}catch(e){}}
   ```
-- **Stricter input borders.** shadcn's `--input` and `--border` are subtle
-  (below 3:1 against the background). `--input` can be raised to 3:1 and
-  above without a visible change in character:
+- **Stricter borders (AA override).** shadcn's `--input` and `--border` are
+  subtle (below 3:1 against the background). To reach 3:1, add:
 
   ```css
-  :root { --input: oklch(0.6 0 0); }
-  .dark { --input: oklch(1 0 0 / 35%); }
+  :root { --input: oklch(0.6 0 0); --border: oklch(0.65 0 0); }
+  .dark { --input: oklch(1 0 0 / 35%); --border: oklch(1 0 0 / 35%); }
   ```
 
-  Measured with `test/colour.py`: light 3.95:1 on the background; dark 3.14:1
-  on the background and 3.23:1 on `--card`. The matching `--border` values
-  from the plan (`oklch(0.708 0 0)` light, `oklch(1 0 0 / 25%)` dark) reach
-  only 2.59:1 and 2.14:1, so they are not recommended; pick your own if you
-  need 3:1 borders.
+  Measured with `test/colour.py`: `--input` light 3.95:1; `--border` light
+  3.23:1 on the background; dark 3.14:1 on the background and 3.23:1 on
+  `--card` (both tokens).
 - **View transitions.** the base layer opts every page into cross-document
   view transitions (`@view-transition { navigation: auto }`), so a
   same-origin navigation cross-fades instead of flashing a blank frame
