@@ -72,10 +72,14 @@ al-badge[variant="outline"]:has(> a:hover) {
   color: var(--accent-foreground);
 }
 
-/* focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 */
+/* focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50
+   (destructive: focus-visible:ring-destructive/20, dark /40, via --_al-ring) */
 al-badge:has(> a:focus-visible) {
-  --_al-ring: color-mix(in oklab, var(--ring) 50%, transparent);
   border-color: var(--ring);
-  box-shadow: 0 0 0 3px var(--_al-ring);
+  box-shadow: 0 0 0 3px var(--_al-ring, color-mix(in oklab, var(--ring) 50%, transparent));
+}
+
+/* the host draws the ring, so the link inside draws no outline of its own */
+al-badge > a:focus-visible {
   outline: none;
 }
