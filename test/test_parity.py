@@ -96,6 +96,36 @@ class AllowTest(unittest.TestCase):
         self.assertEqual(len(set(allow["pending"])), len(allow["pending"]))
 
 
+class CloseVerdictTest(unittest.TestCase):
+    """check_closes' decision on what it measured after the exit transition (Review Focus 4)."""
+
+    def state(self, **kw):
+        st = {"opened": True, "connected": True, "display": "none", "hit": False}
+        st.update(kw)
+        return st
+
+    def test_closed_completely(self):
+        self.assertEqual(parity.close_problems(self.state()), [])
+
+    def test_still_displayed(self):
+        probs = parity.close_problems(self.state(display="grid"))
+        self.assertEqual(len(probs), 1)
+        self.assertIn("grid", probs[0])
+
+    def test_still_takes_clicks(self):
+        self.assertEqual(len(parity.close_problems(self.state(hit=True))), 1)
+        self.assertEqual(len(parity.close_problems(self.state(display="block", hit=True))), 2)
+
+    def test_disconnected_is_closed(self):
+        # R19: a node removed from the document is closed, whatever it last measured.
+        self.assertEqual(parity.close_problems(self.state(connected=False, display="block", hit=True)), [])
+
+    def test_never_opened_is_a_problem(self):
+        # Otherwise a dialog that never opened would pass vacuously.
+        self.assertEqual(len(parity.close_problems(self.state(opened=False))), 1)
+        self.assertEqual(len(parity.close_problems(self.state(opened=False, connected=False))), 1)
+
+
 class ReportTest(unittest.TestCase):
     def test_expect_only_component_rows_are_printed(self):
         # A data-expect row whose component has no data-ref marker (stack, page) still

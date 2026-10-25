@@ -2412,99 +2412,209 @@ al-page[plain] {
  * heading is rendered by the framework as the header slot's <h2>. The close
  * button of a dismissible dialog is a <form method="dialog"> with a button,
  * the first child of the <dialog>; closedby="any" adds backdrop clicks.
+ *
+ * The slots map to shadcn's parts: header = DialogTitle, description =
+ * DialogDescription, the body (no slot) = DialogContent's own children,
+ * actions = DialogFooter, the close form's button = the Close. shadcn's
+ * DialogHeader is a wrapper element; Alder emits none, so the <dialog> itself
+ * is the grid, and the header's gap-2 is a negative margin on the
+ * description. Children are placed by slot, whatever their source order.
  */
 
 al-dialog {
   display: contents;
 }
 
+/* DialogContent: fixed top-[50%] left-[50%] z-50 grid w-full
+   max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4
+   rounded-lg border bg-background p-6 shadow-lg duration-200 outline-none
+   sm:max-w-lg   (centred by inset 0 + margin auto, as the platform centres a
+   modal <dialog>; width calc(100% - 2rem) with max-width 32rem is the same
+   width at every viewport) */
 al-dialog > dialog {
   position: fixed;
-  inline-size: calc(var(--al-width-narrow) * 0.75);
-  max-inline-size: calc(100dvw - 2rem);
+  inset: 0;
+  z-index: 50;
+  inline-size: calc(100% - 2rem);
+  max-inline-size: 32rem;
   max-block-size: calc(100dvh - 2rem);
   margin: auto;
-  padding: 0;
+  padding: 1.5rem;
+  gap: 1rem;
+  overflow: auto;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--popover);
-  color: var(--popover-foreground);
-  box-shadow: var(--shadow-sm);
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-
-al-dialog > dialog::backdrop {
+  border-radius: var(--radius-lg);
+  background: var(--background);
   color: var(--foreground);
-  background: color-mix(in srgb, currentColor 50%, transparent);
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-lg);
+  outline-style: none;
 }
 
-/* No JavaScript: the dialog the URL fragment names is shown. */
-al-dialog > dialog:target:not([open]) {
-  display: block;
+/* grid only while shown: a closed <dialog> keeps the platform's display: none.
+   No JavaScript: the dialog the URL fragment names is shown (not modal). */
+al-dialog > dialog:is([open], :target) {
+  display: grid;
 }
 
+/* sm:max-w-md / sm:max-w-lg / sm:max-w-2xl */
 al-dialog[size="sm"] > dialog {
-  inline-size: calc(var(--al-width-narrow) / 2);
+  max-inline-size: 28rem;
 }
 
 al-dialog[size="lg"] > dialog {
-  inline-size: var(--al-width-narrow);
+  max-inline-size: 42rem;
 }
 
-al-dialog [slot="header"] {
+/* DialogOverlay: fixed inset-0 z-50 bg-black/50 */
+al-dialog > dialog::backdrop {
+  background: color-mix(in oklab, var(--color-black) 50%, transparent);
+}
+
+al-dialog > dialog > * {
   margin: 0;
-  padding: 1rem 1.5rem 0;
+}
+
+/* DialogHeader: flex flex-col gap-2 text-center sm:text-left
+   DialogTitle: text-lg leading-none font-semibold */
+al-dialog > dialog > [slot="header"] {
+  order: -2;
+  padding: 0;
+  border-width: 0;
   font-size: 1.125rem;
   font-weight: 600;
-  line-height: 1.25;
+  line-height: 1;
+  letter-spacing: normal;
+  text-align: center;
 }
 
-al-dialog > dialog > :not([slot]):not(form) {
-  padding: 1rem 1.5rem;
+/* DialogDescription: text-sm text-muted-foreground   (the -0.5rem top margin
+   turns the grid's gap-4 into DialogHeader's gap-2) */
+al-dialog > dialog > [slot="description"] {
+  order: -1;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  text-align: center;
 }
 
-al-dialog [slot="actions"] {
+al-dialog > dialog > [slot="header"] + [slot="description"] {
+  margin-block-start: -0.5rem;
+}
+
+/* DialogFooter: flex flex-col-reverse gap-2 sm:flex-row sm:justify-end */
+al-dialog > dialog > [slot="actions"] {
+  order: 1;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  flex-direction: column-reverse;
   gap: 0.5rem;
-  padding: 0 1.5rem 1rem;
 }
 
-al-dialog[dismissible] [slot="header"] {
-  padding-inline-end: 2.5rem;
+/* In the column, shadcn's buttons stretch (align-items: stretch); an
+   al-button is a flex row around its <button> or <a>, so the inner one grows. */
+al-dialog > dialog > [slot="actions"] > al-button > :is(button, a) {
+  flex: auto;
 }
 
-al-dialog[dismissible] > dialog > form[method="dialog"] {
+@media (min-width: 40rem) {
+  al-dialog > dialog > [slot="actions"] > al-button > :is(button, a) {
+    flex: none;
+  }
+
+  al-dialog > dialog > :is([slot="header"], [slot="description"]) {
+    text-align: start;
+  }
+
+  al-dialog > dialog > [slot="actions"] {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+}
+
+/* A dismissible dialog's first-child close form is no box: its button is
+   placed against the dialog. (A <form method="dialog"> elsewhere in the body
+   is the app's own form, left alone.) */
+al-dialog[dismissible] > dialog > form[method="dialog"]:first-child {
+  display: contents;
+}
+
+/* DialogClose: absolute top-4 right-4 rounded-xs opacity-70
+   ring-offset-background transition-opacity hover:opacity-100 focus:ring-2
+   focus:ring-ring focus:ring-offset-2 focus:outline-hidden
+   disabled:pointer-events-none [&_svg]:size-4   with <XIcon />: the glyph
+   Alder writes (&times;) is pushed out of the 1rem box and the x is a mask
+   on ::before. */
+al-dialog[dismissible] > dialog > form[method="dialog"]:first-child > button {
   position: absolute;
-  top: 0.75rem;
-  inset-inline-end: 0.75rem;
-  margin: 0;
-}
-
-al-dialog[dismissible] > dialog > form[method="dialog"] > button {
-  margin: 0;
-  padding: 0.25rem 0.5rem;
-  border: 0;
-  border-radius: var(--radius-sm);
+  top: 1rem;
+  inset-inline-end: 1rem;
+  inline-size: 1rem;
+  block-size: 1rem;
+  overflow: hidden;
+  border-radius: 0.125rem;
   background: transparent;
   color: inherit;
-  font-family: inherit;
-  font-size: 1rem;
-  line-height: 1.25;
+  font: inherit;
+  white-space: nowrap;
+  text-indent: 100%;
+  opacity: 0.7;
   cursor: pointer;
+  transition: opacity 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-al-dialog[dismissible] > dialog > form[method="dialog"] > button:hover {
-  background: var(--accent);
-  color: var(--accent-foreground);
+al-dialog[dismissible] > dialog > form[method="dialog"]:first-child > button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  mask: var(--_al-icon-x) center / contain no-repeat;
+  pointer-events: none;
 }
 
-al-dialog[dismissible] > dialog > form[method="dialog"] > button:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+al-dialog[dismissible] > dialog > form[method="dialog"]:first-child > button:hover {
+  opacity: 1;
+}
+
+al-dialog[dismissible] > dialog > form[method="dialog"]:first-child > button:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--ring);
+}
+
+al-dialog[dismissible] > dialog > form[method="dialog"]:first-child > button:disabled {
+  pointer-events: none;
+}
+
+/* data-[state=open]:animate-in fade-in-0 zoom-in-95, data-[state=closed]:
+   animate-out fade-out-0 zoom-out-95, duration-200; the overlay fades.
+   The :target form shows and hides with no motion. */
+@media (prefers-reduced-motion: no-preference) {
+  al-dialog > dialog,
+  al-dialog > dialog::backdrop {
+    transition-property: opacity, scale, display, overlay;
+    transition-duration: 200ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-behavior: allow-discrete;
+  }
+
+  al-dialog > dialog:not([open], :target) {
+    opacity: 0;
+    scale: 0.95;
+  }
+
+  al-dialog > dialog:not([open], :target)::backdrop {
+    opacity: 0;
+  }
+
+  @starting-style {
+    al-dialog > dialog[open] {
+      opacity: 0;
+      scale: 0.95;
+    }
+
+    al-dialog > dialog[open]::backdrop {
+      opacity: 0;
+    }
+  }
 }
 
 /* ---- components/al-popover.css ---- */

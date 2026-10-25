@@ -1,5 +1,5 @@
 {
-  "pending": ["dialog", "popover", "menu", "tooltip", "toast", "tabs"],
+  "pending": ["popover", "menu", "tooltip", "toast", "tabs"],
   "map": {
     "card/title/unslotted": "card/title/default",
     "card/description/unslotted": "card/description/default",
@@ -29,6 +29,8 @@
     {"ref": "select/trigger/*", "prop": "box-width", "reason": "structural: w-fit is the native select's intrinsic width (widest option plus padding), a few px off the Radix trigger's text metrics"},
     {"ref": "tabs/nojs-*/*", "prop": "*", "reason": "standing (spec 8.3): the radio-backed tab labels shown when JavaScript is off have no shadcn counterpart; parity runs with al.js, comparing the JS-built tablist"},
     {"ref": "checkbox/*", "prop": "display", "reason": "standing (spec 8.3): al-checkbox is a native <input type=checkbox> (inline-block); shadcn's is a Radix <button> (inline-flex/grid)"},
+    {"ref": "dialog/overlay/open", "prop": "height", "reason": "structural: the ref's overlay is a fixed div sized to its 1232x352 grid stage (the ref renders the dialog non-modal inside a transformed box); the twin's is the modal dialog's ::backdrop, which covers the 1280x2000 viewport"},
+    {"ref": "dialog/overlay/open", "prop": "box-*", "reason": "structural: the twin's overlay is a ::backdrop, which has no bounding box the harness can read; its colour and opacity are compared and match"},
     {"ref": "toast/*", "prop": "font-family", "reason": "standing (R5): sonner sets its own system font stack on the toaster; alder-ui forbids literal font families in components, so al-toast inherits Geist"}
   ]
 }

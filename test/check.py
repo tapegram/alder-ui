@@ -95,7 +95,7 @@ ADDED_VALUES = {  # (tag, attribute) -> [value, ...]
     ("al-button", "variant"): ["link"],
     ("al-button", "size"): ["xs", "icon", "icon-sm", "icon-lg"],
 }
-ADDED_SLOTS = {"al-card": ["description", "action"]}  # tag -> [slot, ...]
+ADDED_SLOTS = {"al-card": ["description", "action"], "al-dialog": ["description"]}  # tag -> [slot, ...]
 
 # Attributes the stylesheet deliberately does not draw: the framework copies
 # them onto the native control, or renders them as markup.

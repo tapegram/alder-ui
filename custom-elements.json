@@ -563,6 +563,10 @@
             {
               "name": "actions",
               "description": "The buttons along the bottom, right-aligned."
+            },
+            {
+              "name": "description",
+              "description": "A line under the heading, in muted text."
             }
           ],
           "events": [

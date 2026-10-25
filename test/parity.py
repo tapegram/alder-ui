@@ -8,6 +8,9 @@ demo/parity.html (alder-ui, the markup Alder emits) in Chromium at 1280x2000, li
 dark (.dark on <html>), and for every marker compares getComputedStyle on spec section
 8.3's property list plus the bounding-box size, at rest and in each state the marker's
 data-ref-states lists (hover, focus-visible). Prints a Markdown table per component.
+Then, for each gating component in CLOSE_CHECKS, opens and closes its overlay on a fresh
+twin page with motion on (light and dark) and checks it is display: none and takes no
+clicks once the exit transition has run (Review Focus 4).
 
 Markers (both pages):
   data-ref="<component>/<variant>/<state>"   the element whose computed style is read
@@ -72,7 +75,7 @@ FIXED_WIDTH = [
 ]
 SIZE_PROPS = {"height", "width", "box-width", "box-height"}
 
-NO_MOTION = "*, *::before, *::after { transition: none !important; animation: none !important }"
+NO_MOTION = "*, *::before, *::after, *::backdrop { transition: none !important; animation: none !important }"
 
 
 # Colour parsing lives in test/colour.py (shared with check.py).
@@ -282,7 +285,9 @@ FONTS_JS = """async () => {
 
 OPEN_JS = """(i) => {
   const el = document.querySelectorAll('[data-ref-open]')[i];
-  if (el instanceof HTMLDialogElement) { if (!el.open) el.showModal(); }
+  // The ref keeps focus where it was on open (onOpenAutoFocus prevented), so the twin's
+  // autofocused close button is blurred: rest is read unfocused.
+  if (el instanceof HTMLDialogElement) { if (!el.open) { el.showModal(); document.activeElement.blur(); } }
   else if (el.hasAttribute('popover')) { if (!el.matches(':popover-open')) el.showPopover(); }
 }"""
 
@@ -377,6 +382,97 @@ class Page:
     def close(self, group=None):
         self.page.evaluate(CLOSE_JS, group)
         self.settle()
+
+
+# ----------------------------------------------------------------------- close checks
+
+# Review Focus 4: with motion on, an overlay must be gone once its exit transition has run.
+# Each entry: (component, label, selector, open js, close js, shim). The js take the element;
+# shim=True deletes HTMLButtonElement.prototype.commandForElement before load, so
+# components/al-shim.js polyfills the invoker commands.
+_SHOW_MODAL = "(el) => el.showModal()"
+_INVOKE = "(el) => document.querySelector('[commandfor=\"' + el.id + '\"][command=\"%s\"]').click()"
+CLOSE_CHECKS = [
+    ("dialog", "close()", "#parity-dialog", _SHOW_MODAL, "(el) => el.close()", False),
+    ("dialog", "close button", "#parity-dialog", _SHOW_MODAL,
+     "(el) => el.querySelector(':scope > form[method=dialog] > button').click()", False),
+    ("dialog", "command=close", "#parity-dialog", _INVOKE % "show-modal", _INVOKE % "close", False),
+    ("dialog", "shim command=close", "#parity-dialog", _INVOKE % "show-modal", _INVOKE % "close", True),
+    ("dialog", ":target", "#parity-dialog", "(el) => { location.hash = el.id }", "() => { location.hash = '' }", False),
+]
+CLOSE_WAIT_MS = 300  # longer than the 200ms dialog / 150ms overlay exit transitions
+
+OPENED_JS = """(el) => {
+  const r = el.getBoundingClientRect();
+  return { opened: getComputedStyle(el).display !== 'none' && r.width > 0 && r.height > 0,
+           x: r.left + r.width / 2, y: r.top + r.height / 2 };
+}"""
+
+CLOSED_JS = """([el, x, y]) => {
+  if (!el.isConnected) return { connected: false, display: '', hit: false };
+  const at = document.elementFromPoint(x, y);
+  return { connected: true, display: getComputedStyle(el).display, hit: !!at && el.contains(at) };
+}"""
+
+
+def close_problems(st):
+    """What is wrong with an overlay measured CLOSE_WAIT_MS after closing: st holds
+    opened (it was shown before closing), connected (el.isConnected), display (computed)
+    and hit (elementFromPoint at its open centre lands inside it). A disconnected node is
+    closed (R19)."""
+    if not st["opened"]:
+        return ["did not open, so its closing proves nothing"]
+    if not st["connected"]:
+        return []
+    out = []
+    if st["display"] != "none":
+        out.append("display is %r after the exit transition, not 'none'" % st["display"])
+    if st["hit"]:
+        out.append("still takes clicks at its centre")
+    return out
+
+
+def check_closes(page, selector, close_js, open_js=_SHOW_MODAL):
+    """Open the overlay `selector` names, close it with close_js, wait out the exit
+    transition, and return close_problems() for it. The page must have motion on."""
+    el = page.query_selector(selector)
+    if el is None:
+        return ["%s is not on the page" % selector]
+    el.evaluate(open_js)
+    page.wait_for_timeout(CLOSE_WAIT_MS)
+    opened = el.evaluate(OPENED_JS)
+    el.evaluate(close_js)
+    page.wait_for_timeout(CLOSE_WAIT_MS)
+    st = page.evaluate(CLOSED_JS, [el, opened["x"], opened["y"]])
+    st["opened"] = opened["opened"]
+    return close_problems(st)
+
+
+def run_close_checks(browser, base, comps):
+    """Every CLOSE_CHECKS entry whose component is in comps, light and dark, each on a fresh
+    twin page with motion on. Returns failure lines."""
+    fails = []
+    for comp, label, selector, open_js, close_js, shim in CLOSE_CHECKS:
+        if comp not in comps:
+            continue
+        for theme in THEMES:
+            page = browser.new_page(viewport=VIEWPORT, color_scheme="light")
+            try:
+                if shim:
+                    page.add_init_script("delete HTMLButtonElement.prototype.commandForElement")
+                page.goto(base + TWIN_URL, wait_until="load")
+                page.wait_for_selector("html[data-ref-ready]", state="attached", timeout=20000)
+                page.evaluate("(on) => document.documentElement.classList.toggle('dark', on)", theme == "dark")
+                if shim and page.evaluate("() => 'commandForElement' in HTMLButtonElement.prototype"):
+                    fails.append("%s %s (%s): commandForElement is still defined; the shim path did not run"
+                                 % (comp, label, theme))
+                    continue
+                probs = check_closes(page, selector, close_js, open_js)
+            finally:
+                page.close()
+            fails.extend("%s %s %s (%s): %s" % (comp, selector, label, theme, p) for p in probs)
+            print("close: %s %s via %s (%s): %s" % (comp, selector, label, theme, "ok" if not probs else "FAIL"))
+    return fails
 
 
 def collect(ref, twin, allow, only):
@@ -598,6 +694,11 @@ def main(argv=None):
                 text, failing = report(rows, allow, [c for c in comps if args.only in (None, c)], expects)
                 print(text)
                 if failing:
+                    status = 1
+                close_fails = run_close_checks(browser, base, gating)
+                for f in close_fails:
+                    print("parity: FAIL close %s" % f)
+                if close_fails:
                     status = 1
                 if args.strict and allow["pending"]:
                     print("parity: --strict and pending is not empty: %s" % ", ".join(allow["pending"]))

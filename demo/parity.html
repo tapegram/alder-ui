@@ -209,17 +209,22 @@ window.addEventListener("load", function () {
 
 <al-stack gap="md" data-section="dialog">
   <h2>dialog</h2>
+  <al-button variant="outline"><button type="button" commandfor="parity-dialog" command="show-modal">Open dialog</button></al-button>
   <al-dialog heading="Dialog Title" dismissible>
     <dialog id="parity-dialog" aria-labelledby="parity-dialog-heading" data-ref="dialog/content/open" data-ref-backdrop="dialog/overlay/open" data-ref-open>
       <form method="dialog"><button type="submit" aria-label="Close Dialog Title" data-ref="dialog/close/open">&times;</button></form>
       <h2 slot="header" id="parity-dialog-heading" data-ref="dialog/title/open">Dialog Title</h2>
-      <p data-ref="dialog/description/open">Dialog Description</p>
+      <p slot="description" data-ref="dialog/description/open">Dialog Description</p>
       <div slot="actions" data-ref="dialog/footer/open">
-        <al-button variant="outline"><button type="button">Cancel</button></al-button>
+        <al-button variant="outline"><button type="button" commandfor="parity-dialog" command="close">Cancel</button></al-button>
         <al-button><button type="button">Continue</button></al-button>
       </div>
     </dialog>
   </al-dialog>
+  <!-- size: shadcn has one width (sm:max-w-lg); sm and lg are sm:max-w-md and sm:max-w-2xl. -->
+  <al-dialog heading="Small" size="sm"><dialog data-expect="max-width: 448px"><h2 slot="header">Small</h2></dialog></al-dialog>
+  <al-dialog heading="Medium" size="md"><dialog data-expect="max-width: 512px"><h2 slot="header">Medium</h2></dialog></al-dialog>
+  <al-dialog heading="Large" size="lg"><dialog data-expect="max-width: 672px"><h2 slot="header">Large</h2></dialog></al-dialog>
 </al-stack>
 
 <al-stack gap="md" data-section="popover, menu, tooltip">
