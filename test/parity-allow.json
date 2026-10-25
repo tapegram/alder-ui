@@ -1,5 +1,5 @@
 {
-  "pending": ["label", "input", "textarea", "select", "checkbox", "card", "badge", "alert", "table", "pagination", "dialog", "popover", "menu", "tooltip", "toast", "tabs"],
+  "pending": ["select", "checkbox", "card", "badge", "alert", "table", "pagination", "dialog", "popover", "menu", "tooltip", "toast", "tabs"],
   "map": {
     "alert/info/root": "alert/default/root",
     "alert/info/icon": "alert/default/icon",
@@ -16,6 +16,8 @@
     "toast/destructive/default": "toast/error/default"
   },
   "allow": [
+    {"ref": "label/default/default", "prop": "height", "reason": "structural (spec 5.3 4a): the <label> wraps its control, so it is a grid of the text and the input (shadcn's Label is a leaf with only the text); the text itself matches (14px, leading-none, gap 8px)"},
+    {"ref": "label/default/default", "prop": "box-height", "reason": "structural (spec 5.3 4a): same as height above; the label's box holds the control it wraps"},
     {"ref": "select/listbox/*", "prop": "*", "reason": "standing (spec 8.3): al-select keeps the native <select> listbox; shadcn's Radix SelectContent has no counterpart and is not compared"},
     {"ref": "tabs/nojs-*/*", "prop": "*", "reason": "standing (spec 8.3): the radio-backed tab labels shown when JavaScript is off have no shadcn counterpart; parity runs with al.js, comparing the JS-built tablist"},
     {"ref": "checkbox/*", "prop": "display", "reason": "standing (spec 8.3): al-checkbox is a native <input type=checkbox> (inline-block); shadcn's is a Radix <button> (inline-flex/grid)"},

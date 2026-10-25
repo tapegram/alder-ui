@@ -67,6 +67,9 @@ window.addEventListener("load", function () {
   <al-input label="Email" placeholder="Email" help="Enter your email address."><label data-ref="label/default/default">Email<input name="email" type="email" placeholder="Email" aria-describedby="help-email" data-ref="input/default/default" data-ref-states="focus"></label><small class="help" id="help-email" data-ref="input/description/default">Enter your email address.</small><ul class="errors" data-errors="email" data-expect="display: none"></ul></al-input>
   <al-input label="Email" placeholder="Email" disabled><label>Email<input name="email-disabled" type="email" placeholder="Email" disabled data-ref="input/default/disabled"></label><ul class="errors" data-errors="email-disabled"></ul></al-input>
   <al-input label="Email" placeholder="Email" invalid><label>Email<input name="email-invalid" type="email" placeholder="Email" aria-invalid="true" data-ref="input/default/invalid"></label><ul class="errors" data-errors="email-invalid" data-ref="input/error/default"><li>Enter a valid email address.</li></ul></al-input>
+  <al-input label="Name" data-expect="height: 58px"><label>Name<input name="field-h-bare" type="text"></label></al-input>
+  <al-input label="Name" data-expect="height: 58px"><label>Name<input name="field-h-empty" type="text"></label><ul class="errors" data-errors="field-h-empty" data-expect="display: none"></ul></al-input>
+  <al-alert variant="destructive" role="alert" data-expect="display: none"><ul class="errors" data-errors="field-h-form"></ul></al-alert>
 </al-stack>
 
 <al-stack gap="md" data-section="textarea">
