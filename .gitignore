@@ -4,3 +4,4 @@ __pycache__/
 ref/node_modules/
 ref/out/
 .venv/
+.superpowers/
