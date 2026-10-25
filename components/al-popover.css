@@ -12,6 +12,11 @@
  * The parts map to shadcn's: the element is PopoverContent; a heading inside
  * it is PopoverTitle and a paragraph PopoverDescription (PopoverHeader's
  * gap-1 is the paragraph's top margin after a heading).
+ *
+ * Limit (#13): when position-try flips the popover to the other side, its
+ * transform-origin and slide-in direction stay those of the first choice.
+ * @position-try cannot carry transform-origin or translate, and a container
+ * query cannot restyle its own container, so mirroring them needs JS.
  */
 
 /* PopoverContent: z-50 w-72 origin-(--radix-popover-content-transform-origin)

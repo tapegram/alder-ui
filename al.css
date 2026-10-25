@@ -1716,6 +1716,16 @@ al-table tfoot > tr:last-child {
   border-bottom-width: 0;
 }
 
+/* dense: th h-8, cells p-1 */
+al-table[dense] th {
+  height: 2rem;
+}
+
+al-table[dense] th,
+al-table[dense] td {
+  padding: 0.25rem;
+}
+
 /* TableHead: h-10 px-2 text-left align-middle font-medium whitespace-nowrap
    text-foreground [&:has([role=checkbox])]:pr-0
    [&>[role=checkbox]]:translate-y-[2px] */
@@ -1737,6 +1747,7 @@ al-table td {
   white-space: nowrap;
 }
 
+/* after the dense block: dense cells keep the checkbox cell's pr-0 */
 al-table th:has([role="checkbox"]),
 al-table td:has([role="checkbox"]) {
   padding-right: 0;
@@ -1759,14 +1770,9 @@ al-table[striped] tbody tr:nth-child(even) {
   background: color-mix(in oklab, var(--muted) 50%, transparent);
 }
 
-/* dense: th h-8, cells p-1 */
-al-table[dense] th {
-  height: 2rem;
-}
-
-al-table[dense] th,
-al-table[dense] td {
-  padding: 0.25rem;
+/* data-[state=selected]:bg-muted wins over the even row (#13) */
+al-table[striped] tbody tr[aria-selected="true"]:nth-child(even) {
+  background: var(--muted);
 }
 
 /* ---- components/al-card.css ---- */
@@ -1852,10 +1858,15 @@ al-card > :is(h2, h3):nth-child(1 of :not([slot])) {
 al-card > [slot="description"],
 al-card > :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot])) {
   order: -2;
-  margin-block-start: -1rem;
   color: var(--muted-foreground);
   font-size: 0.875rem;
   line-height: 1.25rem;
+}
+
+/* the header's gap-2 pulls the description up under the title; a card with
+   no title has nothing to be close to (#13) */
+al-card:has(> [slot="header"], > :is(h2, h3):nth-child(1 of :not([slot]))) > :is([slot="description"], :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot]))) {
+  margin-block-start: -1rem;
 }
 
 al-card > [slot="action"] {
@@ -1996,6 +2007,12 @@ al-badge > a:focus-visible {
  * shadcn has only default and destructive. info, success and warning are
  * the default look; they differ only in the icon (info, circle-check,
  * triangle-alert; destructive has octagon-x). No tinted backgrounds.
+ *
+ * Content (spec 5.2): a heading attribute plus bare text reads like a heading
+ * plus a p: the host takes the description colour and the title (::before),
+ * the icon and the close button take the title colour (--_al-title). An h1-h6
+ * child is styled as AlertTitle, not as Typography's heading. An empty
+ * ul.errors is hidden; with a heading the alert still draws the heading.
  */
 
 /* relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 rounded-lg
@@ -2007,6 +2024,7 @@ al-badge > a:focus-visible {
    column and gap-x-3 are the start padding: px-4 + size-4 + gap-x-3. */
 al-alert {
   --_al-icon: var(--_al-icon-info);
+  --_al-title: var(--card-foreground);
   display: block;
   position: relative;
   box-sizing: border-box;
@@ -2048,7 +2066,23 @@ al-alert[variant="warning"] {
    *:data-[slot=alert-description]:text-destructive/90 */
 al-alert[variant="destructive"] {
   --_al-icon: var(--_al-icon-octagon-x);
+  --_al-title: var(--destructive);
   color: var(--destructive);
+}
+
+/* heading + bare text: the text is the description (the p rules below give
+   the same colours to a block child, so the host keeps its own then) */
+al-alert[heading]:not(:has(> :is(p, div, ul, ol))) {
+  color: var(--muted-foreground);
+}
+
+al-alert[heading][variant="destructive"]:not(:has(> :is(p, div, ul, ol))) {
+  color: color-mix(in oklab, var(--destructive) 90%, transparent);
+}
+
+/* the icon is text-current on the title colour, not the description's */
+al-alert[heading]::after {
+  color: var(--_al-title);
 }
 
 /* AlertTitle: col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight
@@ -2060,7 +2094,27 @@ al-alert[heading]::before {
   min-height: 1rem;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
+  color: var(--_al-title);
   font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+/* gap-y-0.5 under the title when bare text follows it (a block child brings
+   its own 2px margin) */
+al-alert[heading]:not(:has(> :is(p, div, ul, ol)))::before {
+  margin-block-end: 0.125rem;
+}
+
+/* an h1-h6 child is the AlertTitle: font-medium tracking-tight text-sm, with
+   no Typography margin, divider or size (scroll-m-20 h3 text-2xl) */
+al-alert > :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+  padding: 0;
+  border-width: 0;
+  color: var(--_al-title);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
   letter-spacing: -0.025em;
 }
 
@@ -2128,7 +2182,7 @@ al-alert > .al-alert-dismiss {
   border: 0;
   border-radius: var(--radius-md);
   background: transparent;
-  color: inherit;
+  color: var(--_al-title);
   cursor: pointer;
   outline: none;
 }
@@ -2163,7 +2217,13 @@ al-alert > .al-alert-dismiss:focus-visible {
 /* An alert that holds only an empty errors list (Alder's
    <al-alert variant="destructive"><Errors form /></al-alert>, before any
    error) is not drawn: no empty coloured box. */
-al-alert:has(> ul.errors:empty) {
+al-alert:not([heading]):has(> ul.errors:empty) {
+  display: none;
+}
+
+/* with a heading the alert stays and only the empty list goes (it would
+   otherwise add a 2px gap and, as a grid, beat the plain display rule) */
+al-alert > ul.errors:empty {
   display: none;
 }
 
@@ -2702,6 +2762,11 @@ al-dialog[dismissible] > dialog > form[method="dialog"]:first-child > button:dis
  * The parts map to shadcn's: the element is PopoverContent; a heading inside
  * it is PopoverTitle and a paragraph PopoverDescription (PopoverHeader's
  * gap-1 is the paragraph's top margin after a heading).
+ *
+ * Limit (#13): when position-try flips the popover to the other side, its
+ * transform-origin and slide-in direction stay those of the first choice.
+ * @position-try cannot carry transform-origin or translate, and a container
+ * query cannot restyle its own container, so mirroring them needs JS.
  */
 
 /* PopoverContent: z-50 w-72 origin-(--radix-popover-content-transform-origin)
@@ -2821,6 +2886,11 @@ al-popover > :is(h1, h2, h3, h4, h5, h6) + p {
  * The parts map to shadcn's dropdown-menu: the element is DropdownMenuContent,
  * each a / button child a DropdownMenuItem (data-variant="destructive" for
  * the destructive one), an <hr> child the DropdownMenuSeparator.
+ *
+ * Limit (#13): the transform-origin is the resting one (top left, top right
+ * under dir=rtl). When position-try flips the menu, the origin is not
+ * mirrored: @position-try cannot carry transform-origin or translate, and a
+ * container query cannot restyle its container, so that needs JS.
  */
 
 /* DropdownMenuContent: z-50 max-h-(--radix-dropdown-menu-content-available-height)
@@ -2848,6 +2918,12 @@ al-menu {
   box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-md);
   outline: none;
   transform-origin: top left;
+}
+
+/* the resting origin is the inline start (position-area: block-end
+   span-inline-end opens at the invoker's start edge) */
+al-menu:dir(rtl) {
+  transform-origin: top right;
 }
 
 al-menu:popover-open {
@@ -3250,8 +3326,9 @@ al-toast[variant="destructive"] {
   --_al-icon: var(--_al-icon-octagon-x);
 }
 
-/* headings, paragraphs and lists inside reset to the toast's own recipe */
-al-toast > * {
+/* headings, paragraphs and lists inside reset to the toast's own recipe (an
+   al-button or al-badge keeps its own size, #13) */
+al-toast > :not(al-button, al-badge) {
   margin: 0;
   padding: 0;
   border-width: 0;

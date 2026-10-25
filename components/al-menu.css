@@ -8,6 +8,11 @@
  * The parts map to shadcn's dropdown-menu: the element is DropdownMenuContent,
  * each a / button child a DropdownMenuItem (data-variant="destructive" for
  * the destructive one), an <hr> child the DropdownMenuSeparator.
+ *
+ * Limit (#13): the transform-origin is the resting one (top left, top right
+ * under dir=rtl). When position-try flips the menu, the origin is not
+ * mirrored: @position-try cannot carry transform-origin or translate, and a
+ * container query cannot restyle its container, so that needs JS.
  */
 
 /* DropdownMenuContent: z-50 max-h-(--radix-dropdown-menu-content-available-height)
@@ -35,6 +40,12 @@ al-menu {
   box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-md);
   outline: none;
   transform-origin: top left;
+}
+
+/* the resting origin is the inline start (position-area: block-end
+   span-inline-end opens at the invoker's start edge) */
+al-menu:dir(rtl) {
+  transform-origin: top right;
 }
 
 al-menu:popover-open {

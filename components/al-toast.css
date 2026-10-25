@@ -77,8 +77,9 @@ al-toast[variant="destructive"] {
   --_al-icon: var(--_al-icon-octagon-x);
 }
 
-/* headings, paragraphs and lists inside reset to the toast's own recipe */
-al-toast > * {
+/* headings, paragraphs and lists inside reset to the toast's own recipe (an
+   al-button or al-badge keeps its own size, #13) */
+al-toast > :not(al-button, al-badge) {
   margin: 0;
   padding: 0;
   border-width: 0;

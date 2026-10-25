@@ -79,10 +79,15 @@ al-card > :is(h2, h3):nth-child(1 of :not([slot])) {
 al-card > [slot="description"],
 al-card > :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot])) {
   order: -2;
-  margin-block-start: -1rem;
   color: var(--muted-foreground);
   font-size: 0.875rem;
   line-height: 1.25rem;
+}
+
+/* the header's gap-2 pulls the description up under the title; a card with
+   no title has nothing to be close to (#13) */
+al-card:has(> [slot="header"], > :is(h2, h3):nth-child(1 of :not([slot]))) > :is([slot="description"], :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot]))) {
+  margin-block-start: -1rem;
 }
 
 al-card > [slot="action"] {

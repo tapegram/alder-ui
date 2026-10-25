@@ -127,6 +127,11 @@ window.addEventListener("load", function () {
     <p slot="description" data-expect="line-height: 20px">Card Description</p>
     <p data-expect="line-height: 24px">Card body text.</p>
   </al-card>
+  <!-- twin-only (#13.1): a card with a description and no title does not pull it up by -1rem -->
+  <al-card>
+    <p slot="description" data-expect="margin-top: 0px">Card Description</p>
+    <div>Content</div>
+  </al-card>
 </al-stack>
 
 <al-stack gap="md" data-section="badge">
@@ -157,6 +162,17 @@ window.addEventListener("load", function () {
   <al-alert variant="info" role="status" data-expect="height: 46px">Saved <code data-expect="display: inline">post.md</code> ok, <a href="#" data-expect="display: inline">view it</a>.</al-alert>
   <al-alert variant="info" heading="Alert Title" role="status" data-expect="height: 68px"><p data-expect="height: 20px">Saved <code>post.md</code> ok, <a href="#">view it</a>.</p></al-alert>
   <al-alert variant="destructive" role="alert" data-expect="height: 70px"><ul class="errors" data-errors="alert-errors"><li data-expect="margin-top: 0px">That slug is taken.</li><li data-expect="margin-top: 0px">The title must not be empty.</li></ul></al-alert>
+  <!-- twin-only (#13.4): a heading plus an empty errors list draws the heading and hides the list -->
+  <al-alert heading="Alert Title" variant="destructive" role="alert" data-expect="height: 46px"><ul class="errors" data-errors="alert-heading-empty" data-expect="display: none"></ul></al-alert>
+  <al-alert heading="Alert Title" variant="destructive" role="alert" data-expect="height: 68px"><ul class="errors" data-errors="alert-heading-empty-p" data-expect="display: none"></ul><p>Text</p></al-alert>
+  <!-- twin-only (#13.5): a heading plus bare text matches the same heading plus a p (same
+       height here; the colours are pinned in test/test_page.py, they depend on the theme) -->
+  <al-alert variant="info" heading="Alert Title" role="status" id="parity-alert-bare-info" data-expect="height: 68px">Bare text</al-alert>
+  <al-alert variant="info" heading="Alert Title" role="status" id="parity-alert-p-info" data-expect="height: 68px"><p>Bare text</p></al-alert>
+  <al-alert variant="destructive" heading="Alert Title" role="alert" id="parity-alert-bare-destructive" data-expect="height: 68px">Bare text</al-alert>
+  <al-alert variant="destructive" heading="Alert Title" role="alert" id="parity-alert-p-destructive" data-expect="height: 68px"><p>Bare text</p></al-alert>
+  <!-- twin-only (#13.6): a heading inside an alert is styled as AlertTitle, not Typography's h3 -->
+  <al-alert heading="Alert Title" role="status"><h3 data-expect="margin-top: 0px; border-bottom-width: 0px; padding-bottom: 0px; font-size: 14px; line-height: 20px; font-weight: 500">Inner heading</h3></al-alert>
 </al-stack>
 
 <al-stack gap="md" data-section="table">
@@ -170,6 +186,18 @@ window.addEventListener("load", function () {
         <tr data-ref="table/row/hover" data-ref-states="hover"><td>INV002</td><td>Pending</td><td>PayPal</td></tr>
         <tr><td>INV003</td><td>Unpaid</td><td>Bank Transfer</td></tr>
       </tbody>
+    </table>
+  </al-table>
+  <!-- twin-only (#13.2, #13.3): dense keeps the checkbox cell's pr-0; a selected row beats the
+       striped even row (the colour is pinned in test/test_page.py, it depends on the theme) -->
+  <al-table dense>
+    <table>
+      <tbody><tr><td data-expect="padding-right: 0px"><input type="checkbox" role="checkbox" aria-label="Select row"></td><td>Row</td></tr></tbody>
+    </table>
+  </al-table>
+  <al-table striped id="parity-table-striped">
+    <table>
+      <tbody><tr><td>One</td></tr><tr aria-selected="true"><td>Two</td></tr><tr><td>Three</td></tr></tbody>
     </table>
   </al-table>
 </al-stack>
@@ -299,6 +327,8 @@ window.addEventListener("load", function () {
     <al-toast variant="destructive" timeout="0" data-ref="toast/destructive/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
     <!-- twin-only: a one-line message that mixes text and an inline element stays one
          line and is all title; with no variant there is no icon, variant="info" has one -->
+    <!-- twin-only (#13.9): a button inside a toast keeps its own padding, border and font size -->
+    <al-toast timeout="0"><p>Saved</p><al-button data-expect="font-size: 14px"><button type="button" data-expect="padding-left: 16px; border-top-width: 0px">Undo</button></al-button></al-toast>
     <al-toast timeout="0" data-expect="font-weight: 500; padding-left: 16px" data-expect-before="content: none">Saved <code data-expect="display: inline">post.md</code></al-toast>
     <al-toast variant="info" timeout="0" data-expect="padding-left: 39px" data-expect-before="content: &quot;&quot;">Saved</al-toast>
   </al-toasts>
