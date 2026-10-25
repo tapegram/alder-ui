@@ -179,6 +179,25 @@ class LayoutColourTest(unittest.TestCase):
                 self.assertEqual(got["bare"], got["desc"], (theme, variant))
                 self.assertEqual(got["bareTitle"], got["title"], (theme, variant))
 
+    def test_alert_bare_text_beside_empty_errors(self):
+        # a hidden empty ul.errors is not a block child: the bare text is still the
+        # description and the title keeps its colour (the 2px title gap cannot follow:
+        # CSS cannot see the text, and a heading-only alert must stay 46px)
+        for theme in ("light", "dark"):
+            for variant in ("info", "destructive"):
+                page = self.page(theme)
+                try:
+                    got = page.evaluate("""(v) => {
+                        const e = (id) => document.getElementById(id);
+                        const c = (x, ps) => getComputedStyle(x, ps).color;
+                        const a = e('parity-alert-bare-errors-' + v), b = e('parity-alert-bare-' + v);
+                        return { a: c(a), b: c(b), at: c(a, '::before'), bt: c(b, '::before') };
+                    }""", variant)
+                finally:
+                    page.close()
+                self.assertEqual(got["a"], got["b"], (theme, variant))
+                self.assertEqual(got["at"], got["bt"], (theme, variant))
+
     def origin(self, rtl):
         page = self.page(rtl=rtl)
         try:

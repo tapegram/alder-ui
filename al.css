@@ -406,17 +406,17 @@ input:where([type="button"], [type="reset"], [type="submit"]),
  * - These rules come first so the element rules below, at the same (0,0,1),
  *   win where they set their own margin: p then h2 keeps h2's mt-10, ul/ol keep my-6. */
 :where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h2 + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h2 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h2 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h2 + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h2 + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + *,
 :where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h3 + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h3 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h3 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h3 + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h3 + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + *,
 :where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h4 + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h4 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h4 + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h4 + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > h4 + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + *,
 :where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + *,
-:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:has(> ul.errors:empty), input[type="hidden"], template, script) + * {
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + *,
+:where(al-page:not([plain]), al-page:not([plain]) :is(al-panel, article, aside, details, div, fieldset, footer, form, header, main, nav, section)) > p + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + :where(al-alert:not([heading]):has(> ul.errors:empty), input[type="hidden"], template, script) + * {
   margin-top: 1.5rem;
 }
 
@@ -678,8 +678,8 @@ al-button {
   --_al-ring: color-mix(in oklab, var(--ring) 50%, transparent);
   --_al-border: var(--border);
   /* The transparent layers mirror how Tailwind composes box-shadow, so the
-     computed list matches the reference's. --_al-shadow (4 no-op layers +
-     shadow) and --_al-shadow-end (the last layer, under the focus ring: 3
+     computed list matches the reference's. --_al-shadow (in variants that set a
+     shadow: 4 no-op layers + shadow; none otherwise) and --_al-shadow-end (the last layer, under the focus ring: 3
      no-op layers + ring + shadow-end) must stay in step; change one, change
      the other. */
   --_al-shadow: none;
@@ -2153,11 +2153,11 @@ al-alert[variant="destructive"] {
 
 /* heading + bare text: the text is the description (the p rules below give
    the same colours to a block child, so the host keeps its own then) */
-al-alert[heading]:not(:has(> :is(p, div, ul, ol))) {
+al-alert[heading]:not(:has(> :is(p, div, ul:not(.errors:empty), ol))) {
   color: var(--muted-foreground);
 }
 
-al-alert[heading][variant="destructive"]:not(:has(> :is(p, div, ul, ol))) {
+al-alert[heading][variant="destructive"]:not(:has(> :is(p, div, ul:not(.errors:empty), ol))) {
   color: color-mix(in oklab, var(--destructive) 90%, transparent);
 }
 
@@ -2181,7 +2181,9 @@ al-alert[heading]::before {
 }
 
 /* gap-y-0.5 under the title when bare text follows it (a block child brings
-   its own 2px margin) */
+   its own 2px margin).
+   An empty errors list counts as a block child here: CSS cannot see bare text
+   beside it, and a heading-only alert (Alder's Errors form) must stay 46px. */
 al-alert[heading]:not(:has(> :is(p, div, ul, ol)))::before {
   margin-block-end: 0.125rem;
 }
@@ -3009,6 +3011,10 @@ al-popover > :is(h1, h2, h3, h4, h5, h6) + p {
  * The parts map to shadcn's dropdown-menu: the element is DropdownMenuContent,
  * each a / button child a DropdownMenuItem (data-variant="destructive" for
  * the destructive one), an <hr> child the DropdownMenuSeparator.
+ *
+ * Position: like al-popover, anchor="<id>" names another element to anchor to.
+ * It needs al.js (al-shim.js sets position-anchor at each open; Chromium
+ * ignores the HTML attribute); without it the invoker is the anchor.
  *
  * Limit (#13): the transform-origin is the resting one (top left, top right
  * under dir=rtl). When position-try flips the menu, the origin is not

@@ -24,8 +24,8 @@ al-button {
   --_al-ring: color-mix(in oklab, var(--ring) 50%, transparent);
   --_al-border: var(--border);
   /* The transparent layers mirror how Tailwind composes box-shadow, so the
-     computed list matches the reference's. --_al-shadow (4 no-op layers +
-     shadow) and --_al-shadow-end (the last layer, under the focus ring: 3
+     computed list matches the reference's. --_al-shadow (in variants that set a
+     shadow: 4 no-op layers + shadow; none otherwise) and --_al-shadow-end (the last layer, under the focus ring: 3
      no-op layers + ring + shadow-end) must stay in step; change one, change
      the other. */
   --_al-shadow: none;

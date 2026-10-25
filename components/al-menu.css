@@ -9,6 +9,10 @@
  * each a / button child a DropdownMenuItem (data-variant="destructive" for
  * the destructive one), an <hr> child the DropdownMenuSeparator.
  *
+ * Position: like al-popover, anchor="<id>" names another element to anchor to.
+ * It needs al.js (al-shim.js sets position-anchor at each open; Chromium
+ * ignores the HTML attribute); without it the invoker is the anchor.
+ *
  * Limit (#13): the transform-origin is the resting one (top left, top right
  * under dir=rtl). When position-try flips the menu, the origin is not
  * mirrored: @position-try cannot carry transform-origin or translate, and a

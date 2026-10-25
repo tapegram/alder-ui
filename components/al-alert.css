@@ -80,11 +80,11 @@ al-alert[variant="destructive"] {
 
 /* heading + bare text: the text is the description (the p rules below give
    the same colours to a block child, so the host keeps its own then) */
-al-alert[heading]:not(:has(> :is(p, div, ul, ol))) {
+al-alert[heading]:not(:has(> :is(p, div, ul:not(.errors:empty), ol))) {
   color: var(--muted-foreground);
 }
 
-al-alert[heading][variant="destructive"]:not(:has(> :is(p, div, ul, ol))) {
+al-alert[heading][variant="destructive"]:not(:has(> :is(p, div, ul:not(.errors:empty), ol))) {
   color: color-mix(in oklab, var(--destructive) 90%, transparent);
 }
 
@@ -108,7 +108,9 @@ al-alert[heading]::before {
 }
 
 /* gap-y-0.5 under the title when bare text follows it (a block child brings
-   its own 2px margin) */
+   its own 2px margin).
+   An empty errors list counts as a block child here: CSS cannot see bare text
+   beside it, and a heading-only alert (Alder's Errors form) must stay 46px. */
 al-alert[heading]:not(:has(> :is(p, div, ul, ol)))::before {
   margin-block-end: 0.125rem;
 }

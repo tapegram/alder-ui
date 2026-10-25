@@ -161,6 +161,8 @@ window.addEventListener("load", function () {
        4px apart with no Typography li margin -->
   <al-alert variant="info" role="status" data-expect="height: 46px">Saved <code data-expect="display: inline">post.md</code> ok, <a href="#" data-expect="display: inline">view it</a>.</al-alert>
   <al-alert variant="info" heading="Alert Title" role="status" data-expect="height: 68px"><p data-expect="height: 20px">Saved <code>post.md</code> ok, <a href="#">view it</a>.</p></al-alert>
+  <al-alert variant="info" heading="Alert Title" role="status" id="parity-alert-bare-errors-info"><ul class="errors"></ul>Bare text</al-alert>
+  <al-alert variant="destructive" heading="Alert Title" role="alert" id="parity-alert-bare-errors-destructive"><ul class="errors"></ul>Bare text</al-alert>
   <al-alert variant="destructive" role="alert" data-expect="height: 70px"><ul class="errors" data-errors="alert-errors"><li data-expect="margin-top: 0px">That slug is taken.</li><li data-expect="margin-top: 0px">The title must not be empty.</li></ul></al-alert>
   <!-- twin-only (#13.4): a heading plus an empty errors list draws the heading and hides the list -->
   <al-alert heading="Alert Title" variant="destructive" role="alert" data-expect="height: 46px"><ul class="errors" data-errors="alert-heading-empty" data-expect="display: none"></ul></al-alert>
@@ -375,6 +377,12 @@ window.addEventListener("load", function () {
     <!-- a visible alert is not bridged: the field after it keeps no flow margin -->
     <al-alert variant="destructive" role="alert"><ul class="errors" data-errors="flow-visible"><li>Name is required</li></ul></al-alert>
     <al-input label="Name" data-expect="margin-top: 0px"><label>Name<input name="flow-visible-name" type="text"></label><ul class="errors" data-errors="flow-visible-name"></ul></al-input>
+  </section>
+  <section>
+    <h2>Heading alert, empty errors</h2>
+    <!-- a heading alert with an empty errors list is visible: the field after it is not bridged -->
+    <al-alert variant="destructive" heading="Heads up" role="alert"><ul class="errors" data-errors="flow-heading"></ul></al-alert>
+    <al-input label="Name" data-expect="margin-top: 0px"><label>Name<input name="flow-heading-name" type="text"></label><ul class="errors" data-errors="flow-heading-name"></ul></al-input>
   </section>
   <x-box><p>A non-alder wrapper is not a flow container.</p><div data-expect="margin-top: 0px"></div></x-box>
   <al-card>
