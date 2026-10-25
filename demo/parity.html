@@ -76,6 +76,8 @@ window.addEventListener("load", function () {
   <h2>textarea</h2>
   <al-textarea label="Message" placeholder="Message"><label>Message<textarea name="message" placeholder="Message" data-ref="textarea/default/default"></textarea></label><ul class="errors" data-errors="message"></ul></al-textarea>
   <al-textarea label="Message" placeholder="Message" invalid><label>Message<textarea name="message-invalid" placeholder="Message" aria-invalid="true" data-ref="textarea/default/invalid"></textarea></label><ul class="errors" data-errors="message-invalid"></ul></al-textarea>
+  <!-- twin-only: textarea help text matches input's (input/description/default) -->
+  <al-textarea label="Message" help="Markdown is fine."><label>Message<textarea name="message-help" aria-describedby="help-message-help"></textarea></label><small class="help" id="help-message-help" data-expect="font-weight: 400; font-size: 14px; line-height: 20px">Markdown is fine.</small><ul class="errors" data-errors="message-help"></ul></al-textarea>
 </al-stack>
 
 <al-stack gap="md" data-section="select">
@@ -83,6 +85,8 @@ window.addEventListener("load", function () {
   <al-select label="Fruit"><label>Fruit<select name="fruit" data-ref="select/trigger/default"><option value="">Select a fruit</option><option value="apple">Apple</option><option value="banana">Banana</option></select></label><ul class="errors" data-errors="fruit"></ul></al-select>
   <al-select label="Fruit" disabled><label>Fruit<select name="fruit-disabled" disabled data-ref="select/trigger/disabled"><option value="">Select a fruit</option><option value="apple">Apple</option></select></label><ul class="errors" data-errors="fruit-disabled"></ul></al-select>
   <al-select label="Fruit"><label data-expect="justify-self: start">Fruit<select name="fruit-anchor"><option value="apple">Apple</option></select></label></al-select>
+  <!-- twin-only (final review I3): help text is font-normal, not Typography's small font-medium -->
+  <al-select label="Fruit" help="Pick one."><label>Fruit<select name="fruit-help" aria-describedby="help-fruit-help"><option value="apple">Apple</option></select></label><small class="help" id="help-fruit-help" data-expect="font-weight: 400; font-size: 14px; line-height: 20px">Pick one.</small><ul class="errors" data-errors="fruit-help"></ul></al-select>
 </al-stack>
 
 <al-stack gap="md" data-section="checkbox">
@@ -91,6 +95,8 @@ window.addEventListener("load", function () {
   <al-checkbox label="Accept terms"><label>Accept terms<input name="terms-2" type="checkbox" value="True" checked data-ref="checkbox/default/checked"></label><ul class="errors" data-errors="terms-2"></ul></al-checkbox>
   <al-checkbox label="Accept terms" disabled><label>Accept terms<input name="terms-3" type="checkbox" value="True" disabled data-ref="checkbox/default/disabled"></label><ul class="errors" data-errors="terms-3"></ul></al-checkbox>
   <al-checkbox label="Accept terms" invalid><label>Accept terms<input name="terms-4" type="checkbox" value="True" aria-invalid="true" data-ref="checkbox/default/invalid"></label><ul class="errors" data-errors="terms-4"></ul></al-checkbox>
+  <!-- twin-only (final review I3): help text is font-normal, not Typography's small font-medium -->
+  <al-checkbox label="Accept terms" help="You can change this later."><label>Accept terms<input name="terms-help" type="checkbox" value="True" aria-describedby="help-terms-help"></label><small class="help" id="help-terms-help" data-expect="font-weight: 400; font-size: 14px; line-height: 20px">You can change this later.</small><ul class="errors" data-errors="terms-help"></ul></al-checkbox>
 </al-stack>
 
 <al-stack gap="md" data-section="card">
