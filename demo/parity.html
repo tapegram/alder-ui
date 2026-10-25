@@ -11,8 +11,8 @@
   see test/parity.py's docstring for the marker attributes. data-ref goes on the box that
   draws the look (the inner <button>, <input>, <dialog>, ...); data-ref-before / -after /
   -backdrop name a pseudo-element; data-ref-open marks an overlay the harness opens.
-  Variants shadcn has and alder-ui lacks today use the nearest one (button link -> ghost,
-  sizes xs / icon-sm -> sm, icon-lg -> lg); alert and toast variants alder-ui has and shadcn
+  Variants shadcn has and alder-ui lacks today use the nearest one (none left for button);
+  alert and toast variants alder-ui has and shadcn
   lacks are mapped to shadcn's default in test/parity-allow.json.
 -->
 <script>try{document.documentElement.classList.toggle("dark",localStorage.theme==="dark"||(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches))}catch(e){}</script>
@@ -46,15 +46,15 @@ window.addEventListener("load", function () {
     <al-button variant="outline"><button type="button" data-ref="button/outline/default" data-ref-states="hover focus">Button</button></al-button>
     <al-button variant="secondary"><button type="button" data-ref="button/secondary/default" data-ref-states="hover focus">Button</button></al-button>
     <al-button variant="ghost"><button type="button" data-ref="button/ghost/default" data-ref-states="hover focus">Button</button></al-button>
-    <al-button variant="ghost"><button type="button" data-ref="button/link/default" data-ref-states="hover focus">Button</button></al-button>
+    <al-button variant="link"><button type="button" data-ref="button/link/default" data-ref-states="hover focus">Button</button></al-button>
   </al-stack>
   <al-stack direction="row" gap="sm">
-    <al-button size="sm"><button type="button" data-ref="button/default/xs">Button</button></al-button>
+    <al-button size="xs"><button type="button" data-ref="button/default/xs">Button</button></al-button>
     <al-button size="sm"><button type="button" data-ref="button/default/sm">Button</button></al-button>
     <al-button size="lg"><button type="button" data-ref="button/default/lg">Button</button></al-button>
-    <al-button><button type="button" aria-label="Next" data-ref="button/default/icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
-    <al-button size="sm"><button type="button" aria-label="Next" data-ref="button/default/icon-sm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
-    <al-button size="lg"><button type="button" aria-label="Next" data-ref="button/default/icon-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+    <al-button size="icon"><button type="button" aria-label="Next" data-ref="button/default/icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+    <al-button size="icon-sm"><button type="button" aria-label="Next" data-ref="button/default/icon-sm"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+    <al-button size="icon-lg"><button type="button" aria-label="Next" data-ref="button/default/icon-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
   </al-stack>
   <al-stack direction="row" gap="sm">
     <al-button disabled><button type="button" disabled data-ref="button/default/disabled">Button</button></al-button>

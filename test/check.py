@@ -91,7 +91,10 @@ ADDED = {
 }
 # Additive growth since the API above (restyle): extra members appended to an
 # attribute's string union, and extra slots appended after the original ones.
-ADDED_VALUES = {}  # (tag, attribute) -> [value, ...]
+ADDED_VALUES = {  # (tag, attribute) -> [value, ...]
+    ("al-button", "variant"): ["link"],
+    ("al-button", "size"): ["xs", "icon", "icon-sm", "icon-lg"],
+}
 ADDED_SLOTS = {}  # tag -> [slot, ...]
 
 # Attributes the stylesheet deliberately does not draw: the framework copies
@@ -260,6 +263,7 @@ ALDER_MARKUP = {"form._alder-click"}
 
 # Classes Alder's rendered markup carries: the errors list and the help text
 # of the input elements, and the click form.
+THEME_CLASSES = {"dark", "light"}  # the token sheet's theme selectors (spec section 4)
 ALDER_CLASSES = {"errors", "help", "_alder-click"}
 
 
@@ -283,7 +287,7 @@ def check_selector(sel, els, file_tag, seen):
                 return
             last = tag
         for cls in re.findall(r"\.([\w-]+)", bare):
-            if not (cls.startswith("al-") or cls in ALDER_CLASSES):
+            if not (cls.startswith("al-") or cls in ALDER_CLASSES or cls in THEME_CLASSES):
                 fail("css", "%s.css: class .%s is not al- prefixed" % (file_tag, cls))
         for name, op, val in ATTR_RE.findall(bare):
             if tag and tag.startswith("al-"):
@@ -523,26 +527,37 @@ def styled_files():
     return out + sorted((ROOT / "components").glob("*.css"))
 
 
+class Themed(tuple):
+    """A (light, dark) pair of colour expressions, for a pairing the CSS
+    writes differently under .dark (a `.dark al-button[...]` rule)."""
+
+
 def button_pairs():
     """al-button's text/background pairs, derived from its CSS: for every
     variant (primary is the base rule) the text on the resting background and
-    on the hover background."""
+    on the hover background (the hover text is --_al-hover-fg when set). A
+    `.dark al-button[variant=...]` rule overrides the properties in dark."""
     css = (ROOT / "components" / "al-button.css").read_text()
-    base, variants = {}, {}
+    base, variants, dark = {}, {}, {}
     for head, body in rules(css):
         head = " ".join(head.split())
         d = {k: v.strip() for k, v in decls(body + ";").items() if k.startswith("--_al-")}
         if head == "al-button":
             base = d
-        else:
-            m = re.fullmatch(r'al-button\[variant="(\w+)"\]', head)
-            if m:
-                variants[m.group(1)] = d
+            continue
+        m = re.fullmatch(r'(\.dark )?al-button\[variant="(\w+)"\]', head)
+        if m:
+            (dark if m.group(1) else variants).setdefault(m.group(2), {}).update(d)
     out = []
     for v in ["primary"] + [k for k in variants if k != "primary"]:
-        d = dict(base, **variants.get(v, {}))
-        out.append(("al-button %s" % v, d["--_al-fg"], d["--_al-bg"], 4.5))
-        out.append(("al-button %s hover" % v, d["--_al-fg"], d["--_al-hover"], 4.5))
+        light = dict(base, **variants.get(v, {}))
+        night = dict(light, **dark.get(v, {}))
+
+        def pair(key):
+            return light[key] if light[key] == night[key] else Themed((light[key], night[key]))
+
+        out.append(("al-button %s" % v, pair("--_al-fg"), pair("--_al-bg"), 4.5))
+        out.append(("al-button %s hover" % v, pair("--_al-hover-fg" if "--_al-hover-fg" in light else "--_al-fg"), pair("--_al-hover"), 4.5))
     return out
 
 
@@ -576,16 +591,17 @@ SPEC_GAP_REASON = "verbatim shadcn token; spec \u00a74.2 fidelity"
 # fidelity (spec section 4.2) and printed as WARN, not failed (ruling R7).
 # Keyed (use, theme).
 # White on dark --destructive (oklch(0.704 0.191 22.216)) is 2.9:1; shadcn
-# draws the button and badge on bg-destructive/60 in dark, which the
-# restyles of al-button (Task 8) and al-badge bring, so drop these then.
+# draws the badge on bg-destructive/60 in dark, which the restyle of
+# al-badge (Task 11) brings, so drop this then. A gap whose pairing now
+# passes fails the run (contrast_table), so a stale entry cannot linger.
 SPEC_GAPS = {
-    ("al-button destructive", "dark"): SPEC_GAP_REASON,
-    ("al-button destructive hover", "dark"): SPEC_GAP_REASON,
     ("al-badge destructive", "dark"): SPEC_GAP_REASON,
 }
 
 
-def tok(name):
+def tok(name, theme=None):
+    if isinstance(name, Themed):
+        name = name[0 if theme != "dark" else 1]
     if name.startswith("var(") or name.startswith("color-mix(") or name == "transparent":
         return name
     return "var(%s)" % (name if name.startswith("--") else "--" + name)
@@ -628,19 +644,22 @@ def contrast_table(light, dark, common):
     for use, fg, bg, need in button_pairs() + PAIRS:
         row = [use, tok(fg), tok(bg), need]
         for theme, vals in theme_envs(light, dark, common):
+            fg_t, bg_t = tok(fg, theme), tok(bg, theme)
             try:
-                r = colour.contrast(tok(fg), tok(bg), vals)
+                r = colour.contrast(fg_t, bg_t, vals)
             except (KeyError, ValueError) as e:
                 fail("contrast", "%s (%s): %s" % (use, theme, e))
                 r = 0.0
             if r < need:
-                msg = "%s in %s: %s on %s is %.2f:1, needs %.1f:1" % (use, theme, tok(fg), tok(bg), r, need)
+                msg = "%s in %s: %s on %s is %.2f:1, needs %.1f:1" % (use, theme, fg_t, bg_t, r, need)
                 if need < 4.5:
                     WARNINGS.append("contrast: %s (non-text)" % msg)
                 elif (use, theme) in SPEC_GAPS:
                     WARNINGS.append("contrast: %s (%s)" % (msg, SPEC_GAPS[(use, theme)]))
                 else:
                     fail("contrast", msg)
+            elif (use, theme) in SPEC_GAPS and need >= 4.5:
+                fail("contrast", "stale SPEC_GAPS entry: %s in %s now passes (%.2f:1); delete it" % (use, theme, r))
             row.append(r)
         rows.append(row)
     for use, theme in sorted(SPEC_GAPS):
