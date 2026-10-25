@@ -37,7 +37,7 @@ README is the short version.
 
 `al.css` is the whole library (tokens and every component, inside
 `@layer al`). Copy it from a tagged release, or link the raw file at a tag
-(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.0/al.css`). Open
+(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.1/al.css`). Open
 `demo/index.html` to see every element, variant and state in both themes.
 
 ## Elements
