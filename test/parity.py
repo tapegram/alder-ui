@@ -381,6 +381,10 @@ class Page:
     def drive(self, marker, state, fixed_as):
         """Read `marker` in `state` (hover / focus); fixed_as names the FIXED_WIDTH glob key."""
         loc = self.locator(marker)
+        # The ref's Radix menu is position:fixed and re-positions a frame after the page
+        # scrolls, so neither scrollIntoView nor Playwright's own scroll reaches it.
+        loc.evaluate("(el) => scrollBy(0, el.getBoundingClientRect().top - innerHeight / 2)")
+        self.settle()
         if state == "hover":
             loc.hover()
             self.settle()

@@ -274,10 +274,10 @@ window.addEventListener("load", function () {
     <p>Popover Description</p>
   </al-popover>
   <al-menu popover id="parity-menu" data-ref="menu/content/open" data-ref-open>
-    <a href="#" data-ref="menu/item/open">Profile</a>
+    <a href="#" data-ref="menu/item/open" data-ref-states="hover focus">Profile</a>
     <a href="#">Settings</a>
     <hr data-ref="menu/separator/open">
-    <button type="button" data-variant="destructive" data-ref="menu/item-destructive/open">Delete</button>
+    <button type="button" data-variant="destructive" data-ref="menu/item-destructive/open" data-ref-states="hover focus">Delete</button>
   </al-menu>
   <al-tooltip for="parity-tooltip-trigger" data-ref="tooltip/content/open" data-ref-after="tooltip/arrow/open" data-ref-open>Tooltip text</al-tooltip>
   <!-- anchor= (#6): the popover opens from the invoker but sits under the target; only

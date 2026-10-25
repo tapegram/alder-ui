@@ -74,10 +74,12 @@ al-menu > :is(a, button) svg {
 }
 
 /* focus:bg-accent focus:text-accent-foreground   (Radix focuses the item the
-   pointer is over, so hover is the same) */
+   pointer is over, so hover is the same). A focused ref item computes
+   outline-width 1px (outline-style stays none), so hover matches it. */
 al-menu > :is(a, button):is(:hover, :focus-visible) {
   background: var(--accent);
   color: var(--accent-foreground);
+  outline-width: 1px;
 }
 
 /* data-[variant=destructive]:text-destructive
