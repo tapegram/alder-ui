@@ -37,10 +37,29 @@ README is the short version.
 
 `al.css` is the whole library (tokens and every component, inside
 `@layer al`). Copy it from a tagged release, or link the raw file at a tag
-(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.1/al.css`). See every
+(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.2/al.css`). See every
 element, variant and state in both themes at
 <https://tapegram.github.io/alder-ui/> (the root `index.html`, built from the
 demos), or one element per page in `demo/`.
+
+## Spacing
+
+Elements have no outer margin, as in shadcn. Space siblings with
+`al-stack` (`sm` 0.5rem, `md` 1rem, `lg` 1.5rem, `xl` 2.5rem). An app's
+Layout wraps page content in `<al-stack gap="lg">`; inside `al-page`,
+prose keeps shadcn's Typography rhythm.
+
+### Upgrading to v0.4.2
+
+`al-button` no longer stretches in grids or column stacks, so add `full`
+where you relied on a full-width button. Put the Layout's page content in
+`<al-stack gap="lg">`:
+
+```html
+<al-page …><main><al-stack gap="lg">{children}</al-stack></main></al-page>
+```
+
+(any `<header>` outside `<main>` is left alone).
 
 ## Elements
 
@@ -50,7 +69,7 @@ declares each one with its type, default and description.
 
 | element | attributes | slots |
 |---|---|---|
-| `al-button` | `variant` (`primary` default, `secondary`, `outline`, `ghost`, `destructive`, `link`), `size` (`xs`, `sm`, `md` default, `lg`, `icon`, `icon-sm`, `icon-lg`), `disabled`, `type` (`button`, `submit`) | default |
+| `al-button` | `variant` (`primary` default, `secondary`, `outline`, `ghost`, `destructive`, `link`), `size` (`xs`, `sm`, `md` default, `lg`, `icon`, `icon-sm`, `icon-lg`), `disabled`, `type` (`button`, `submit`), `full` | default |
 | `al-input` | `label`, `placeholder`, `disabled`, `invalid`, `help` | |
 | `al-textarea` | `label`, `placeholder`, `disabled`, `invalid`, `help` | |
 | `al-select` | `label`, `disabled`, `invalid`, `help` | |
@@ -70,7 +89,7 @@ declares each one with its type, default and description.
 | `al-toasts` | `position` (`top-left`, `top-right`, `bottom-left`, `bottom-right` default) | default (`al-toast`s) |
 | `al-tooltip` | `for` | default (text) |
 | `al-devpanel` | `open` | default (a `<nav>` of buttons, then `<section>`s) |
-| `al-stack` | `gap` (`sm`, `md` default, `lg`), `direction` (`column` default, `row`) | default |
+| `al-stack` | `gap` (`sm`, `md` default, `lg`, `xl`), `direction` (`column` default, `row`) | default |
 | `al-page` | `width` (`narrow`, `normal` default, `wide`), `plain` | default |
 
 Notes:
@@ -82,11 +101,16 @@ Notes:
   a button. The element alone (`<al-button>Save</al-button>`) is
   presentational: it looks like a button but has no role, focus or
   Enter/Space handling, so use it only from a framework that supplies them.
-  Buttons and badges keep their own width inside a column `al-stack`.
+  A button keeps its natural width in a grid form or a column `al-stack`;
+  add `full` for a full-width button. A badge keeps its own width in a
+  column `al-stack` too.
   The native form is styled through `al-button:has(> button)`, so it needs a
   browser with `:has()` (Baseline 2023: Chrome and Edge 105, Safari 15.4,
   Firefox 121); an older browser draws the element's look around the
   button's own.
+- **Typography**: inside an `al-page` (not `plain`) flow content gets shadcn's
+  typography. `dl` is a detail list: muted labels beside their values from
+  40rem, stacked below.
 - **The input elements** wrap a real `<label>` around the control, then a
   `<ul class="errors">` list (shown in the destructive colour). `invalid`
   colours the border (on `al-checkbox`, an outline round the box); `help` is

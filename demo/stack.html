@@ -47,7 +47,7 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 </section>
 
 <section>
-<h2>Gaps: sm, md, lg</h2>
+<h2>Gaps: sm, md, lg, xl</h2>
 <al-stack direction="row" gap="sm">
   <al-badge variant="outline">One</al-badge>
   <al-badge variant="outline">Two</al-badge>
@@ -62,6 +62,29 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
   <al-badge variant="outline">One</al-badge>
   <al-badge variant="outline">Two</al-badge>
   <al-badge variant="outline">Three</al-badge>
+</al-stack>
+<al-stack id="xl-stack" direction="row" gap="xl">
+  <al-badge variant="outline">One</al-badge>
+  <al-badge variant="outline">Two</al-badge>
+  <al-badge variant="outline">Three</al-badge>
+</al-stack>
+</section>
+
+<section>
+<h2>A page stack: hidden children add no gap</h2>
+<p>The hidden input, the empty alert and the closed dialog take no space, so the gap between One and Two is one <code>lg</code> gap.</p>
+<al-stack id="page-stack" gap="lg">
+  <p id="ps-1">One</p>
+  <input type="hidden" name="x">
+  <al-alert variant="destructive" role="alert"><ul class="errors" data-errors=""></ul></al-alert>
+  <al-dialog heading="Closed">
+    <dialog id="ps-dialog">
+      <h2 slot="header">Closed</h2>
+      <p slot="description">Not open, so not drawn.</p>
+      <div slot="actions"><al-button variant="primary"><a href="#">Close</a></al-button></div>
+    </dialog>
+  </al-dialog>
+  <p id="ps-2">Two</p>
 </al-stack>
 </section>
 

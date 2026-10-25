@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>alder-ui v0.4.1</title>
+<title>alder-ui v0.4.2</title>
 <script>try{document.documentElement.classList.toggle("dark",localStorage.theme==="dark"||(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches))}catch(e){}</script>
 <link rel="stylesheet" href="al.css">
 <script type="module" src="al.js"></script>
@@ -24,10 +24,10 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 </style>
 </head>
 <body>
-<div class="ds-top"><al-stack gap="sm"><al-stack direction="row" gap="sm"><strong>alder-ui v0.4.1</strong><al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button></al-stack><nav class="ds-nav"><a href="#tokens">tokens</a><a href="#button">button</a><a href="#input">input</a><a href="#textarea">textarea</a><a href="#select">select</a><a href="#checkbox">checkbox</a><a href="#table">table</a><a href="#card">card</a><a href="#badge">badge</a><a href="#alert">alert</a><a href="#pagination">pagination</a><a href="#stack">stack</a><a href="#page">page</a><a href="#dialog">dialog</a><a href="#popover">popover</a><a href="#menu">menu</a><a href="#tabs">tabs</a><a href="#toast">toast</a><a href="#tooltip">tooltip</a><a href="#devpanel">devpanel</a></nav></al-stack></div>
+<div class="ds-top"><al-stack gap="sm"><al-stack direction="row" gap="sm"><strong>alder-ui v0.4.2</strong><al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button></al-stack><nav class="ds-nav"><a href="#tokens">tokens</a><a href="#button">button</a><a href="#input">input</a><a href="#textarea">textarea</a><a href="#select">select</a><a href="#checkbox">checkbox</a><a href="#table">table</a><a href="#card">card</a><a href="#badge">badge</a><a href="#alert">alert</a><a href="#pagination">pagination</a><a href="#stack">stack</a><a href="#page">page</a><a href="#dialog">dialog</a><a href="#popover">popover</a><a href="#menu">menu</a><a href="#tabs">tabs</a><a href="#toast">toast</a><a href="#tooltip">tooltip</a><a href="#devpanel">devpanel</a></nav></al-stack></div>
 <al-page>
 <al-stack gap="lg">
-<h1>alder-ui v0.4.1</h1>
+<h1>alder-ui v0.4.2</h1>
 <p>A light-DOM, token-based design system with shadcn/ui's look (new-york-v4, neutral): plain CSS in <code>@layer al</code>, plus small scripts that progressively enhance the interactive elements. This page links the built <code>al.css</code> and <code>al.js</code> and shows every element's demo as it renders. The per-element pages, which also show the no-JavaScript fallbacks, are in <a href="demo/index.html">demo/</a>. Source and docs: <a href="https://github.com/tapegram/alder-ui">github.com/tapegram/alder-ui</a>.</p>
 <section id="tokens" class="ds-sec"><al-stack gap="md"><h2>Colour tokens</h2><p>shadcn's canonical neutral theme, verbatim oklch values. Re-theme by pasting a shadcn or tweakcn export after <code>al.css</code>.</p><div class="ds-grid"><div class="ds-sw"><span style="background:var(--background)"></span><code>--background</code></div><div class="ds-sw"><span style="background:var(--foreground)"></span><code>--foreground</code></div><div class="ds-sw"><span style="background:var(--card)"></span><code>--card</code></div><div class="ds-sw"><span style="background:var(--card-foreground)"></span><code>--card-foreground</code></div><div class="ds-sw"><span style="background:var(--popover)"></span><code>--popover</code></div><div class="ds-sw"><span style="background:var(--popover-foreground)"></span><code>--popover-foreground</code></div><div class="ds-sw"><span style="background:var(--primary)"></span><code>--primary</code></div><div class="ds-sw"><span style="background:var(--primary-foreground)"></span><code>--primary-foreground</code></div><div class="ds-sw"><span style="background:var(--secondary)"></span><code>--secondary</code></div><div class="ds-sw"><span style="background:var(--secondary-foreground)"></span><code>--secondary-foreground</code></div><div class="ds-sw"><span style="background:var(--muted)"></span><code>--muted</code></div><div class="ds-sw"><span style="background:var(--muted-foreground)"></span><code>--muted-foreground</code></div><div class="ds-sw"><span style="background:var(--accent)"></span><code>--accent</code></div><div class="ds-sw"><span style="background:var(--accent-foreground)"></span><code>--accent-foreground</code></div><div class="ds-sw"><span style="background:var(--destructive)"></span><code>--destructive</code></div><div class="ds-sw"><span style="background:var(--border)"></span><code>--border</code></div><div class="ds-sw"><span style="background:var(--input)"></span><code>--input</code></div><div class="ds-sw"><span style="background:var(--ring)"></span><code>--ring</code></div><div class="ds-sw"><span style="background:var(--chart-1)"></span><code>--chart-1</code></div><div class="ds-sw"><span style="background:var(--chart-2)"></span><code>--chart-2</code></div><div class="ds-sw"><span style="background:var(--chart-3)"></span><code>--chart-3</code></div><div class="ds-sw"><span style="background:var(--chart-4)"></span><code>--chart-4</code></div><div class="ds-sw"><span style="background:var(--chart-5)"></span><code>--chart-5</code></div><div class="ds-sw"><span style="background:var(--sidebar)"></span><code>--sidebar</code></div><div class="ds-sw"><span style="background:var(--sidebar-foreground)"></span><code>--sidebar-foreground</code></div><div class="ds-sw"><span style="background:var(--sidebar-primary)"></span><code>--sidebar-primary</code></div><div class="ds-sw"><span style="background:var(--sidebar-primary-foreground)"></span><code>--sidebar-primary-foreground</code></div><div class="ds-sw"><span style="background:var(--sidebar-accent)"></span><code>--sidebar-accent</code></div><div class="ds-sw"><span style="background:var(--sidebar-accent-foreground)"></span><code>--sidebar-accent-foreground</code></div><div class="ds-sw"><span style="background:var(--sidebar-border)"></span><code>--sidebar-border</code></div><div class="ds-sw"><span style="background:var(--sidebar-ring)"></span><code>--sidebar-ring</code></div><div class="ds-sw"><span style="background:var(--destructive-foreground)"></span><code>--destructive-foreground</code></div></div></al-stack></section>
 <section id="button" class="ds-sec"><al-stack gap="md"><h2>al-button</h2>
@@ -93,6 +93,23 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
   <al-button variant="destructive">Delete</al-button>
   <al-button variant="link">Link</al-button>
   <al-button size="sm" disabled>Disabled</al-button>
+</al-stack>
+</section>
+
+<section>
+<h3>In a form and a column</h3>
+<p>A button keeps its natural width in a grid form or a column stack. Add <code>full</code> for a full-width button.</p>
+<form id="grid-form" action="#">
+  <al-button id="g-bare">Bare</al-button>
+  <al-button id="g-button"><button type="submit">Save</button></al-button>
+  <al-button id="g-link" variant="outline"><a href="#">Cancel</a></al-button>
+  <al-button id="g-icon" size="icon" variant="outline"><button type="button" aria-label="Add"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14"/></svg></button></al-button>
+  <al-button id="g-full" full><button type="submit">Full width</button></al-button>
+</form>
+<al-stack id="col-stack">
+  <al-button id="c-bare">Bare</al-button>
+  <al-button id="c-button"><button type="button">Save</button></al-button>
+  <al-button id="c-full" full><button type="button">Full width</button></al-button>
 </al-stack>
 </section>
 
@@ -439,7 +456,7 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 </section>
 
 <section>
-<h3>Gaps: sm, md, lg</h3>
+<h3>Gaps: sm, md, lg, xl</h3>
 <al-stack direction="row" gap="sm">
   <al-badge variant="outline">One</al-badge>
   <al-badge variant="outline">Two</al-badge>
@@ -454,6 +471,29 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
   <al-badge variant="outline">One</al-badge>
   <al-badge variant="outline">Two</al-badge>
   <al-badge variant="outline">Three</al-badge>
+</al-stack>
+<al-stack id="xl-stack" direction="row" gap="xl">
+  <al-badge variant="outline">One</al-badge>
+  <al-badge variant="outline">Two</al-badge>
+  <al-badge variant="outline">Three</al-badge>
+</al-stack>
+</section>
+
+<section>
+<h3>A page stack: hidden children add no gap</h3>
+<p>The hidden input, the empty alert and the closed dialog take no space, so the gap between One and Two is one <code>lg</code> gap.</p>
+<al-stack id="page-stack" gap="lg">
+  <p id="ps-1">One</p>
+  <input type="hidden" name="x">
+  <al-alert variant="destructive" role="alert"><ul class="errors" data-errors=""></ul></al-alert>
+  <al-dialog heading="Closed">
+    <dialog id="ps-dialog">
+      <h2 slot="header">Closed</h3>
+      <p slot="description">Not open, so not drawn.</p>
+      <div slot="actions"><al-button variant="primary"><a href="#">Close</a></al-button></div>
+    </dialog>
+  </al-dialog>
+  <p id="ps-2">Two</p>
 </al-stack>
 </section>
 
@@ -482,6 +522,12 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
     <tr><td>Beta</td><td>Two</td></tr>
   </tbody>
 </table>
+<p id="detail-intro">The details:</p>
+<dl id="detail">
+  <dt>Title</dt><dd>Hello world</dd>
+  <dt>Author</dt><dd>Ada Lovelace</dd>
+  <dt>Published</dt><dd>25 October 2026</dd>
+</dl>
 </section>
 
 </al-stack></section>
@@ -542,6 +588,10 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
     <form method="dialog"><button type="submit" aria-label="Close Delete this post?">&times;</button></form>
     <h2 slot="header" id="d-confirm-heading">Delete this post?</h3>
     <p slot="description">This cannot be undone.</p>
+    <dl id="delete-detail">
+      <dt>Title</dt><dd>Hello world</dd>
+      <dt>Author</dt><dd>Ada Lovelace</dd>
+    </dl>
     <div slot="actions">
       <al-button variant="outline"><button type="button" commandfor="d-confirm" command="close">Cancel</button></al-button>
       <al-button variant="destructive"><button type="button" commandfor="d-confirm" command="close">Delete</button></al-button>
