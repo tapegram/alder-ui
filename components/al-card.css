@@ -6,14 +6,14 @@
 al-card {
   display: flex;
   flex-direction: column;
-  gap: var(--al-space-4);
-  padding: var(--al-space-6);
-  border: var(--al-border-width) solid var(--border);
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--card);
   color: var(--card-foreground);
-  box-shadow: var(--al-shadow-sm);
-  font-family: var(--al-font-sans);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-sans);
 }
 
 al-card > * {
@@ -22,15 +22,15 @@ al-card > * {
 
 al-card > [slot="header"] {
   order: -1;
-  font-size: var(--al-text-lg);
-  font-weight: var(--al-weight-semibold);
-  line-height: var(--al-leading-tight);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
 al-card > [slot="footer"] {
   order: 1;
   color: var(--muted-foreground);
-  font-size: var(--al-text-sm);
+  font-size: 0.875rem;
 }
 
 al-card > [slot="actions"] {
@@ -38,5 +38,5 @@ al-card > [slot="actions"] {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: var(--al-space-2);
+  gap: 0.5rem;
 }

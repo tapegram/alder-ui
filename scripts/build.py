@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Build al.css and al.js: tokens.css, then every component's CSS in manifest order,
+"""Build al.css and al.js: tokens.css, base.css, typography.css, components/icons.css
+(once it exists), then every component's CSS in manifest order,
 all inside one cascade layer, @layer al, so a page's own (unlayered) CSS
 always wins over alder-ui's whatever the specificity.
 
@@ -16,6 +17,15 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 def component_paths():
     manifest = json.loads((ROOT / "custom-elements.json").read_text())
     return [mod["path"] for mod in manifest["modules"] if mod["path"].endswith(".css")]
+
+
+def sheet_paths():
+    """The bundle order: tokens, the base layer, typography, icons (once it
+    exists), then the components in manifest order."""
+    first = ["tokens.css", "base.css", "typography.css"]
+    if (ROOT / "components" / "icons.css").exists():
+        first.append("components/icons.css")
+    return first + [p for p in component_paths() if p not in first]
 
 
 def script_paths():
@@ -37,11 +47,12 @@ def build():
     manifest = json.loads((ROOT / "custom-elements.json").read_text())
     parts = [
         "/*! alder-ui %s | Apache-2.0 | https://github.com/tapegram/alder-ui\n"
-        " * Built by scripts/build.py from tokens.css and components/; do not edit. */\n"
+        " * Built by scripts/build.py from tokens.css, base.css, typography.css and components/;\n"
+        " * do not edit. Geist and Geist Mono (SIL OFL 1.1) load from fonts/ beside this file. */\n"
         "\n@layer al {\n"
         % manifest["version"]
     ]
-    for rel in ["tokens.css"] + component_paths():
+    for rel in sheet_paths():
         parts.append("\n/* ---- %s ---- */\n\n" % rel)
         parts.append((ROOT / rel).read_text().rstrip("\n") + "\n")
     parts.append("\n}\n")

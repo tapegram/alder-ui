@@ -15,6 +15,7 @@
   sizes xs / icon-sm -> sm, icon-lg -> lg); alert and toast variants alder-ui has and shadcn
   lacks are mapped to shadcn's default in test/parity-allow.json.
 -->
+<script>try{document.documentElement.classList.toggle("dark",localStorage.theme==="dark"||(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches))}catch(e){}</script>
 <link rel="stylesheet" href="../al.css">
 <script type="module" src="../al.js"></script>
 <script>
@@ -33,7 +34,7 @@ window.addEventListener("load", function () {
 });
 </script>
 </head>
-<body>
+<body data-expect="font-family: Geist, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji">
 <al-page width="wide">
 <al-stack gap="lg">
 
@@ -190,6 +191,8 @@ window.addEventListener("load", function () {
         <tr><td>Beta</td><td>Two</td></tr>
       </tbody>
     </table>
+    <hr data-expect="height: 1px">
+    <table><tbody><tr><td data-expect="padding-right: 0px"><input type="checkbox" role="checkbox" aria-label="Select row"></td><td>Row</td></tr></tbody></table>
   </div>
 </al-stack>
 
@@ -240,6 +243,12 @@ window.addEventListener("load", function () {
 </al-stack>
 
 </al-stack>
+</al-page>
+<!-- A plain page after the grid (it shifts no marker): typography.css is off inside it, so a
+     paragraph that is not the first child keeps Preflight's zero margin. -->
+<al-page plain>
+  <p>A plain page brings its own typography.</p>
+  <p data-expect="margin-top: 0px">Its second paragraph has no top margin.</p>
 </al-page>
 </body>
 </html>

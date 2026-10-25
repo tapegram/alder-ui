@@ -3,7 +3,7 @@
 al-stack {
   display: flex;
   flex-direction: column;
-  gap: var(--al-space-4);
+  gap: 1rem;
 }
 
 al-stack[direction="column"] {
@@ -17,13 +17,13 @@ al-stack[direction="row"] {
 }
 
 al-stack[gap="sm"] {
-  gap: var(--al-space-2);
+  gap: 0.5rem;
 }
 
 al-stack[gap="md"] {
-  gap: var(--al-space-4);
+  gap: 1rem;
 }
 
 al-stack[gap="lg"] {
-  gap: var(--al-space-8);
+  gap: 2rem;
 }

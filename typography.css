@@ -1,0 +1,220 @@
+/*
+ * alder-ui typography: shadcn's Typography recipe (the docs' Typography page,
+ * Ref §3 "typography") for raw flow content inside al-page, with `hr` drawn as
+ * the Separator and a bare <table> drawn with the shadcn Table recipe (Ref §3
+ * "table"), not the Typography page's bordered table. Design spec §5.2/§7.
+ *
+ * Scope: every rule sits under al-page:not([plain]); <al-page plain> switches
+ * the whole file off for a page that brings its own typography (base.css's
+ * reset still applies). The scope, and every pseudo-class or attribute
+ * condition, is wrapped in :where(), so each rule weighs only its element
+ * names, at least one, (0,0,1) or (0,0,2): a component that re-styles what it contains
+ * (al-card's title, al-dialog's paragraphs, al-table's table) wins with any
+ * selector that names its own element. test/check.py enforces this. Typography applies wherever some
+ * enclosing al-page is not plain, so put a plain page directly in <body>
+ * rather than inside another al-page.
+ */
+
+/* h1: scroll-m-20 text-4xl font-extrabold tracking-tight text-balance */
+:where(al-page:not([plain])) h1 {
+  scroll-margin-top: 5rem;
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+/* h2: mt-10 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0
+ * (mt-10 is the Typography page's spacing between sections) */
+:where(al-page:not([plain])) h2 {
+  margin-top: 2.5rem;
+  scroll-margin-top: 5rem;
+  border-bottom-width: 1px;
+  padding-bottom: 0.5rem;
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+:where(al-page:not([plain])) h2:where(:first-child) {
+  margin-top: 0;
+}
+
+/* h3: scroll-m-20 text-2xl font-semibold tracking-tight */
+:where(al-page:not([plain])) h3 {
+  scroll-margin-top: 5rem;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* h4: scroll-m-20 text-xl font-semibold tracking-tight */
+:where(al-page:not([plain])) h4 {
+  scroll-margin-top: 5rem;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* p: leading-7 [&:not(:first-child)]:mt-6 */
+:where(al-page:not([plain])) p {
+  line-height: 1.75rem;
+}
+
+:where(al-page:not([plain])) p:where(:not(:first-child)) {
+  margin-top: 1.5rem;
+}
+
+/* blockquote: mt-6 border-l-2 pl-6 italic */
+:where(al-page:not([plain])) blockquote {
+  margin-top: 1.5rem;
+  border-left-width: 2px;
+  padding-left: 1.5rem;
+  font-style: italic;
+}
+
+/* ul: my-6 ml-6 list-disc [&>li]:mt-2
+ * (ol: mine, the same with list-decimal, so a numbered list keeps its numbers) */
+:where(al-page:not([plain])) ul,
+:where(al-page:not([plain])) ol {
+  margin-block: 1.5rem;
+  margin-left: 1.5rem;
+}
+
+:where(al-page:not([plain])) ul {
+  list-style: disc;
+}
+
+:where(al-page:not([plain])) ol {
+  list-style: decimal;
+}
+
+:where(al-page:not([plain])) ul > li,
+:where(al-page:not([plain])) ol > li {
+  margin-top: 0.5rem;
+}
+
+/* code: relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold */
+:where(al-page:not([plain])) code {
+  position: relative;
+  border-radius: 0.25rem;
+  background: var(--muted);
+  padding: 0.2rem 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+}
+
+/* a: font-medium text-primary underline underline-offset-4 */
+:where(al-page:not([plain])) a {
+  font-weight: 500;
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* small: text-sm leading-none font-medium */
+:where(al-page:not([plain])) small {
+  font-size: 0.875rem;
+  line-height: 1;
+  font-weight: 500;
+}
+
+/* hr = Separator: shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full */
+:where(al-page:not([plain])) hr {
+  flex-shrink: 0;
+  border-width: 0;
+  height: 1px;
+  width: 100%;
+  background: var(--border);
+}
+
+/* table = the shadcn Table recipe.
+ * Table: w-full caption-bottom text-sm */
+:where(al-page:not([plain])) table {
+  width: 100%;
+  caption-side: bottom;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+/* TableHeader: [&_tr]:border-b; TableRow: border-b transition-colors */
+:where(al-page:not([plain])) tr {
+  border-bottom-width: 1px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :where(al-page:not([plain])) tr {
+    transition: color 150ms cubic-bezier(.4, 0, .2, 1), background-color 150ms cubic-bezier(.4, 0, .2, 1), border-color 150ms cubic-bezier(.4, 0, .2, 1);
+  }
+}
+
+/* TableRow: hover:bg-muted/50 has-aria-expanded:bg-muted/50 */
+:where(al-page:not([plain])) tr:where(:hover),
+:where(al-page:not([plain])) tr:where(:has([aria-expanded="true"])) {
+  background: color-mix(in oklab, var(--muted) 50%, transparent);
+}
+
+/* TableRow: data-[state=selected]:bg-muted */
+:where(al-page:not([plain])) tr:where([aria-selected="true"]) {
+  background: var(--muted);
+}
+
+/* TableBody: [&_tr:last-child]:border-0 */
+:where(al-page:not([plain])) tbody tr:where(:last-child) {
+  border-width: 0;
+}
+
+/* TableFooter: border-t bg-muted/50 font-medium [&>tr]:last:border-b-0 */
+:where(al-page:not([plain])) tfoot {
+  border-top-width: 1px;
+  background: color-mix(in oklab, var(--muted) 50%, transparent);
+  font-weight: 500;
+}
+
+:where(al-page:not([plain])) tfoot > tr:where(:last-child) {
+  border-bottom-width: 0;
+}
+
+/* TableHead: h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground
+ * [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] */
+:where(al-page:not([plain])) th {
+  height: 2.5rem;
+  padding: 0 0.5rem;
+  text-align: left;
+  vertical-align: middle;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--foreground);
+}
+
+/* TableCell: p-2 align-middle whitespace-nowrap
+ * [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] */
+:where(al-page:not([plain])) td {
+  padding: 0.5rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+:where(al-page:not([plain])) th:where(:has([role="checkbox"])),
+:where(al-page:not([plain])) td:where(:has([role="checkbox"])) {
+  padding-right: 0;
+}
+
+:where(al-page:not([plain])) th > :where([role="checkbox"]),
+:where(al-page:not([plain])) td > :where([role="checkbox"]) {
+  translate: 0 2px;
+}
+
+/* TableCaption: mt-4 text-sm text-muted-foreground */
+:where(al-page:not([plain])) caption {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--muted-foreground);
+}

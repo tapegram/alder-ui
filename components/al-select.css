@@ -10,46 +10,46 @@
 
 al-select {
   display: grid;
-  gap: var(--al-space-1-5);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
+  gap: 0.375rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
   color: var(--foreground);
 }
 
 al-select label {
   display: grid;
-  gap: var(--al-space-1-5);
+  gap: 0.375rem;
   order: 0;
-  font-weight: var(--al-weight-medium);
-  line-height: var(--al-leading-tight);
+  font-weight: 500;
+  line-height: 1.25;
 }
 
 al-select select {
   box-sizing: border-box;
   width: 100%;
-  height: var(--al-control-h-md);
+  height: 2.25rem;
   margin: 0;
-  padding: 0 var(--al-space-3);
-  border: var(--al-border-width) solid var(--input);
+  padding: 0 0.75rem;
+  border: 1px solid var(--input);
   border-radius: var(--radius);
   background-color: var(--background);
   color: var(--foreground);
   font-family: inherit;
-  font-size: var(--al-text-sm);
-  font-weight: var(--al-weight-normal);
+  font-size: 0.875rem;
+  font-weight: 400;
 }
 
 al-select select:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 al-select[invalid] select {
-  border-color: var(--al-destructive-text);
+  border-color: var(--destructive);
 }
 
 al-select[invalid] select:focus-visible {
-  outline-color: var(--al-destructive-text);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--destructive) 20%, transparent);
 }
 
 /* Dim once: the whole field when the element is disabled, or just the
@@ -57,14 +57,14 @@ al-select[invalid] select:focus-visible {
 al-select[disabled],
 al-select:not([disabled]) select:disabled {
   cursor: not-allowed;
-  opacity: var(--al-disabled-opacity);
+  opacity: 0.5;
 }
 
 al-select[help]::after {
   content: attr(help);
   order: 1;
   color: var(--muted-foreground);
-  font-size: var(--al-text-sm);
+  font-size: 0.875rem;
 }
 
 /* The markup form, which Alder renders: <small class="help" id="help-…">
@@ -73,7 +73,7 @@ al-select[help]::after {
 al-select > .help {
   order: 1;
   color: var(--muted-foreground);
-  font-size: var(--al-text-sm);
+  font-size: 0.875rem;
 }
 
 al-select:has(> .help)::after {
@@ -85,9 +85,9 @@ al-select ul.errors {
   margin: 0;
   padding: 0;
   list-style: none;
-  color: var(--al-destructive-text);
-  font-size: var(--al-text-sm);
-  font-weight: var(--al-weight-medium);
+  color: var(--destructive);
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 al-select ul.errors:empty {

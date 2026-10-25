@@ -13,17 +13,17 @@ al-popover {
   inset: auto;
   position-area: block-end;
   position-try-fallbacks: flip-block, flip-inline;
-  margin: var(--al-space-1);
-  padding: var(--al-space-3);
-  border: var(--al-border-width) solid var(--border);
+  margin: 0.25rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--popover);
   color: var(--popover-foreground);
-  box-shadow: var(--al-shadow-sm);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
-  line-height: var(--al-leading);
-  max-inline-size: calc(100dvw - var(--al-space-8));
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  max-inline-size: calc(100dvw - 2rem);
 }
 
 al-popover[placement="top"] {
@@ -39,15 +39,15 @@ al-popover[placement="right"] {
 }
 
 al-popover[offset="sm"] {
-  margin: var(--al-space-1);
+  margin: 0.25rem;
 }
 
 al-popover[offset="md"] {
-  margin: var(--al-space-3);
+  margin: 0.75rem;
 }
 
 al-popover[offset="lg"] {
-  margin: var(--al-space-6);
+  margin: 1.5rem;
 }
 
 al-popover > :first-child {

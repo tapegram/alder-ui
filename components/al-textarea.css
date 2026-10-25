@@ -13,35 +13,35 @@
 
 al-textarea {
   display: grid;
-  gap: var(--al-space-1-5);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
+  gap: 0.375rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
   color: var(--foreground);
 }
 
 al-textarea label {
   display: grid;
-  gap: var(--al-space-1-5);
+  gap: 0.375rem;
   order: 0;
-  font-weight: var(--al-weight-medium);
-  line-height: var(--al-leading-tight);
+  font-weight: 500;
+  line-height: 1.25;
 }
 
 al-textarea textarea {
   box-sizing: border-box;
   width: 100%;
-  min-height: calc(var(--al-control-h-md) * 2);
-  padding: var(--al-space-2) var(--al-space-3);
+  min-height: calc(2.25rem * 2);
+  padding: 0.5rem 0.75rem;
   resize: vertical;
   margin: 0;
-  border: var(--al-border-width) solid var(--input);
+  border: 1px solid var(--input);
   border-radius: var(--radius);
   background: var(--background);
   color: var(--foreground);
   font-family: inherit;
-  font-size: var(--al-text-sm);
-  font-weight: var(--al-weight-normal);
-  line-height: var(--al-leading);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 al-textarea textarea::placeholder {
@@ -49,16 +49,16 @@ al-textarea textarea::placeholder {
 }
 
 al-textarea textarea:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 al-textarea[invalid] textarea {
-  border-color: var(--al-destructive-text);
+  border-color: var(--destructive);
 }
 
 al-textarea[invalid] textarea:focus-visible {
-  outline-color: var(--al-destructive-text);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--destructive) 20%, transparent);
 }
 
 /* Dim once: the whole field when the element is disabled, or just the
@@ -66,14 +66,14 @@ al-textarea[invalid] textarea:focus-visible {
 al-textarea[disabled],
 al-textarea:not([disabled]) textarea:disabled {
   cursor: not-allowed;
-  opacity: var(--al-disabled-opacity);
+  opacity: 0.5;
 }
 
 al-textarea[help]::after {
   content: attr(help);
   order: 1;
   color: var(--muted-foreground);
-  font-size: var(--al-text-sm);
+  font-size: 0.875rem;
 }
 
 /* The markup form, which Alder renders: <small class="help" id="help-…">
@@ -82,7 +82,7 @@ al-textarea[help]::after {
 al-textarea > .help {
   order: 1;
   color: var(--muted-foreground);
-  font-size: var(--al-text-sm);
+  font-size: 0.875rem;
 }
 
 al-textarea:has(> .help)::after {
@@ -94,9 +94,9 @@ al-textarea ul.errors {
   margin: 0;
   padding: 0;
   list-style: none;
-  color: var(--al-destructive-text);
-  font-size: var(--al-text-sm);
-  font-weight: var(--al-weight-medium);
+  color: var(--destructive);
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 al-textarea ul.errors:empty {

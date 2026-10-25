@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "version": "v0.3.3",
+  "version": "v0.4.0-rc.1",
   "modules": [
     {
       "kind": "javascript-module",
@@ -489,6 +489,14 @@
               },
               "description": "The frame's maximum width: `narrow` (40rem), `normal` (56rem) or `wide` (80rem).",
               "default": "\"normal\""
+            },
+            {
+              "name": "plain",
+              "type": {
+                "text": "boolean"
+              },
+              "description": "Switches off the typography alder-ui gives flow content in the page (headings, paragraphs, lists, links, code, quotes, tables, `hr`), for a page that brings its own. The reset (base.css) stays.",
+              "default": "false"
             }
           ],
           "slots": [

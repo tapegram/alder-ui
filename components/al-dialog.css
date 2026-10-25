@@ -22,18 +22,18 @@ al-dialog {
 al-dialog > dialog {
   position: fixed;
   inline-size: calc(var(--al-width-narrow) * 0.75);
-  max-inline-size: calc(100dvw - var(--al-space-8));
-  max-block-size: calc(100dvh - var(--al-space-8));
+  max-inline-size: calc(100dvw - 2rem);
+  max-block-size: calc(100dvh - 2rem);
   margin: auto;
   padding: 0;
-  border: var(--al-border-width) solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--popover);
   color: var(--popover-foreground);
-  box-shadow: var(--al-shadow-sm);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
-  line-height: var(--al-leading);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 al-dialog > dialog::backdrop {
@@ -56,45 +56,45 @@ al-dialog[size="lg"] > dialog {
 
 al-dialog [slot="header"] {
   margin: 0;
-  padding: var(--al-space-4) var(--al-space-6) 0;
-  font-size: var(--al-text-lg);
-  font-weight: var(--al-weight-semibold);
-  line-height: var(--al-leading-tight);
+  padding: 1rem 1.5rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
 al-dialog > dialog > :not([slot]):not(form) {
-  padding: var(--al-space-4) var(--al-space-6);
+  padding: 1rem 1.5rem;
 }
 
 al-dialog [slot="actions"] {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: var(--al-space-2);
-  padding: 0 var(--al-space-6) var(--al-space-4);
+  gap: 0.5rem;
+  padding: 0 1.5rem 1rem;
 }
 
 al-dialog[dismissible] [slot="header"] {
-  padding-inline-end: var(--al-space-10);
+  padding-inline-end: 2.5rem;
 }
 
 al-dialog[dismissible] > dialog > form[method="dialog"] {
   position: absolute;
-  top: var(--al-space-3);
-  inset-inline-end: var(--al-space-3);
+  top: 0.75rem;
+  inset-inline-end: 0.75rem;
   margin: 0;
 }
 
 al-dialog[dismissible] > dialog > form[method="dialog"] > button {
   margin: 0;
-  padding: var(--al-space-1) var(--al-space-2);
+  padding: 0.25rem 0.5rem;
   border: 0;
-  border-radius: var(--al-radius-sm);
+  border-radius: var(--radius-sm);
   background: transparent;
   color: inherit;
   font-family: inherit;
-  font-size: var(--al-text-base);
-  line-height: var(--al-leading-tight);
+  font-size: 1rem;
+  line-height: 1.25;
   cursor: pointer;
 }
 
@@ -104,6 +104,6 @@ al-dialog[dismissible] > dialog > form[method="dialog"] > button:hover {
 }
 
 al-dialog[dismissible] > dialog > form[method="dialog"] > button:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }

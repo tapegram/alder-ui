@@ -1,195 +1,363 @@
-/*! alder-ui v0.3.3 | Apache-2.0 | https://github.com/tapegram/alder-ui
- * Built by scripts/build.py from tokens.css and components/; do not edit. */
+/*! alder-ui v0.4.0-rc.1 | Apache-2.0 | https://github.com/tapegram/alder-ui
+ * Built by scripts/build.py from tokens.css, base.css, typography.css and components/;
+ * do not edit. Geist and Geist Mono (SIL OFL 1.1) load from fonts/ beside this file. */
 
 @layer al {
 
 /* ---- tokens.css ---- */
 
 /*
- * alder-ui tokens.
+ * alder-ui tokens: shadcn/ui's canonical neutral theme (new-york-v4,
+ * theming.mdx), verbatim, as full oklch() colours that components use
+ * directly: var(--primary). One addition, --destructive-foreground (from the
+ * shadcn docs site), and Tailwind's --color-white / --color-black, which
+ * stand in for shadcn's text-white and bg-black/50.
  *
- * Colour tokens use shadcn/ui's names and its default (slate) values, written
- * as full hsl() colours so components can use them directly: var(--primary).
- * Three values differ from shadcn's defaults so every pairing passes WCAG AA
- * (test/check.py computes the ratios): light --destructive is darker, and
- * --input is darker in both themes so field borders reach 3:1.
+ * Themes: light by default. class="dark" on <html> (or any element) turns
+ * the dark theme on for that subtree; class="light" inside a dark page turns
+ * it back to light. Nothing follows the OS by itself: a one-line script in
+ * <head> sets the class (see README).
  *
- * Tokens prefixed --al- are alder-ui's own: the soft colours for alerts, the
- * error text colour, spacing, type, sizes and the focus ring.
+ * To re-theme, paste the :root and .dark blocks that ui.shadcn.com/themes or
+ * tweakcn export, unlayered, after al.css. Everything alder-ui ships sits in
+ * @layer al, so your unlayered blocks win whatever their specificity. To
+ * keep .light subtrees working, write your light block as ":root, .light".
  *
- * Themes: light by default; dark when the OS asks for it, unless the page (or
- * a subtree) says data-theme="light"; data-theme="dark" forces dark.
+ * Contrast: test/check.py computes every text pairing the components draw
+ * (WCAG AA, 4.5:1) and every border and ring (3:1, a warning only). A few
+ * of shadcn's own pairings fall short; the tokens stay verbatim and the
+ * check prints them as warnings.
  *
- * In al.css everything sits in @layer al, so any unlayered CSS of yours wins
- * whatever its specificity. To re-theme:
- *   :root { --primary: …; }                 both themes
- *   [data-theme="dark"] { --primary: …; }   the forced dark theme; for the
- *   OS-driven one, repeat it in
- *   @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { … } }
+ * Of alder-ui's own tokens only the page widths remain (--al-width-*).
+ * Components keep private properties under --_al-.
  */
 
 :root,
-[data-theme="light"] {
+.light {
   color-scheme: light;
 
-  --background: hsl(0 0% 100%);
-  --foreground: hsl(222.2 84% 4.9%);
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(222.2 84% 4.9%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(222.2 84% 4.9%);
-  --primary: hsl(222.2 47.4% 11.2%);
-  --primary-foreground: hsl(210 40% 98%);
-  --secondary: hsl(210 40% 96.1%);
-  --secondary-foreground: hsl(222.2 47.4% 11.2%);
-  --muted: hsl(210 40% 96.1%);
-  --muted-foreground: hsl(215.4 16.3% 46.9%);
-  --accent: hsl(210 40% 96.1%);
-  --accent-foreground: hsl(222.2 47.4% 11.2%);
-  --destructive: hsl(0 72.2% 50.6%);
-  --destructive-foreground: hsl(210 40% 98%);
-  --border: hsl(214.3 31.8% 91.4%);
-  --input: hsl(215 16% 57%);
-  --ring: hsl(222.2 84% 4.9%);
-
-  --al-destructive-text: hsl(0 72.2% 50.6%);
-  --al-info-soft: hsl(214 100% 97%);
-  --al-info-soft-foreground: hsl(224 76% 33%);
-  --al-info-border: hsl(213 97% 87%);
-  --al-success-soft: hsl(138 76% 97%);
-  --al-success-soft-foreground: hsl(144 61% 20%);
-  --al-success-border: hsl(141 79% 85%);
-  --al-warning-soft: hsl(48 100% 96%);
-  --al-warning-soft-foreground: hsl(22 78% 26%);
-  --al-warning-border: hsl(48 97% 77%);
-  --al-destructive-soft: hsl(0 86% 97%);
-  --al-destructive-soft-foreground: hsl(0 70% 35%);
-  --al-destructive-border: hsl(0 96% 89%);
-  --al-shadow-sm: 0 1px 2px 0 hsl(222.2 84% 4.9% / 0.06);
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  --destructive-foreground: oklch(0.97 0.01 17);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-
-    --background: hsl(222.2 84% 4.9%);
-    --foreground: hsl(210 40% 98%);
-    --card: hsl(222.2 84% 4.9%);
-    --card-foreground: hsl(210 40% 98%);
-    --popover: hsl(222.2 84% 4.9%);
-    --popover-foreground: hsl(210 40% 98%);
-    --primary: hsl(210 40% 98%);
-    --primary-foreground: hsl(222.2 47.4% 11.2%);
-    --secondary: hsl(217.2 32.6% 17.5%);
-    --secondary-foreground: hsl(210 40% 98%);
-    --muted: hsl(217.2 32.6% 17.5%);
-    --muted-foreground: hsl(215 20.2% 65.1%);
-    --accent: hsl(217.2 32.6% 17.5%);
-    --accent-foreground: hsl(210 40% 98%);
-    --destructive: hsl(0 62.8% 30.6%);
-    --destructive-foreground: hsl(210 40% 98%);
-    --border: hsl(217.2 32.6% 17.5%);
-    --input: hsl(215 20% 40%);
-    --ring: hsl(212.7 26.8% 83.9%);
-
-    --al-destructive-text: hsl(0 90% 70%);
-    --al-info-soft: hsl(222 47% 14%);
-    --al-info-soft-foreground: hsl(213 94% 78%);
-    --al-info-border: hsl(217 60% 30%);
-    --al-success-soft: hsl(150 40% 11%);
-    --al-success-soft-foreground: hsl(142 69% 68%);
-    --al-success-border: hsl(145 45% 25%);
-    --al-warning-soft: hsl(35 60% 11%);
-    --al-warning-soft-foreground: hsl(45 93% 65%);
-    --al-warning-border: hsl(35 60% 28%);
-    --al-destructive-soft: hsl(0 50% 12%);
-    --al-destructive-soft-foreground: hsl(0 94% 82%);
-    --al-destructive-border: hsl(0 55% 32%);
-    --al-shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.5);
-  }
-}
-
-[data-theme="dark"] {
+.dark {
   color-scheme: dark;
 
-  --background: hsl(222.2 84% 4.9%);
-  --foreground: hsl(210 40% 98%);
-  --card: hsl(222.2 84% 4.9%);
-  --card-foreground: hsl(210 40% 98%);
-  --popover: hsl(222.2 84% 4.9%);
-  --popover-foreground: hsl(210 40% 98%);
-  --primary: hsl(210 40% 98%);
-  --primary-foreground: hsl(222.2 47.4% 11.2%);
-  --secondary: hsl(217.2 32.6% 17.5%);
-  --secondary-foreground: hsl(210 40% 98%);
-  --muted: hsl(217.2 32.6% 17.5%);
-  --muted-foreground: hsl(215 20.2% 65.1%);
-  --accent: hsl(217.2 32.6% 17.5%);
-  --accent-foreground: hsl(210 40% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(210 40% 98%);
-  --border: hsl(217.2 32.6% 17.5%);
-  --input: hsl(215 20% 40%);
-  --ring: hsl(212.7 26.8% 83.9%);
-
-  --al-destructive-text: hsl(0 90% 70%);
-  --al-info-soft: hsl(222 47% 14%);
-  --al-info-soft-foreground: hsl(213 94% 78%);
-  --al-info-border: hsl(217 60% 30%);
-  --al-success-soft: hsl(150 40% 11%);
-  --al-success-soft-foreground: hsl(142 69% 68%);
-  --al-success-border: hsl(145 45% 25%);
-  --al-warning-soft: hsl(35 60% 11%);
-  --al-warning-soft-foreground: hsl(45 93% 65%);
-  --al-warning-border: hsl(35 60% 28%);
-  --al-destructive-soft: hsl(0 50% 12%);
-  --al-destructive-soft-foreground: hsl(0 94% 82%);
-  --al-destructive-border: hsl(0 55% 32%);
-  --al-shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.5);
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+  --destructive-foreground: oklch(0.58 0.22 27);
 }
 
 /* Theme-independent tokens. */
 :root {
-  --radius: 0.5rem;
-  --al-radius-sm: calc(var(--radius) - 2px);
-  --al-radius-full: 9999px;
-  --al-border-width: 1px;
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
 
-  --al-space-0-5: 0.125rem;
-  --al-space-1: 0.25rem;
-  --al-space-1-5: 0.375rem;
-  --al-space-2: 0.5rem;
-  --al-space-3: 0.75rem;
-  --al-space-4: 1rem;
-  --al-space-6: 1.5rem;
-  --al-space-8: 2rem;
-  --al-space-10: 2.5rem;
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 
-  --al-font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --al-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --al-text-xs: 0.75rem;
-  --al-text-sm: 0.875rem;
-  --al-text-base: 1rem;
-  --al-text-lg: 1.125rem;
-  --al-leading: 1.5;
-  --al-leading-tight: 1.25;
-  --al-weight-normal: 400;
-  --al-weight-medium: 500;
-  --al-weight-semibold: 600;
+  --font-sans: "Geist", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
-  --al-control-h-sm: 2.25rem;
-  --al-control-h-md: 2.5rem;
-  --al-control-h-lg: 2.75rem;
-  --al-checkbox-size: 1rem;
+  --color-white: #fff;
+  --color-black: #000;
 
   --al-width-narrow: 40rem;
   --al-width-normal: 56rem;
   --al-width-wide: 80rem;
+}
 
-  --al-ring-width: 2px;
-  --al-ring-offset: 2px;
-  --al-disabled-opacity: 0.5;
-  --al-duration: 150ms;
+/* ---- base.css ---- */
+
+/*
+ * alder-ui base layer: the fonts, a translation of Tailwind v4's Preflight with
+ * shadcn's own base rules on top (design spec §7, "Base layer"), and
+ * cross-document view transitions. It is global and not switchable; like
+ * everything alder-ui ships it sits inside @layer al, so a page's unlayered CSS
+ * wins over it. The flow-content typography is typography.css, scoped to
+ * al-page:not([plain]).
+ *
+ * The selectors are bare element names (specificity 0,0,1 at most) so every
+ * component rule, which names its al- element, wins over them.
+ */
+
+/* Geist and Geist Mono (SIL OFL 1.1, fonts/OFL.txt), variable, self-hosted
+ * beside al.css. --font-sans / --font-mono (tokens.css) name them first. */
+@font-face {
+  font-family: "Geist";
+  src: url("fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Preflight: border-box, zero margins and padding, a 0-width solid border in
+ * the border colour (shadcn: `* { @apply border-border outline-ring/50 }`, so
+ * a bare `border-b` draws a --border line and an outline is ring/50). */
+*,
+::before,
+::after,
+::backdrop,
+::file-selector-button {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0 solid var(--border);
+  outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+}
+
+html {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* shadcn: body `bg-background text-foreground`; the docs' antialiasing and no
+ * synthesised bold. */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-synthesis-weight: none;
+}
+
+hr {
+  height: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+
+abbr:where([title]) {
+  text-decoration: underline dotted;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+b,
+strong {
+  font-weight: bolder;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+  font-size: 1em;
+}
+
+small {
+  font-size: 80%;
+}
+
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+table {
+  text-indent: 0;
+  border-color: inherit;
+  border-collapse: collapse;
+}
+
+progress {
+  vertical-align: baseline;
+}
+
+summary {
+  display: list-item;
+}
+
+ol,
+ul,
+menu {
+  list-style: none;
+}
+
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block;
+  vertical-align: middle;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+input,
+select,
+optgroup,
+textarea,
+::file-selector-button {
+  font: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  border-radius: 0;
+  background: transparent;
+  opacity: 1;
+}
+
+::file-selector-button {
+  margin-inline-end: 4px;
+}
+
+/* shadcn's inputs: `placeholder:text-muted-foreground`. */
+::placeholder {
+  opacity: 1;
+  color: var(--muted-foreground);
+}
+
+textarea {
+  resize: vertical;
+}
+
+::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+::-webkit-date-and-time-value {
+  min-height: 1lh;
+  text-align: inherit;
+}
+
+::-webkit-datetime-edit {
+  display: inline-flex;
+}
+
+::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+::-webkit-calendar-picker-indicator {
+  line-height: 1;
+}
+
+button,
+input:where([type="button"], [type="reset"], [type="submit"]),
+::file-selector-button {
+  appearance: button;
+}
+
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+  height: auto;
+}
+
+[hidden]:where(:not([hidden="until-found"])) {
+  display: none !important;
 }
 
 /* Cross-document view transitions: a same-origin page load cross-fades from
@@ -200,16 +368,253 @@
   navigation: auto;
 }
 
-/* Base: the page takes the theme's colours and type. */
-:root,
-[data-theme] {
-  background-color: var(--background);
+/* ---- typography.css ---- */
+
+/*
+ * alder-ui typography: shadcn's Typography recipe (the docs' Typography page,
+ * Ref §3 "typography") for raw flow content inside al-page, with `hr` drawn as
+ * the Separator and a bare <table> drawn with the shadcn Table recipe (Ref §3
+ * "table"), not the Typography page's bordered table. Design spec §5.2/§7.
+ *
+ * Scope: every rule sits under al-page:not([plain]); <al-page plain> switches
+ * the whole file off for a page that brings its own typography (base.css's
+ * reset still applies). The scope, and every pseudo-class or attribute
+ * condition, is wrapped in :where(), so each rule weighs only its element
+ * names, at least one, (0,0,1) or (0,0,2): a component that re-styles what it contains
+ * (al-card's title, al-dialog's paragraphs, al-table's table) wins with any
+ * selector that names its own element. test/check.py enforces this. Typography applies wherever some
+ * enclosing al-page is not plain, so put a plain page directly in <body>
+ * rather than inside another al-page.
+ */
+
+/* h1: scroll-m-20 text-4xl font-extrabold tracking-tight text-balance */
+:where(al-page:not([plain])) h1 {
+  scroll-margin-top: 5rem;
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+/* h2: mt-10 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0
+ * (mt-10 is the Typography page's spacing between sections) */
+:where(al-page:not([plain])) h2 {
+  margin-top: 2.5rem;
+  scroll-margin-top: 5rem;
+  border-bottom-width: 1px;
+  padding-bottom: 0.5rem;
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+:where(al-page:not([plain])) h2:where(:first-child) {
+  margin-top: 0;
+}
+
+/* h3: scroll-m-20 text-2xl font-semibold tracking-tight */
+:where(al-page:not([plain])) h3 {
+  scroll-margin-top: 5rem;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* h4: scroll-m-20 text-xl font-semibold tracking-tight */
+:where(al-page:not([plain])) h4 {
+  scroll-margin-top: 5rem;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* p: leading-7 [&:not(:first-child)]:mt-6 */
+:where(al-page:not([plain])) p {
+  line-height: 1.75rem;
+}
+
+:where(al-page:not([plain])) p:where(:not(:first-child)) {
+  margin-top: 1.5rem;
+}
+
+/* blockquote: mt-6 border-l-2 pl-6 italic */
+:where(al-page:not([plain])) blockquote {
+  margin-top: 1.5rem;
+  border-left-width: 2px;
+  padding-left: 1.5rem;
+  font-style: italic;
+}
+
+/* ul: my-6 ml-6 list-disc [&>li]:mt-2
+ * (ol: mine, the same with list-decimal, so a numbered list keeps its numbers) */
+:where(al-page:not([plain])) ul,
+:where(al-page:not([plain])) ol {
+  margin-block: 1.5rem;
+  margin-left: 1.5rem;
+}
+
+:where(al-page:not([plain])) ul {
+  list-style: disc;
+}
+
+:where(al-page:not([plain])) ol {
+  list-style: decimal;
+}
+
+:where(al-page:not([plain])) ul > li,
+:where(al-page:not([plain])) ol > li {
+  margin-top: 0.5rem;
+}
+
+/* code: relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold */
+:where(al-page:not([plain])) code {
+  position: relative;
+  border-radius: 0.25rem;
+  background: var(--muted);
+  padding: 0.2rem 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+}
+
+/* a: font-medium text-primary underline underline-offset-4 */
+:where(al-page:not([plain])) a {
+  font-weight: 500;
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* small: text-sm leading-none font-medium */
+:where(al-page:not([plain])) small {
+  font-size: 0.875rem;
+  line-height: 1;
+  font-weight: 500;
+}
+
+/* hr = Separator: shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full */
+:where(al-page:not([plain])) hr {
+  flex-shrink: 0;
+  border-width: 0;
+  height: 1px;
+  width: 100%;
+  background: var(--border);
+}
+
+/* table = the shadcn Table recipe.
+ * Table: w-full caption-bottom text-sm */
+:where(al-page:not([plain])) table {
+  width: 100%;
+  caption-side: bottom;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+/* TableHeader: [&_tr]:border-b; TableRow: border-b transition-colors */
+:where(al-page:not([plain])) tr {
+  border-bottom-width: 1px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :where(al-page:not([plain])) tr {
+    transition: color 150ms cubic-bezier(.4, 0, .2, 1), background-color 150ms cubic-bezier(.4, 0, .2, 1), border-color 150ms cubic-bezier(.4, 0, .2, 1);
+  }
+}
+
+/* TableRow: hover:bg-muted/50 has-aria-expanded:bg-muted/50 */
+:where(al-page:not([plain])) tr:where(:hover),
+:where(al-page:not([plain])) tr:where(:has([aria-expanded="true"])) {
+  background: color-mix(in oklab, var(--muted) 50%, transparent);
+}
+
+/* TableRow: data-[state=selected]:bg-muted */
+:where(al-page:not([plain])) tr:where([aria-selected="true"]) {
+  background: var(--muted);
+}
+
+/* TableBody: [&_tr:last-child]:border-0 */
+:where(al-page:not([plain])) tbody tr:where(:last-child) {
+  border-width: 0;
+}
+
+/* TableFooter: border-t bg-muted/50 font-medium [&>tr]:last:border-b-0 */
+:where(al-page:not([plain])) tfoot {
+  border-top-width: 1px;
+  background: color-mix(in oklab, var(--muted) 50%, transparent);
+  font-weight: 500;
+}
+
+:where(al-page:not([plain])) tfoot > tr:where(:last-child) {
+  border-bottom-width: 0;
+}
+
+/* TableHead: h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground
+ * [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] */
+:where(al-page:not([plain])) th {
+  height: 2.5rem;
+  padding: 0 0.5rem;
+  text-align: left;
+  vertical-align: middle;
+  font-weight: 500;
+  white-space: nowrap;
   color: var(--foreground);
 }
 
+/* TableCell: p-2 align-middle whitespace-nowrap
+ * [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] */
+:where(al-page:not([plain])) td {
+  padding: 0.5rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+:where(al-page:not([plain])) th:where(:has([role="checkbox"])),
+:where(al-page:not([plain])) td:where(:has([role="checkbox"])) {
+  padding-right: 0;
+}
+
+:where(al-page:not([plain])) th > :where([role="checkbox"]),
+:where(al-page:not([plain])) td > :where([role="checkbox"]) {
+  translate: 0 2px;
+}
+
+/* TableCaption: mt-4 text-sm text-muted-foreground */
+:where(al-page:not([plain])) caption {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--muted-foreground);
+}
+
+/* ---- components/icons.css ---- */
+
+/*
+ * Icons: Lucide (https://lucide.dev, lucide-static v1.61.0, ISC licence, see
+ * LICENSE-lucide) as mask images. Each is a quoted, URL-encoded 24x24 SVG
+ * (stroke-width 2, round caps and joins, as Lucide ships them). Only the
+ * alpha channel matters to a mask, so the stroke colour inside is irrelevant.
+ * Use: mask: var(--_al-icon-x) center / contain no-repeat; background: currentColor
+ * on a ::before or ::after.
+ */
+
 :root {
-  font-family: var(--al-font-sans);
-  line-height: var(--al-leading);
+  --_al-icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5' /%3E%3C/svg%3E");
+  --_al-icon-minus: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14' /%3E%3C/svg%3E");
+  --_al-icon-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6' /%3E%3C/svg%3E");
+  --_al-icon-chevron-left: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m15 18-6-6 6-6' /%3E%3C/svg%3E");
+  --_al-icon-chevron-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6' /%3E%3C/svg%3E");
+  --_al-icon-x: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 6 6 18' /%3E%3Cpath d='m6 6 12 12' /%3E%3C/svg%3E");
+  --_al-icon-circle-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10' /%3E%3Cpath d='m16 9-5.5 5.5L8 12' /%3E%3C/svg%3E");
+  --_al-icon-info: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10' /%3E%3Cpath d='M12 16v-4' /%3E%3Cpath d='M12 8h.01' /%3E%3C/svg%3E");
+  --_al-icon-triangle-alert: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3' /%3E%3Cpath d='M12 9v4' /%3E%3Cpath d='M12 17h.01' /%3E%3C/svg%3E");
+  --_al-icon-octagon-x: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m15 9-6 6' /%3E%3Cpath d='M2.586 16.726A2 2 0 0 1 2 15.312V8.688a2 2 0 0 1 .586-1.414l4.688-4.688A2 2 0 0 1 8.688 2h6.624a2 2 0 0 1 1.414.586l4.688 4.688A2 2 0 0 1 22 8.688v6.624a2 2 0 0 1-.586 1.414l-4.688 4.688a2 2 0 0 1-1.414.586H8.688a2 2 0 0 1-1.414-.586z' /%3E%3Cpath d='m9 9 6 6' /%3E%3C/svg%3E");
+  --_al-icon-loader-circle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 12a9 9 0 1 1-6.219-8.56' /%3E%3C/svg%3E");
+  --_al-icon-ellipsis: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='1' /%3E%3Ccircle cx='19' cy='12' r='1' /%3E%3Ccircle cx='5' cy='12' r='1' /%3E%3C/svg%3E");
 }
 
 /* ---- components/al-button.css ---- */
@@ -234,9 +639,9 @@ al-button {
   --_al-fg: var(--primary-foreground);
   --_al-border: var(--primary);
   --_al-hover: color-mix(in srgb, var(--primary) 90%, var(--primary-foreground));
-  --_al-h: var(--al-control-h-md);
-  --_al-px: var(--al-space-4);
-  --_al-text: var(--al-text-sm);
+  --_al-h: 2.25rem;
+  --_al-px: 1rem;
+  --_al-text: 0.875rem;
 }
 
 al-button[variant="secondary"] {
@@ -262,25 +667,25 @@ al-button[variant="ghost"] {
 
 al-button[variant="destructive"] {
   --_al-bg: var(--destructive);
-  --_al-fg: var(--destructive-foreground);
+  --_al-fg: var(--color-white);
   --_al-border: var(--destructive);
   --_al-hover: color-mix(in srgb, var(--destructive) 90%, var(--foreground));
 }
 
 al-button[size="sm"] {
-  --_al-h: var(--al-control-h-sm);
-  --_al-px: var(--al-space-3);
+  --_al-h: 2rem;
+  --_al-px: 0.75rem;
 }
 
 al-button[size="md"] {
-  --_al-h: var(--al-control-h-md);
-  --_al-px: var(--al-space-4);
+  --_al-h: 2.25rem;
+  --_al-px: 1rem;
 }
 
 al-button[size="lg"] {
-  --_al-h: var(--al-control-h-lg);
-  --_al-px: var(--al-space-8);
-  --_al-text: var(--al-text-base);
+  --_al-h: 2.5rem;
+  --_al-px: 2rem;
+  --_al-text: 1rem;
 }
 
 al-button,
@@ -289,24 +694,24 @@ al-button > :is(button, a) {
   inline-size: fit-content;
   align-items: center;
   justify-content: center;
-  gap: var(--al-space-2);
+  gap: 0.5rem;
   box-sizing: border-box;
   min-height: var(--_al-h);
   margin: 0;
   padding: 0 var(--_al-px);
-  border: var(--al-border-width) solid var(--_al-border);
+  border: 1px solid var(--_al-border);
   border-radius: var(--radius);
   background: var(--_al-bg);
   color: var(--_al-fg);
-  font-family: var(--al-font-sans);
+  font-family: var(--font-sans);
   font-size: var(--_al-text);
-  font-weight: var(--al-weight-medium);
-  line-height: var(--al-leading-tight);
+  font-weight: 500;
+  line-height: 1.25;
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
   user-select: none;
-  transition: background-color var(--al-duration);
+  transition: background-color 150ms;
 }
 
 al-button > :is(button, a) {
@@ -333,14 +738,14 @@ al-button > :is(button, a):hover {
 
 al-button:focus-visible,
 al-button > :is(button, a):focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 al-button[disabled],
 al-button[disabled] > :is(button, a),
 al-button > button:disabled {
-  opacity: var(--al-disabled-opacity);
+  opacity: 0.5;
   cursor: not-allowed;
   pointer-events: none;
 }
@@ -376,34 +781,34 @@ form._alder-click {
 
 al-input {
   display: grid;
-  gap: var(--al-space-1-5);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
+  gap: 0.375rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
   color: var(--foreground);
 }
 
 al-input label {
   display: grid;
-  gap: var(--al-space-1-5);
+  gap: 0.375rem;
   order: 0;
-  font-weight: var(--al-weight-medium);
-  line-height: var(--al-leading-tight);
+  font-weight: 500;
+  line-height: 1.25;
 }
 
 al-input input {
   box-sizing: border-box;
   width: 100%;
-  height: var(--al-control-h-md);
-  padding: 0 var(--al-space-3);
+  height: 2.25rem;
+  padding: 0 0.75rem;
   margin: 0;
-  border: var(--al-border-width) solid var(--input);
+  border: 1px solid var(--input);
   border-radius: var(--radius);
   background: var(--background);
   color: var(--foreground);
   font-family: inherit;
-  font-size: var(--al-text-sm);
-  font-weight: var(--al-weight-normal);
-  line-height: var(--al-leading);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 al-input input::placeholder {
@@ -411,16 +816,16 @@ al-input input::placeholder {
 }
 
 al-input input:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 al-input[invalid] input {
-  border-color: var(--al-destructive-text);
+  border-color: var(--destructive);
 }
 
 al-input[invalid] input:focus-visible {
-  outline-color: var(--al-destructive-text);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--destructive) 20%, transparent);
 }
 
 /* Dim once: the whole field when the element is disabled, or just the
@@ -428,14 +833,14 @@ al-input[invalid] input:focus-visible {
 al-input[disabled],
 al-input:not([disabled]) input:disabled {
   cursor: not-allowed;
-  opacity: var(--al-disabled-opacity);
+  opacity: 0.5;
 }
 
 al-input[help]::after {
   content: attr(help);
   order: 1;
   color: var(--muted-foreground);
-  font-size: var(--al-text-sm);
+  font-size: 0.875rem;
 }
 
 /* The markup form, which Alder renders: <small class="help" id="help-…">
@@ -444,7 +849,7 @@ al-input[help]::after {
 al-input > .help {
   order: 1;
   color: var(--muted-foreground);
-  font-size: var(--al-text-sm);
+  font-size: 0.875rem;
 }
 
 al-input:has(> .help)::after {
@@ -456,9 +861,9 @@ al-input ul.errors {
   margin: 0;
   padding: 0;
   list-style: none;
-  color: var(--al-destructive-text);
-  font-size: var(--al-text-sm);
-  font-weight: var(--al-weight-medium);
+  color: var(--destructive);
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 al-input ul.errors:empty {
@@ -482,35 +887,35 @@ al-input ul.errors:empty {
 
 al-textarea {
   display: grid;
-  gap: var(--al-space-1-5);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
+  gap: 0.375rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
   color: var(--foreground);
 }
 
 al-textarea label {
   display: grid;
-  gap: var(--al-space-1-5);
+  gap: 0.375rem;
   order: 0;
-  font-weight: var(--al-weight-medium);
-  line-height: var(--al-leading-tight);
+  font-weight: 500;
+  line-height: 1.25;
 }
 
 al-textarea textarea {
   box-sizing: border-box;
   width: 100%;
-  min-height: calc(var(--al-control-h-md) * 2);
-  padding: var(--al-space-2) var(--al-space-3);
+  min-height: calc(2.25rem * 2);
+  padding: 0.5rem 0.75rem;
   resize: vertical;
   margin: 0;
-  border: var(--al-border-width) solid var(--input);
+  border: 1px solid var(--input);
   border-radius: var(--radius);
   background: var(--background);
   color: var(--foreground);
   font-family: inherit;
-  font-size: var(--al-text-sm);
-  font-weight: var(--al-weight-normal);
-  line-height: var(--al-leading);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
 }
 
 al-textarea textarea::placeholder {
@@ -518,16 +923,16 @@ al-textarea textarea::placeholder {
 }
 
 al-textarea textarea:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 al-textarea[invalid] textarea {
-  border-color: var(--al-destructive-text);
+  border-color: var(--destructive);
 }
 
 al-textarea[invalid] textarea:focus-visible {
-  outline-color: var(--al-destructive-text);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--destructive) 20%, transparent);
 }
 
 /* Dim once: the whole field when the element is disabled, or just the
@@ -535,14 +940,14 @@ al-textarea[invalid] textarea:focus-visible {
 al-textarea[disabled],
 al-textarea:not([disabled]) textarea:disabled {
   cursor: not-allowed;
-  opacity: var(--al-disabled-opacity);
+  opacity: 0.5;
 }
 
 al-textarea[help]::after {
   content: attr(help);
   order: 1;
   color: var(--muted-foreground);
-  font-size: var(--al-text-sm);
+  font-size: 0.875rem;
 }
 
 /* The markup form, which Alder renders: <small class="help" id="help-…">
@@ -551,7 +956,7 @@ al-textarea[help]::after {
 al-textarea > .help {
   order: 1;
   color: var(--muted-foreground);
-  font-size: var(--al-text-sm);
+  font-size: 0.875rem;
 }
 
 al-textarea:has(> .help)::after {
@@ -563,9 +968,9 @@ al-textarea ul.errors {
   margin: 0;
   padding: 0;
   list-style: none;
-  color: var(--al-destructive-text);
-  font-size: var(--al-text-sm);
-  font-weight: var(--al-weight-medium);
+  color: var(--destructive);
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 al-textarea ul.errors:empty {
@@ -586,46 +991,46 @@ al-textarea ul.errors:empty {
 
 al-select {
   display: grid;
-  gap: var(--al-space-1-5);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
+  gap: 0.375rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
   color: var(--foreground);
 }
 
 al-select label {
   display: grid;
-  gap: var(--al-space-1-5);
+  gap: 0.375rem;
   order: 0;
-  font-weight: var(--al-weight-medium);
-  line-height: var(--al-leading-tight);
+  font-weight: 500;
+  line-height: 1.25;
 }
 
 al-select select {
   box-sizing: border-box;
   width: 100%;
-  height: var(--al-control-h-md);
+  height: 2.25rem;
   margin: 0;
-  padding: 0 var(--al-space-3);
-  border: var(--al-border-width) solid var(--input);
+  padding: 0 0.75rem;
+  border: 1px solid var(--input);
   border-radius: var(--radius);
   background-color: var(--background);
   color: var(--foreground);
   font-family: inherit;
-  font-size: var(--al-text-sm);
-  font-weight: var(--al-weight-normal);
+  font-size: 0.875rem;
+  font-weight: 400;
 }
 
 al-select select:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 al-select[invalid] select {
-  border-color: var(--al-destructive-text);
+  border-color: var(--destructive);
 }
 
 al-select[invalid] select:focus-visible {
-  outline-color: var(--al-destructive-text);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--destructive) 20%, transparent);
 }
 
 /* Dim once: the whole field when the element is disabled, or just the
@@ -633,14 +1038,14 @@ al-select[invalid] select:focus-visible {
 al-select[disabled],
 al-select:not([disabled]) select:disabled {
   cursor: not-allowed;
-  opacity: var(--al-disabled-opacity);
+  opacity: 0.5;
 }
 
 al-select[help]::after {
   content: attr(help);
   order: 1;
   color: var(--muted-foreground);
-  font-size: var(--al-text-sm);
+  font-size: 0.875rem;
 }
 
 /* The markup form, which Alder renders: <small class="help" id="help-…">
@@ -649,7 +1054,7 @@ al-select[help]::after {
 al-select > .help {
   order: 1;
   color: var(--muted-foreground);
-  font-size: var(--al-text-sm);
+  font-size: 0.875rem;
 }
 
 al-select:has(> .help)::after {
@@ -661,9 +1066,9 @@ al-select ul.errors {
   margin: 0;
   padding: 0;
   list-style: none;
-  color: var(--al-destructive-text);
-  font-size: var(--al-text-sm);
-  font-weight: var(--al-weight-medium);
+  color: var(--destructive);
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 al-select ul.errors:empty {
@@ -686,10 +1091,10 @@ al-select ul.errors:empty {
 
 al-checkbox {
   display: grid;
-  gap: var(--al-space-1-5);
+  gap: 0.375rem;
   justify-items: start;
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
   color: var(--foreground);
 }
 
@@ -699,49 +1104,48 @@ al-checkbox label {
   flex-direction: row-reverse;
   justify-content: flex-end;
   align-items: center;
-  gap: var(--al-space-2);
-  font-weight: var(--al-weight-medium);
-  line-height: var(--al-leading-tight);
+  gap: 0.5rem;
+  font-weight: 500;
+  line-height: 1.25;
   cursor: pointer;
 }
 
 al-checkbox input[type="checkbox"] {
   flex: none;
-  width: var(--al-checkbox-size);
-  height: var(--al-checkbox-size);
+  width: 1rem;
+  height: 1rem;
   margin: 0;
   accent-color: var(--primary);
   cursor: inherit;
 }
 
 al-checkbox input[type="checkbox"]:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 /* Dim once: the whole field, or just the label holding a disabled box. */
 al-checkbox[disabled],
 al-checkbox:not([disabled]) label:has(input:disabled) {
   cursor: not-allowed;
-  opacity: var(--al-disabled-opacity);
+  opacity: 0.5;
 }
 
 al-checkbox[invalid] input[type="checkbox"] {
-  outline: var(--al-border-width) solid var(--al-destructive-text);
-  outline-offset: var(--al-border-width);
-  accent-color: var(--al-destructive-text);
+  outline: 1px solid var(--destructive);
+  outline-offset: 1px;
+  accent-color: var(--destructive);
 }
 
 al-checkbox[invalid] input[type="checkbox"]:focus-visible {
-  outline: var(--al-ring-width) solid var(--al-destructive-text);
-  outline-offset: var(--al-ring-offset);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--destructive) 20%, transparent);
 }
 
 al-checkbox[help]::after {
   content: attr(help);
   order: 1;
   color: var(--muted-foreground);
-  font-size: var(--al-text-sm);
+  font-size: 0.875rem;
 }
 
 /* The markup form, which Alder renders: <small class="help" id="help-…">
@@ -750,7 +1154,7 @@ al-checkbox[help]::after {
 al-checkbox > .help {
   order: 1;
   color: var(--muted-foreground);
-  font-size: var(--al-text-sm);
+  font-size: 0.875rem;
 }
 
 al-checkbox:has(> .help)::after {
@@ -762,9 +1166,9 @@ al-checkbox ul.errors {
   margin: 0;
   padding: 0;
   list-style: none;
-  color: var(--al-destructive-text);
-  font-size: var(--al-text-sm);
-  font-weight: var(--al-weight-medium);
+  color: var(--destructive);
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 al-checkbox ul.errors:empty {
@@ -782,10 +1186,10 @@ al-checkbox ul.errors:empty {
 al-table {
   display: block;
   overflow-x: auto;
-  border: var(--al-border-width) solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
   color: var(--foreground);
 }
 
@@ -796,21 +1200,21 @@ al-table table {
 }
 
 al-table caption {
-  padding: var(--al-space-3);
+  padding: 0.75rem;
   color: var(--muted-foreground);
 }
 
 al-table th,
 al-table td {
-  padding: var(--al-space-3) var(--al-space-4);
-  border-bottom: var(--al-border-width) solid var(--border);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
   text-align: start;
   vertical-align: middle;
 }
 
 al-table th {
   color: var(--muted-foreground);
-  font-weight: var(--al-weight-medium);
+  font-weight: 500;
 }
 
 al-table tbody tr:last-child > * {
@@ -823,7 +1227,7 @@ al-table[striped] tbody tr:nth-child(even) {
 
 al-table[dense] th,
 al-table[dense] td {
-  padding: var(--al-space-1-5) var(--al-space-3);
+  padding: 0.375rem 0.75rem;
 }
 
 /* ---- components/al-card.css ---- */
@@ -836,14 +1240,14 @@ al-table[dense] td {
 al-card {
   display: flex;
   flex-direction: column;
-  gap: var(--al-space-4);
-  padding: var(--al-space-6);
-  border: var(--al-border-width) solid var(--border);
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--card);
   color: var(--card-foreground);
-  box-shadow: var(--al-shadow-sm);
-  font-family: var(--al-font-sans);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-sans);
 }
 
 al-card > * {
@@ -852,15 +1256,15 @@ al-card > * {
 
 al-card > [slot="header"] {
   order: -1;
-  font-size: var(--al-text-lg);
-  font-weight: var(--al-weight-semibold);
-  line-height: var(--al-leading-tight);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
 al-card > [slot="footer"] {
   order: 1;
   color: var(--muted-foreground);
-  font-size: var(--al-text-sm);
+  font-size: 0.875rem;
 }
 
 al-card > [slot="actions"] {
@@ -868,7 +1272,7 @@ al-card > [slot="actions"] {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: var(--al-space-2);
+  gap: 0.5rem;
 }
 
 /* ---- components/al-badge.css ---- */
@@ -879,15 +1283,15 @@ al-badge {
   display: inline-flex;
   inline-size: fit-content;
   align-items: center;
-  padding: var(--al-space-0-5) var(--al-space-2);
-  border: var(--al-border-width) solid var(--primary);
-  border-radius: var(--al-radius-full);
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--primary);
+  border-radius: 9999px;
   background: var(--primary);
   color: var(--primary-foreground);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-xs);
-  font-weight: var(--al-weight-semibold);
-  line-height: var(--al-leading);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.5;
   white-space: nowrap;
 }
 
@@ -912,7 +1316,7 @@ al-badge[variant="outline"] {
 al-badge[variant="destructive"] {
   border-color: var(--destructive);
   background: var(--destructive);
-  color: var(--destructive-foreground);
+  color: var(--color-white);
 }
 
 /* ---- components/al-alert.css ---- */
@@ -927,46 +1331,46 @@ al-badge[variant="destructive"] {
 al-alert {
   display: block;
   position: relative;
-  padding: var(--al-space-4);
-  border: var(--al-border-width) solid var(--al-info-border);
+  padding: 1rem;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: var(--al-info-soft);
-  color: var(--al-info-soft-foreground);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
-  line-height: var(--al-leading);
+  background: var(--card);
+  color: var(--card-foreground);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 al-alert[variant="info"] {
-  border-color: var(--al-info-border);
-  background: var(--al-info-soft);
-  color: var(--al-info-soft-foreground);
+  border-color: var(--border);
+  background: var(--card);
+  color: var(--card-foreground);
 }
 
 al-alert[variant="success"] {
-  border-color: var(--al-success-border);
-  background: var(--al-success-soft);
-  color: var(--al-success-soft-foreground);
+  border-color: var(--border);
+  background: var(--card);
+  color: var(--card-foreground);
 }
 
 al-alert[variant="warning"] {
-  border-color: var(--al-warning-border);
-  background: var(--al-warning-soft);
-  color: var(--al-warning-soft-foreground);
+  border-color: var(--border);
+  background: var(--card);
+  color: var(--card-foreground);
 }
 
 al-alert[variant="destructive"] {
-  border-color: var(--al-destructive-border);
-  background: var(--al-destructive-soft);
-  color: var(--al-destructive-soft-foreground);
+  border-color: var(--border);
+  background: var(--card);
+  color: var(--destructive);
 }
 
 al-alert[heading]::before {
   content: attr(heading);
   display: block;
-  margin-bottom: var(--al-space-1);
-  font-weight: var(--al-weight-semibold);
-  line-height: var(--al-leading-tight);
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
 al-alert > :first-child {
@@ -978,22 +1382,22 @@ al-alert > :last-child {
 }
 
 al-alert[dismissible] {
-  padding-inline-end: var(--al-space-10);
+  padding-inline-end: 2.5rem;
 }
 
 al-alert > .al-alert-dismiss {
   position: absolute;
-  top: var(--al-space-2);
-  inset-inline-end: var(--al-space-2);
+  top: 0.5rem;
+  inset-inline-end: 0.5rem;
   margin: 0;
-  padding: var(--al-space-1) var(--al-space-2);
+  padding: 0.25rem 0.5rem;
   border: 0;
-  border-radius: var(--al-radius-sm);
+  border-radius: var(--radius-sm);
   background: transparent;
   color: inherit;
   font-family: inherit;
-  font-size: var(--al-text-base);
-  line-height: var(--al-leading-tight);
+  font-size: 1rem;
+  line-height: 1.25;
   cursor: pointer;
 }
 
@@ -1002,8 +1406,8 @@ al-alert > .al-alert-dismiss:hover {
 }
 
 al-alert > .al-alert-dismiss:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 /* An alert that holds only an empty errors list (Alder's
@@ -1031,9 +1435,9 @@ al-pagination {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--al-space-4);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
+  gap: 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
   color: var(--foreground);
 }
 
@@ -1064,13 +1468,13 @@ al-pagination > [slot="next"] {
   display: inline-flex;
   align-items: center;
   box-sizing: border-box;
-  min-height: var(--al-control-h-sm);
-  padding: 0 var(--al-space-3);
-  border: var(--al-border-width) solid var(--input);
+  min-height: 2rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--input);
   border-radius: var(--radius);
   background: var(--background);
   color: var(--foreground);
-  font-weight: var(--al-weight-medium);
+  font-weight: 500;
   text-decoration: none;
 }
 
@@ -1080,12 +1484,12 @@ al-pagination > a[slot]:hover {
 }
 
 al-pagination > a[slot]:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 al-pagination > [slot][aria-disabled="true"] {
-  opacity: var(--al-disabled-opacity);
+  opacity: 0.5;
   pointer-events: none;
 }
 
@@ -1096,7 +1500,7 @@ al-pagination > [slot][aria-disabled="true"] {
 al-stack {
   display: flex;
   flex-direction: column;
-  gap: var(--al-space-4);
+  gap: 1rem;
 }
 
 al-stack[direction="column"] {
@@ -1110,28 +1514,35 @@ al-stack[direction="row"] {
 }
 
 al-stack[gap="sm"] {
-  gap: var(--al-space-2);
+  gap: 0.5rem;
 }
 
 al-stack[gap="md"] {
-  gap: var(--al-space-4);
+  gap: 1rem;
 }
 
 al-stack[gap="lg"] {
-  gap: var(--al-space-8);
+  gap: 2rem;
 }
 
 /* ---- components/al-page.css ---- */
 
 /* al-page: the content frame, a centred column of a set maximum width. */
 
+/* py-8 px-4 sm:px-6 */
 al-page {
   display: block;
   box-sizing: border-box;
   width: 100%;
   max-width: var(--al-width-normal);
   margin-inline: auto;
-  padding: var(--al-space-8) var(--al-space-4);
+  padding: 2rem 1rem;
+}
+
+@media (min-width: 40rem) {
+  al-page {
+    padding-inline: 1.5rem;
+  }
 }
 
 al-page[width="narrow"] {
@@ -1144,6 +1555,14 @@ al-page[width="normal"] {
 
 al-page[width="wide"] {
   max-width: var(--al-width-wide);
+}
+
+/* plain: no look of its own. typography.css scopes every rule to
+ * al-page:not([plain]), so a plain page's flow content keeps only base.css's
+ * reset (unstyled headings, no list markers, zero margins), for a page that
+ * brings its own typography. */
+al-page[plain] {
+  display: block;
 }
 
 /* ---- components/al-dialog.css ---- */
@@ -1172,18 +1591,18 @@ al-dialog {
 al-dialog > dialog {
   position: fixed;
   inline-size: calc(var(--al-width-narrow) * 0.75);
-  max-inline-size: calc(100dvw - var(--al-space-8));
-  max-block-size: calc(100dvh - var(--al-space-8));
+  max-inline-size: calc(100dvw - 2rem);
+  max-block-size: calc(100dvh - 2rem);
   margin: auto;
   padding: 0;
-  border: var(--al-border-width) solid var(--border);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--popover);
   color: var(--popover-foreground);
-  box-shadow: var(--al-shadow-sm);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
-  line-height: var(--al-leading);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 al-dialog > dialog::backdrop {
@@ -1206,45 +1625,45 @@ al-dialog[size="lg"] > dialog {
 
 al-dialog [slot="header"] {
   margin: 0;
-  padding: var(--al-space-4) var(--al-space-6) 0;
-  font-size: var(--al-text-lg);
-  font-weight: var(--al-weight-semibold);
-  line-height: var(--al-leading-tight);
+  padding: 1rem 1.5rem 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.25;
 }
 
 al-dialog > dialog > :not([slot]):not(form) {
-  padding: var(--al-space-4) var(--al-space-6);
+  padding: 1rem 1.5rem;
 }
 
 al-dialog [slot="actions"] {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: var(--al-space-2);
-  padding: 0 var(--al-space-6) var(--al-space-4);
+  gap: 0.5rem;
+  padding: 0 1.5rem 1rem;
 }
 
 al-dialog[dismissible] [slot="header"] {
-  padding-inline-end: var(--al-space-10);
+  padding-inline-end: 2.5rem;
 }
 
 al-dialog[dismissible] > dialog > form[method="dialog"] {
   position: absolute;
-  top: var(--al-space-3);
-  inset-inline-end: var(--al-space-3);
+  top: 0.75rem;
+  inset-inline-end: 0.75rem;
   margin: 0;
 }
 
 al-dialog[dismissible] > dialog > form[method="dialog"] > button {
   margin: 0;
-  padding: var(--al-space-1) var(--al-space-2);
+  padding: 0.25rem 0.5rem;
   border: 0;
-  border-radius: var(--al-radius-sm);
+  border-radius: var(--radius-sm);
   background: transparent;
   color: inherit;
   font-family: inherit;
-  font-size: var(--al-text-base);
-  line-height: var(--al-leading-tight);
+  font-size: 1rem;
+  line-height: 1.25;
   cursor: pointer;
 }
 
@@ -1254,8 +1673,8 @@ al-dialog[dismissible] > dialog > form[method="dialog"] > button:hover {
 }
 
 al-dialog[dismissible] > dialog > form[method="dialog"] > button:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 /* ---- components/al-popover.css ---- */
@@ -1275,17 +1694,17 @@ al-popover {
   inset: auto;
   position-area: block-end;
   position-try-fallbacks: flip-block, flip-inline;
-  margin: var(--al-space-1);
-  padding: var(--al-space-3);
-  border: var(--al-border-width) solid var(--border);
+  margin: 0.25rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--popover);
   color: var(--popover-foreground);
-  box-shadow: var(--al-shadow-sm);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
-  line-height: var(--al-leading);
-  max-inline-size: calc(100dvw - var(--al-space-8));
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  max-inline-size: calc(100dvw - 2rem);
 }
 
 al-popover[placement="top"] {
@@ -1301,15 +1720,15 @@ al-popover[placement="right"] {
 }
 
 al-popover[offset="sm"] {
-  margin: var(--al-space-1);
+  margin: 0.25rem;
 }
 
 al-popover[offset="md"] {
-  margin: var(--al-space-3);
+  margin: 0.75rem;
 }
 
 al-popover[offset="lg"] {
-  margin: var(--al-space-6);
+  margin: 1.5rem;
 }
 
 al-popover > :first-child {
@@ -1337,16 +1756,16 @@ al-menu {
   position-try-fallbacks: flip-block, flip-inline;
   display: none;
   min-inline-size: calc(var(--al-width-narrow) / 4);
-  margin: var(--al-space-1);
-  padding: var(--al-space-1);
-  border: var(--al-border-width) solid var(--border);
+  margin: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--popover);
   color: var(--popover-foreground);
-  box-shadow: var(--al-shadow-sm);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
-  line-height: var(--al-leading);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 al-menu:popover-open {
@@ -1358,14 +1777,14 @@ al-menu > a,
 al-menu > button {
   display: block;
   margin: 0;
-  padding: var(--al-space-1-5) var(--al-space-3);
+  padding: 0.375rem 0.75rem;
   border: 0;
-  border-radius: var(--al-radius-sm);
+  border-radius: var(--radius-sm);
   background: transparent;
   color: inherit;
   font-family: inherit;
   font-size: inherit;
-  line-height: var(--al-leading);
+  line-height: 1.5;
   text-align: start;
   text-decoration: none;
   cursor: pointer;
@@ -1381,13 +1800,13 @@ al-menu > button:focus-visible {
 
 al-menu > a:focus-visible,
 al-menu > button:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: calc(var(--al-ring-width) * -1);
+  outline: none;
+  box-shadow: inset 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 al-menu > [aria-disabled="true"],
 al-menu > button:disabled {
-  opacity: var(--al-disabled-opacity);
+  opacity: 0.5;
   pointer-events: none;
 }
 
@@ -1407,10 +1826,10 @@ al-tabs {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  border-bottom: var(--al-border-width) solid var(--border);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
-  line-height: var(--al-leading);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 al-tabs > al-tab {
@@ -1420,10 +1839,10 @@ al-tabs > al-tab {
 al-tabs > al-tab > label {
   order: 1;
   position: relative;
-  padding: var(--al-space-2) var(--al-space-4);
-  border-bottom: var(--al-ring-width) solid transparent;
+  padding: 0.5rem 1rem;
+  border-bottom: 2px solid transparent;
   color: var(--muted-foreground);
-  font-weight: var(--al-weight-medium);
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -1443,15 +1862,15 @@ al-tabs > al-tab > label:has(> input:checked) {
 }
 
 al-tabs > al-tab > label:has(> input:focus-visible) {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: calc(var(--al-ring-width) * -1);
+  outline: none;
+  box-shadow: inset 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 al-tabs > al-tab > al-panel {
   display: none;
   order: 2;
   flex-basis: 100%;
-  padding: var(--al-space-4) 0;
+  padding: 1rem 0;
   color: var(--foreground);
 }
 
@@ -1470,20 +1889,20 @@ al-tabs > [role="tablist"] {
   flex-basis: 100%;
   align-items: flex-end;
   order: 1;
-  border-bottom: var(--al-border-width) solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
 al-tabs > [role="tablist"] > [role="tab"] {
   margin: 0;
-  padding: var(--al-space-2) var(--al-space-4);
+  padding: 0.5rem 1rem;
   border: 0;
-  border-bottom: var(--al-ring-width) solid transparent;
+  border-bottom: 2px solid transparent;
   border-radius: 0;
   background: transparent;
   color: var(--muted-foreground);
   font-family: inherit;
   font-size: inherit;
-  font-weight: var(--al-weight-medium);
+  font-weight: 500;
   line-height: inherit;
   cursor: pointer;
 }
@@ -1498,8 +1917,8 @@ al-tabs > [role="tablist"] > [role="tab"][aria-selected="true"] {
 }
 
 al-tabs > [role="tablist"] > [role="tab"]:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: calc(var(--al-ring-width) * -1);
+  outline: none;
+  box-shadow: inset 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 /* ---- components/al-toast.css ---- */
@@ -1515,41 +1934,41 @@ al-tabs > [role="tablist"] > [role="tab"]:focus-visible {
 al-toast {
   display: block;
   inline-size: calc(var(--al-width-narrow) / 2);
-  max-inline-size: calc(100dvw - var(--al-space-8));
-  padding: var(--al-space-3) var(--al-space-4);
-  border: var(--al-border-width) solid var(--al-info-border);
+  max-inline-size: calc(100dvw - 2rem);
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
   border-radius: var(--radius);
-  background: var(--al-info-soft);
-  color: var(--al-info-soft-foreground);
-  box-shadow: var(--al-shadow-sm);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-sm);
-  line-height: var(--al-leading);
+  background: var(--popover);
+  color: var(--popover-foreground);
+  box-shadow: var(--shadow-sm);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
 al-toast[variant="success"] {
-  border-color: var(--al-success-border);
-  background: var(--al-success-soft);
-  color: var(--al-success-soft-foreground);
+  border-color: var(--border);
+  background: var(--popover);
+  color: var(--popover-foreground);
 }
 
 al-toast[variant="warning"] {
-  border-color: var(--al-warning-border);
-  background: var(--al-warning-soft);
-  color: var(--al-warning-soft-foreground);
+  border-color: var(--border);
+  background: var(--popover);
+  color: var(--popover-foreground);
 }
 
 al-toast[variant="destructive"] {
-  border-color: var(--al-destructive-border);
-  background: var(--al-destructive-soft);
-  color: var(--al-destructive-soft-foreground);
+  border-color: var(--border);
+  background: var(--popover);
+  color: var(--destructive);
 }
 
 al-toasts {
   position: fixed;
   inset: auto;
-  inset-block-end: var(--al-space-4);
-  inset-inline-end: var(--al-space-4);
+  inset-block-end: 1rem;
+  inset-inline-end: 1rem;
   display: none;
   margin: 0;
   padding: 0;
@@ -1561,20 +1980,20 @@ al-toasts {
 al-toasts:popover-open {
   display: flex;
   flex-direction: column;
-  gap: var(--al-space-2);
+  gap: 0.5rem;
 }
 
 al-toasts[position="top-left"] {
-  inset-block: var(--al-space-4) auto;
-  inset-inline: var(--al-space-4) auto;
+  inset-block: 1rem auto;
+  inset-inline: 1rem auto;
 }
 
 al-toasts[position="top-right"] {
-  inset-block: var(--al-space-4) auto;
+  inset-block: 1rem auto;
 }
 
 al-toasts[position="bottom-left"] {
-  inset-inline: var(--al-space-4) auto;
+  inset-inline: 1rem auto;
 }
 
 /* ---- components/al-tooltip.css ---- */
@@ -1596,15 +2015,15 @@ al-tooltip {
   inset: auto;
   position-area: block-end;
   position-try-fallbacks: flip-block, flip-inline;
-  margin: var(--al-space-1);
-  padding: var(--al-space-1) var(--al-space-2);
+  margin: 0.25rem;
+  padding: 0.25rem 0.5rem;
   border: 0;
-  border-radius: var(--al-radius-sm);
+  border-radius: var(--radius-sm);
   background: var(--foreground);
   color: var(--background);
-  font-family: var(--al-font-sans);
-  font-size: var(--al-text-xs);
-  line-height: var(--al-leading-tight);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  line-height: 1.25;
   max-inline-size: calc(var(--al-width-narrow) / 2);
   pointer-events: none;
 }
@@ -1624,26 +2043,26 @@ al-devpanel {
   display: block;
   position: sticky;
   inset-block-end: 0;
-  border-top: var(--al-border-width) solid var(--border);
+  border-top: 1px solid var(--border);
   background: var(--card);
   color: var(--card-foreground);
-  font-family: var(--al-font-mono);
-  font-size: var(--al-text-xs);
-  line-height: var(--al-leading);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5;
 }
 
 al-devpanel > nav {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--al-space-1);
-  padding: var(--al-space-1) var(--al-space-2);
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
 }
 
 al-devpanel > nav > button {
   margin: 0;
-  padding: var(--al-space-1) var(--al-space-2);
+  padding: 0.25rem 0.5rem;
   border: 0;
-  border-radius: var(--al-radius-sm);
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--muted-foreground);
   font-family: inherit;
@@ -1658,15 +2077,15 @@ al-devpanel > nav > button[aria-selected="true"] {
 }
 
 al-devpanel > nav > button:focus-visible {
-  outline: var(--al-ring-width) solid var(--ring);
-  outline-offset: var(--al-ring-offset);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
 al-devpanel > section {
   display: none;
   max-block-size: 50dvh;
-  padding: var(--al-space-2) var(--al-space-4);
-  border-top: var(--al-border-width) solid var(--border);
+  padding: 0.5rem 1rem;
+  border-top: 1px solid var(--border);
   overflow: auto;
 }
 
@@ -1676,12 +2095,12 @@ al-devpanel[open] > section:not([hidden]) {
 
 al-devpanel pre,
 al-devpanel code {
-  font-family: var(--al-font-mono);
+  font-family: var(--font-mono);
   white-space: pre-wrap;
 }
 
 al-devpanel pre {
-  margin: var(--al-space-2) 0;
+  margin: 0.5rem 0;
 }
 
 }

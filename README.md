@@ -18,6 +18,7 @@ README is the short version.
 ## Use it
 
 ```html
+<script>try{document.documentElement.classList.toggle("dark",localStorage.theme==="dark"||(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches))}catch(e){}</script>
 <link rel="stylesheet" href="al.css">
 
 <al-page width="narrow">
@@ -37,7 +38,7 @@ README is the short version.
 `al.css` is the whole library (tokens and every component, inside
 `@layer al`). Copy it from a tagged release. Once this repository is public,
 you can also link the raw file at a tag
-(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.3.3/al.css`). Open
+(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.0-rc.1/al.css`). Open
 `demo/index.html` to see every element, variant and state in both themes.
 
 ## Elements
@@ -115,21 +116,43 @@ Notes:
 - **Light DOM.** No shadow roots; elements style what you put inside them,
   so forms, labels and your own CSS work as usual.
 - **Tokens only.** Every colour, radius, space and font in a component is a
-  `var(--…)` from [`tokens.css`](tokens.css). Colours use shadcn/ui's names
+  `var(--…)` from [`tokens.css`](tokens.css), the shadcn/ui token sheet
   (`--background`, `--foreground`, `--primary`, `--primary-foreground`,
   `--secondary`, `--muted`, `--accent`, `--destructive`, `--border`,
-  `--input`, `--ring`, `--radius`, …); alder-ui's own tokens start with
-  `--al-`.
+  `--input`, `--ring`, `--radius`, …) plus `--radius-sm/md/lg/xl`,
+  `--shadow-xs/sm/md/lg`, `--font-sans`, `--font-mono`, `--color-white` and
+  `--color-black`. The only alder-ui tokens left are `--al-width-narrow`,
+  `--al-width-normal` and `--al-width-wide`.
 - **Overriding.** `al.css` puts everything in `@layer al`, so your own
-  unlayered CSS always wins, whatever its specificity. Set a token on
-  `:root { --primary: …; }` to change it in both themes. To change only the
-  dark theme, set it in `[data-theme="dark"] { … }`, and for the OS-driven
-  dark theme also in
-  `@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { … } }`.
-- **Light and dark.** Dark follows `prefers-color-scheme`; set
-  `data-theme="light"` or `data-theme="dark"` on `<html>` (or any subtree) to
-  force one.
-- **View transitions.** `tokens.css` opts every page into cross-document
+  unlayered CSS always wins, whatever its specificity. To re-theme, paste a
+  shadcn theme's `:root { … }` and `.dark { … }` blocks (for example from the
+  shadcn themes page) into your own CSS.
+- **Light and dark.** The theme classes are `.dark` and `.light` on `<html>`
+  (or any subtree). Without the theme script a page is light. Put this in
+  `<head>` before the stylesheet link; it follows the OS until the visitor
+  chooses:
+
+  ```html
+  <script>try{document.documentElement.classList.toggle("dark",localStorage.theme==="dark"||(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches))}catch(e){}</script>
+  ```
+
+  A toggle button calls:
+
+  ```js
+  function toggleTheme(){var d=document.documentElement.classList.toggle("dark");try{localStorage.theme=d?"dark":"light"}catch(e){}}
+  ```
+- **Stricter borders (AA override).** shadcn's `--input` and `--border` are
+  subtle (below 3:1 against the background). To reach 3:1, add:
+
+  ```css
+  :root { --input: oklch(0.6 0 0); --border: oklch(0.65 0 0); }
+  .dark { --input: oklch(1 0 0 / 35%); --border: oklch(1 0 0 / 35%); }
+  ```
+
+  Measured with `test/colour.py`: `--input` light 3.95:1; `--border` light
+  3.23:1 on the background; dark 3.14:1 on the background and 3.23:1 on
+  `--card` (both tokens).
+- **View transitions.** the base layer opts every page into cross-document
   view transitions (`@view-transition { navigation: auto }`), so a
   same-origin navigation cross-fades instead of flashing a blank frame
   (white, even in the dark theme). Browsers without them ignore it.
@@ -139,6 +162,28 @@ Notes:
   `al-`.
 - **Accessible by default.** Real labels, visible `:focus-visible` rings in
   `--ring`, and WCAG AA contrast for every variant in both themes.
+
+## Removed tokens (from v0.4.0)
+
+The old `--al-*` tokens are gone; use these instead.
+
+| removed | replacement |
+|---|---|
+| `--al-radius-sm` / `--al-radius-full` | `--radius-sm` (6px at default `--radius`) / literal `9999px` |
+| `--radius` (was 0.5rem) | `--radius` (now 0.625rem); also `--radius-md`, `--radius-lg`, `--radius-xl` |
+| `--al-font-sans` / `--al-font-mono` | `--font-sans` / `--font-mono` |
+| `--al-destructive-text` | `--destructive` |
+| `--al-shadow-sm` | `--shadow-sm` (also new: `--shadow-xs`, `--shadow-md`, `--shadow-lg`) |
+| `--al-space-0-5 … -10` | literal `0.125rem 0.25rem 0.375rem 0.5rem 0.75rem 1rem 1.5rem 2rem 2.5rem` |
+| `--al-text-xs/sm/base/lg` | literal `0.75rem / 0.875rem / 1rem / 1.125rem` |
+| `--al-leading` / `--al-leading-tight` | literal `1.5` / `1.25` |
+| `--al-weight-normal/medium/semibold` | literal `400 / 500 / 600` |
+| `--al-control-h-sm/md/lg` | literal `2rem / 2.25rem / 2.5rem` (shadcn h-8/h-9/h-10) |
+| `--al-checkbox-size`, `--al-border-width` | literal `1rem`, `1px` |
+| `--al-ring-width`, `--al-ring-offset` | none: the focus ring is `0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent)` |
+| `--al-disabled-opacity`, `--al-duration` | literal `0.5`, `150ms` |
+| `--al-{info,success,warning,destructive}-soft[-foreground]`, `--al-*-border` | no replacement (alerts use `--card`, `--card-foreground`, `--border`, `--destructive`) |
+| `--al-width-narrow/normal/wide` | kept |
 
 ## Tests
 
