@@ -8,7 +8,7 @@
  * the whole file off for a page that brings its own typography (base.css's
  * reset still applies). The scope, and every pseudo-class or attribute
  * condition, is wrapped in :where(), so each rule weighs only its element
- * names, (0,0,1) or (0,0,2): a component that re-styles what it contains
+ * names, at least one, (0,0,1) or (0,0,2): a component that re-styles what it contains
  * (al-card's title, al-dialog's paragraphs, al-table's table) wins with any
  * selector that names its own element. test/check.py enforces this. Typography applies wherever some
  * enclosing al-page is not plain, so put a plain page directly in <body>
@@ -201,11 +201,13 @@
   white-space: nowrap;
 }
 
-:where(al-page:not([plain])) :where(th, td):where(:has([role="checkbox"])) {
+:where(al-page:not([plain])) th:where(:has([role="checkbox"])),
+:where(al-page:not([plain])) td:where(:has([role="checkbox"])) {
   padding-right: 0;
 }
 
-:where(al-page:not([plain])) :where(th, td) > :where([role="checkbox"]) {
+:where(al-page:not([plain])) th > :where([role="checkbox"]),
+:where(al-page:not([plain])) td > :where([role="checkbox"]) {
   translate: 0 2px;
 }
 

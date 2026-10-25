@@ -350,8 +350,9 @@ def strip_where(sel):
 
 def check_typography_weight():
     """typography.css: outside :where(), a selector holds only element names and
-    combinators, so it weighs (0,0,n) and any component rule that names its
-    element (al-dialog p, al-card > h2 + p) wins."""
+    combinators, at least one of them, so it weighs (0,0,n) with n >= 1: it
+    beats the reset of its own element and loses to any component rule that
+    names its element (al-dialog p, al-card > h2 + p)."""
     path = ROOT / "typography.css"
     if not path.exists():
         return
@@ -360,6 +361,8 @@ def check_typography_weight():
             rest = strip_where(sel)
             if re.search(r"[:\[.#]", rest):
                 fail("css", "typography.css: %r has class/attribute/pseudo-class weight outside :where()" % sel)
+            elif not re.search(r"(?:^|[\s>+~])[a-z][\w-]*", rest):
+                fail("css", "typography.css: %r names no element outside :where() (weight 0,0,0)" % sel)
 
 
 def check_css(els):
