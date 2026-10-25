@@ -330,5 +330,11 @@ window.addEventListener("load", function () {
   <al-stack gap="lg" data-expect="row-gap: 24px"><span>a</span><span>b</span></al-stack>
   <al-stack direction="row" gap="lg" data-expect="column-gap: 24px; flex-direction: row"><span>a</span><span>b</span></al-stack>
 </al-page>
+<!-- al-devpanel has no shadcn counterpart: what it relies on under Preflight is pinned here. -->
+<al-devpanel open data-expect="font-family: &quot;Geist Mono&quot;, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace; box-sizing: border-box; margin-top: 0px; line-height: 18px">
+  <nav><button type="button" aria-controls="px-sql" data-expect="padding-top: 4px; padding-left: 8px; border-top-width: 0px; margin-top: 0px; box-sizing: border-box; font-family: &quot;Geist Mono&quot;, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, &quot;Liberation Mono&quot;, &quot;Courier New&quot;, monospace; font-size: 12px">SQL</button><button type="button" aria-controls="px-msgs" data-expect="padding-top: 4px; padding-left: 8px; background-color: rgba(0, 0, 0, 0); border-top-width: 0px; margin-top: 0px; box-sizing: border-box; font-size: 12px">Messages</button></nav>
+  <section id="px-sql" data-expect="box-sizing: border-box"><ul data-expect="list-style-type: none; margin-top: 0px; padding-left: 0px"><li>SELECT 1;</li><li>SELECT 2;</li></ul></section>
+  <section id="px-msgs">Msg: PostSaved</section>
+</al-devpanel>
 </body>
 </html>

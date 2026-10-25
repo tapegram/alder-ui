@@ -5,6 +5,11 @@
  * <button>s (aria-controls="<section id>") and the <section>s. al-devpanel.js
  * hides the other sections, re-applies that after DOM patches, and toggles `open`; without it, every section shows
  * when open. Monospace for SQL and other code.
+ *
+ * Preflight (base.css) zeroes margins, borders, list markers and button
+ * chrome. The panel states what it relies on (box-sizing, border, margin,
+ * list-style, line-height, button background/font/colour) on its own rules,
+ * so it does not depend on the reset's values.
  */
 
 al-devpanel {
@@ -17,6 +22,21 @@ al-devpanel {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   line-height: 1.5;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+al-devpanel *,
+al-devpanel ::before,
+al-devpanel ::after {
+  box-sizing: border-box;
+}
+
+al-devpanel ul,
+al-devpanel ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
 al-devpanel > nav {
@@ -29,12 +49,13 @@ al-devpanel > nav {
 al-devpanel > nav > button {
   margin: 0;
   padding: 0.25rem 0.5rem;
-  border: 0;
+  border: 0 solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--muted-foreground);
   font-family: inherit;
   font-size: inherit;
+  line-height: inherit;
   cursor: pointer;
 }
 

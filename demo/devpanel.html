@@ -26,7 +26,7 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 <p>Open, every section shows (no tab switching); collapsed, only the bar. The server picks with <code>open</code>.</p>
 <al-devpanel open>
   <nav><button type="button" aria-controls="np-sql">SQL</button><button type="button" aria-controls="np-msgs">Messages</button></nav>
-  <section id="np-sql"><pre>SELECT id, title FROM posts WHERE published = 1 ORDER BY id DESC;</pre></section>
+  <section id="np-sql"><ul><li>Rows: 2</li></ul><pre>SELECT id, title FROM posts WHERE published = 1 ORDER BY id DESC;</pre></section>
   <section id="np-msgs">Msg: PostSaved</section>
 </al-devpanel>
 </section>
