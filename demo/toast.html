@@ -29,11 +29,20 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 
 <section>
 <h2>Enhanced</h2>
-<p>With the script, each region is shown when its toast connects. These are sticky (<code>timeout="0"</code>) so you can see all four variants at all four corners; the default <code>timeout</code> is 5000 ms and the toast closes itself.</p>
-<al-toasts popover="manual" position="bottom-right"><al-toast variant="info" timeout="0">Info toast (bottom-right).</al-toast></al-toasts>
-<al-toasts popover="manual" position="top-left"><al-toast variant="success" timeout="0">Success toast (top-left).</al-toast></al-toasts>
-<al-toasts popover="manual" position="top-right"><al-toast variant="warning" timeout="0">Warning toast (top-right).</al-toast></al-toasts>
-<al-toasts popover="manual" position="bottom-left"><al-toast variant="destructive" timeout="0">Destructive toast (bottom-left).</al-toast></al-toasts>
+<p>With the script, each region is shown when its toast connects. These are sticky (<code>timeout="0"</code>) so you can see all four variants at all four corners; the default <code>timeout</code> is 5000 ms and the toast closes itself. The first child is the title and the rest the description; a toast that is only text is all title.</p>
+<al-toasts popover="manual" position="bottom-right"><al-toast variant="info" timeout="0"><strong>Info toast</strong><div>Bottom-right, the default corner.</div></al-toast></al-toasts>
+<al-toasts popover="manual" position="top-left"><al-toast variant="success" timeout="0"><strong>Success toast</strong><div>Top-left.</div></al-toast></al-toasts>
+<al-toasts popover="manual" position="top-right"><al-toast variant="warning" timeout="0"><strong>Warning toast</strong><div>Top-right.</div></al-toast></al-toasts>
+<al-toasts popover="manual" position="bottom-left" id="demo-toasts"><al-toast variant="destructive" timeout="0">Destructive toast (bottom-left).</al-toast></al-toasts>
+</section>
+
+<section>
+<h2>Timeout and motion</h2>
+<p>A toast slides in from its region's edge and, when it closes, slides back out before it is removed (not with reduced motion). This one closes after 3000 ms.</p>
+<al-button variant="outline"><button type="button" onclick="addToast()">Show a toast</button></al-button>
+<script>
+function addToast(){var t=document.createElement("al-toast");t.setAttribute("variant","success");t.setAttribute("timeout","3000");t.innerHTML="<strong>Saved</strong><div>Closes in 3 seconds.</div>";document.getElementById("demo-toasts").append(t)}
+</script>
 </section>
 </al-stack>
 </al-page>

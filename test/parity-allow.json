@@ -1,5 +1,5 @@
 {
-  "pending": ["toast", "tabs"],
+  "pending": ["tabs"],
   "map": {
     "card/title/unslotted": "card/title/default",
     "card/description/unslotted": "card/description/default",

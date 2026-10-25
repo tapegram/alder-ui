@@ -252,13 +252,15 @@ window.addEventListener("load", function () {
 
 <al-stack gap="md" data-section="toast">
   <h2>toast</h2>
-  <al-toasts popover="manual" position="bottom-right" data-ref-open>
-    <al-toast timeout="0" data-ref="toast/default/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
+  <al-toasts popover="manual" position="bottom-right" data-ref-open data-expect="bottom: 24px; right: 24px; gap: 14px; flex-direction: column">
+    <al-toast timeout="0" data-ref="toast/default/default"><strong data-expect="font-size: 13px; font-weight: 500; line-height: 19.5px">Toast title</strong><div data-expect="font-size: 13px; font-weight: 400; line-height: 18.2px; opacity: 0.8">Toast description</div></al-toast>
     <al-toast variant="success" timeout="0" data-ref="toast/success/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
     <al-toast variant="info" timeout="0" data-ref="toast/info/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
     <al-toast variant="warning" timeout="0" data-ref="toast/warning/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
     <al-toast variant="destructive" timeout="0" data-ref="toast/destructive/default"><strong>Toast title</strong><div>Toast description</div></al-toast>
   </al-toasts>
+  <!-- the timeout close check (test/parity.py CLOSE_CHECKS) adds a toast here -->
+  <al-toasts popover="manual" position="top-right" id="parity-toasts-timeout" data-expect="top: 24px; right: 24px; flex-direction: column-reverse"></al-toasts>
 </al-stack>
 
 </al-stack>

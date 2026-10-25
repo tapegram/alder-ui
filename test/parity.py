@@ -397,7 +397,9 @@ class Page:
 
 # Review Focus 4: with motion on, an overlay must be gone once its exit transition has run.
 # Each entry: (component, label, selector, open js, close, shim). The js take the element;
-# close is js, or a Python callable (page, element) for a real pointer or key. shim=True
+# open js may return another element, which is then the one checked (a toast it adds to
+# the region). close is js, a Python callable (page, element) for a real pointer or key,
+# or a number: the overlay closes itself after that many ms (a toast's timeout). shim=True
 # deletes HTMLButtonElement.prototype.commandForElement before load, so
 # components/al-shim.js polyfills the invoker commands. Chromium's own invokers still act
 # (R20), so the shim runs use idempotent commands: a toggle would run twice and cancel out.
@@ -423,6 +425,9 @@ CLOSE_CHECKS = [
     ("tooltip", "pointerleave", "al-tooltip[for=parity-tooltip-trigger]",
      "(el) => %s.dispatchEvent(new PointerEvent('pointerenter'))" % _TIP_TRIGGER,
      "(el) => %s.dispatchEvent(new PointerEvent('pointerleave'))" % _TIP_TRIGGER, False),
+    ("toast", "timeout", "#parity-toasts-timeout",
+     "(el) => { const t = document.createElement('al-toast'); t.setAttribute('timeout', '100');"
+     " t.textContent = 'Timed toast'; return el.appendChild(t) }", 100, False),
 ]
 CLOSE_WAIT_MS = 300  # longer than the 200ms dialog / 150ms overlay exit transitions
 
@@ -457,19 +462,26 @@ def close_problems(st):
 
 
 def check_closes(page, selector, close_js, open_js=_SHOW_MODAL):
-    """Open the overlay `selector` names, close it with close_js (js, or a callable taking
-    the page and the element), wait out the exit transition, and return close_problems()
-    for it. The page must have motion on."""
+    """Open the overlay `selector` names (or the element open_js returns), close it with
+    close_js (js, a callable taking the page and the element, or the ms after which it
+    closes itself), wait out the exit transition, and return close_problems() for it. The
+    page must have motion on."""
     el = page.query_selector(selector)
     if el is None:
         return ["%s is not on the page" % selector]
-    el.evaluate(open_js)
-    page.wait_for_timeout(CLOSE_WAIT_MS)
-    opened = el.evaluate(OPENED_JS)
-    if callable(close_js):
-        close_js(page, el)
+    el = el.evaluate_handle(open_js).as_element() or el
+    if isinstance(close_js, (int, float)):
+        # It closes itself: check it opened at once, then wait out its timeout as well.
+        page.evaluate(SETTLE_JS)
+        opened = el.evaluate(OPENED_JS)
+        page.wait_for_timeout(close_js)
     else:
-        el.evaluate(close_js)
+        page.wait_for_timeout(CLOSE_WAIT_MS)
+        opened = el.evaluate(OPENED_JS)
+        if callable(close_js):
+            close_js(page, el)
+        else:
+            el.evaluate(close_js)
     page.wait_for_timeout(CLOSE_WAIT_MS)
     st = page.evaluate(CLOSED_JS, [el, opened["x"], opened["y"]])
     st["opened"] = opened["opened"]

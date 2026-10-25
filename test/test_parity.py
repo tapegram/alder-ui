@@ -133,8 +133,15 @@ class CloseChecksTest(unittest.TestCase):
         return [c[1] for c in parity.CLOSE_CHECKS if c[0] == comp]
 
     def test_every_overlay_is_checked(self):
-        for comp in ("dialog", "popover", "menu", "tooltip"):
+        for comp in ("dialog", "popover", "menu", "tooltip", "toast"):
             self.assertTrue(self.labels(comp), comp)
+
+    def test_toast_closes_by_timeout(self):
+        # The toast closes itself: close is the ms it does so after, and the toast the
+        # open js adds carries that timeout.
+        (entry,) = [c for c in parity.CLOSE_CHECKS if c[:2] == ("toast", "timeout")]
+        self.assertEqual(entry[4], 100)
+        self.assertIn("'timeout', '100'", entry[3])
 
     def test_popover_closes_every_way(self):
         self.assertIn("hidePopover()", self.labels("popover"))

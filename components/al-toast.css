@@ -4,47 +4,114 @@
  * shows the region when a toast connects, closes the toast after timeout ms
  * (0 keeps it) and gives it role="status". Without JavaScript the region
  * stays hidden: render the message as an al-alert in the page instead.
+ *
+ * The look is sonner's under shadcn's Toaster: the popover surface, a border
+ * and the variant's icon (info, circle-check, triangle-alert, octagon-x),
+ * drawn as an ::before. No tinted backgrounds and no tinted text. The first
+ * child is the title and the rest the description; a toast that is only text
+ * is all title.
  */
 
+/* [data-sonner-toast]: width var(--width) 356px; padding 16px; gap 6px;
+   display flex; align-items center; border-radius var(--border-radius);
+   border 1px solid var(--normal-border); background var(--normal-bg);
+   color var(--normal-text); box-shadow 0 4px 12px rgb(0 0 0 / .1);
+   font-size 13px; outline 0   (the Toaster's --normal-bg, --normal-text,
+   --normal-border and --border-radius are var(--popover),
+   var(--popover-foreground), var(--border) and var(--radius)). A grid here,
+   so the title and description stack beside the icon without the
+   [data-content] wrapper sonner adds. */
 al-toast {
-  display: block;
-  inline-size: calc(var(--al-width-narrow) / 2);
-  max-inline-size: calc(100dvw - 2rem);
-  padding: 0.75rem 1rem;
+  --_al-icon: var(--_al-icon-info);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  inline-size: 356px;
+  max-inline-size: calc(100dvw - 48px);
+  padding: 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--popover);
   color: var(--popover-foreground);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 12px color-mix(in oklab, var(--color-black) 10%, transparent);
+  outline: 0;
   font-family: var(--font-sans);
-  font-size: 0.875rem;
+  font-size: 13px;
+  font-weight: 400;
   line-height: 1.5;
 }
 
+/* [data-icon]: size-4 (the Toaster's icons); margin-left -3px;
+   margin-right 4px; the icon is centred on the title and description */
+al-toast::before {
+  content: "";
+  grid-column: 1;
+  grid-row: 1;
+  width: 1rem;
+  height: 1rem;
+  margin-inline: -3px 4px;
+  background: currentColor;
+  mask: var(--_al-icon) center / contain no-repeat;
+}
+
+al-toast:has(> * + *)::before {
+  grid-row: 1 / span 2;
+}
+
 al-toast[variant="success"] {
-  border-color: var(--border);
-  background: var(--popover);
-  color: var(--popover-foreground);
+  --_al-icon: var(--_al-icon-circle-check);
 }
 
 al-toast[variant="warning"] {
-  border-color: var(--border);
-  background: var(--popover);
-  color: var(--popover-foreground);
+  --_al-icon: var(--_al-icon-triangle-alert);
 }
 
+/* sonner's error type: the icon only (shadcn's Toaster sets no richColors) */
 al-toast[variant="destructive"] {
-  border-color: var(--border);
-  background: var(--popover);
-  color: var(--destructive);
+  --_al-icon: var(--_al-icon-octagon-x);
 }
 
+/* headings, paragraphs and lists inside reset to the toast's own recipe */
+al-toast > * {
+  grid-column: 2;
+  margin: 0;
+  padding: 0;
+  border-width: 0;
+  font-size: 13px;
+  letter-spacing: normal;
+}
+
+/* [data-title]: font-weight 500; line-height 1.5; color inherit */
+al-toast > :first-child,
+al-toast:not(:has(> *)) {
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* [data-description]: font-weight 400; line-height 1.4; opacity .8 on the
+   toast's colour (sonner's literal #3f3f3f is not a token). [data-content]
+   is a flex column with gap 2px; here the rows share the toast's 6px gap, so
+   the description pulls up 4px. */
+al-toast > * + * {
+  margin-block-start: -4px;
+  font-weight: 400;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
+/* [data-sonner-toaster]: position fixed; --offset 24px (VIEWPORT_OFFSET);
+   --gap 14px; the front toast sits at the region's edge */
 al-toasts {
+  --_al-from: 0 100%;
   position: fixed;
   inset: auto;
-  inset-block-end: 1rem;
-  inset-inline-end: 1rem;
+  inset-block-end: 24px;
+  inset-inline-end: 24px;
   display: none;
+  flex-direction: column;
+  gap: 14px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -54,19 +121,47 @@ al-toasts {
 
 al-toasts:popover-open {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+}
+
+al-toasts[position="top-left"],
+al-toasts[position="top-right"] {
+  --_al-from: 0 -100%;
+  flex-direction: column-reverse;
 }
 
 al-toasts[position="top-left"] {
-  inset-block: 1rem auto;
-  inset-inline: 1rem auto;
+  inset-block: 24px auto;
+  inset-inline: 24px auto;
 }
 
 al-toasts[position="top-right"] {
-  inset-block: 1rem auto;
+  inset-block: 24px auto;
 }
 
 al-toasts[position="bottom-left"] {
-  inset-inline: 1rem auto;
+  inset-inline: 24px auto;
+}
+
+/* [data-sonner-toast][data-mounted=false]: translate from the region's edge,
+   opacity 0; [data-removed=true]: back out the same way. --_al-from is the
+   toast's own height toward the edge; al-toast.js sets data-closing and
+   removes the toast once the exit transition has run. */
+@media (prefers-reduced-motion: no-preference) {
+  al-toast {
+    transition-property: opacity, translate;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  al-toast[data-closing] {
+    opacity: 0;
+    translate: var(--_al-from);
+  }
+
+  @starting-style {
+    al-toast {
+      opacity: 0;
+      translate: var(--_al-from);
+    }
+  }
 }
