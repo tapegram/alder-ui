@@ -1816,7 +1816,8 @@ al-card > :not([slot="header"], [slot="description"], [slot="action"]) {
   padding-inline: 1.5rem;
 }
 
-/* CardTitle: leading-none font-semibold; CardDescription: text-sm
+/* CardTitle: leading-none font-semibold (and no Typography h2 divider:
+   border-b pb-2 is reset, as in al-dialog); CardDescription: text-sm
    text-muted-foreground; CardAction: col-start-2 row-start-1 self-start
    justify-self-end row-span-2 (span 2 only when a description exists, below:
    otherwise it would leave an empty row); the -1rem start margin turns the
@@ -1832,6 +1833,8 @@ al-card > :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot
 al-card > [slot="header"],
 al-card > :is(h2, h3):nth-child(1 of :not([slot])) {
   order: -3;
+  padding-block: 0;
+  border-width: 0;
   font-size: 1rem;
   font-weight: 600;
   line-height: 1;

@@ -102,11 +102,17 @@ window.addEventListener("load", function () {
     <div data-ref="card/content/default">Card Content</div>
     <div slot="footer" data-ref="card/footer/default">Card Footer</div>
   </al-card>
-  <!-- twin: an unslotted leading heading and the p after it are title and description -->
+  <!-- twin: an unslotted leading heading and the p after it are title and description
+       (an h2, so Typography's h2 divider, border-b pb-2, must not reach a card title) -->
   <al-card>
-    <h3 data-ref="card/title/unslotted">Card Title</h3>
+    <h2 data-ref="card/title/unslotted">Card Title</h2>
     <p data-ref="card/description/unslotted">Card Description</p>
     <div slot="action">Card Action</div>
+    <div>Card Content</div>
+  </al-card>
+  <!-- twin-only (final review I2): a slotted h2 title has no Typography divider either -->
+  <al-card>
+    <h2 slot="header" data-expect="border-bottom-width: 0px; padding-bottom: 0px; margin-top: 0px">Card Title</h2>
     <div>Card Content</div>
   </al-card>
 </al-stack>
