@@ -1,0 +1,768 @@
+<!doctype html>
+<!-- Built by scripts/build.py from demo/*.html; do not edit. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>alder-ui v0.4.1</title>
+<script>try{document.documentElement.classList.toggle("dark",localStorage.theme==="dark"||(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches))}catch(e){}</script>
+<link rel="stylesheet" href="al.css">
+<script type="module" src="al.js"></script>
+<script>
+function toggleTheme(){var d=document.documentElement.classList.toggle("dark");try{localStorage.theme=d?"dark":"light"}catch(e){}}
+</script>
+<style>
+.ds-top{position:sticky;top:0;z-index:5;background:var(--background);border-bottom:1px solid var(--border);padding:10px max(16px, env(safe-area-inset-left, 0px))}
+.ds-nav{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px}
+.ds-nav a{color:var(--muted-foreground);text-decoration:none}
+.ds-nav a:hover,.ds-nav a:focus-visible{color:var(--foreground)}
+.ds-sec{scroll-margin-top:96px;border-top:1px solid var(--border);padding-top:32px}
+.ds-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.ds-sw{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ds-sw span{height:44px;border-radius:var(--radius);border:1px solid var(--border)}
+.ds-sw code{font-size:11px;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<div class="ds-top"><al-stack gap="sm"><al-stack direction="row" gap="sm"><strong>alder-ui v0.4.1</strong><al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button></al-stack><nav class="ds-nav"><a href="#tokens">tokens</a><a href="#button">button</a><a href="#input">input</a><a href="#textarea">textarea</a><a href="#select">select</a><a href="#checkbox">checkbox</a><a href="#table">table</a><a href="#card">card</a><a href="#badge">badge</a><a href="#alert">alert</a><a href="#pagination">pagination</a><a href="#stack">stack</a><a href="#page">page</a><a href="#dialog">dialog</a><a href="#popover">popover</a><a href="#menu">menu</a><a href="#tabs">tabs</a><a href="#toast">toast</a><a href="#tooltip">tooltip</a><a href="#devpanel">devpanel</a></nav></al-stack></div>
+<al-page>
+<al-stack gap="lg">
+<h1>alder-ui v0.4.1</h1>
+<p>A light-DOM, token-based design system with shadcn/ui's look (new-york-v4, neutral): plain CSS in <code>@layer al</code>, plus small scripts that progressively enhance the interactive elements. This page links the built <code>al.css</code> and <code>al.js</code> and shows every element's demo as it renders. The per-element pages, which also show the no-JavaScript fallbacks, are in <a href="demo/index.html">demo/</a>. Source and docs: <a href="https://github.com/tapegram/alder-ui">github.com/tapegram/alder-ui</a>.</p>
+<section id="tokens" class="ds-sec"><al-stack gap="md"><h2>Colour tokens</h2><p>shadcn's canonical neutral theme, verbatim oklch values. Re-theme by pasting a shadcn or tweakcn export after <code>al.css</code>.</p><div class="ds-grid"><div class="ds-sw"><span style="background:var(--background)"></span><code>--background</code></div><div class="ds-sw"><span style="background:var(--foreground)"></span><code>--foreground</code></div><div class="ds-sw"><span style="background:var(--card)"></span><code>--card</code></div><div class="ds-sw"><span style="background:var(--card-foreground)"></span><code>--card-foreground</code></div><div class="ds-sw"><span style="background:var(--popover)"></span><code>--popover</code></div><div class="ds-sw"><span style="background:var(--popover-foreground)"></span><code>--popover-foreground</code></div><div class="ds-sw"><span style="background:var(--primary)"></span><code>--primary</code></div><div class="ds-sw"><span style="background:var(--primary-foreground)"></span><code>--primary-foreground</code></div><div class="ds-sw"><span style="background:var(--secondary)"></span><code>--secondary</code></div><div class="ds-sw"><span style="background:var(--secondary-foreground)"></span><code>--secondary-foreground</code></div><div class="ds-sw"><span style="background:var(--muted)"></span><code>--muted</code></div><div class="ds-sw"><span style="background:var(--muted-foreground)"></span><code>--muted-foreground</code></div><div class="ds-sw"><span style="background:var(--accent)"></span><code>--accent</code></div><div class="ds-sw"><span style="background:var(--accent-foreground)"></span><code>--accent-foreground</code></div><div class="ds-sw"><span style="background:var(--destructive)"></span><code>--destructive</code></div><div class="ds-sw"><span style="background:var(--border)"></span><code>--border</code></div><div class="ds-sw"><span style="background:var(--input)"></span><code>--input</code></div><div class="ds-sw"><span style="background:var(--ring)"></span><code>--ring</code></div><div class="ds-sw"><span style="background:var(--chart-1)"></span><code>--chart-1</code></div><div class="ds-sw"><span style="background:var(--chart-2)"></span><code>--chart-2</code></div><div class="ds-sw"><span style="background:var(--chart-3)"></span><code>--chart-3</code></div><div class="ds-sw"><span style="background:var(--chart-4)"></span><code>--chart-4</code></div><div class="ds-sw"><span style="background:var(--chart-5)"></span><code>--chart-5</code></div><div class="ds-sw"><span style="background:var(--sidebar)"></span><code>--sidebar</code></div><div class="ds-sw"><span style="background:var(--sidebar-foreground)"></span><code>--sidebar-foreground</code></div><div class="ds-sw"><span style="background:var(--sidebar-primary)"></span><code>--sidebar-primary</code></div><div class="ds-sw"><span style="background:var(--sidebar-primary-foreground)"></span><code>--sidebar-primary-foreground</code></div><div class="ds-sw"><span style="background:var(--sidebar-accent)"></span><code>--sidebar-accent</code></div><div class="ds-sw"><span style="background:var(--sidebar-accent-foreground)"></span><code>--sidebar-accent-foreground</code></div><div class="ds-sw"><span style="background:var(--sidebar-border)"></span><code>--sidebar-border</code></div><div class="ds-sw"><span style="background:var(--sidebar-ring)"></span><code>--sidebar-ring</code></div><div class="ds-sw"><span style="background:var(--destructive-foreground)"></span><code>--destructive-foreground</code></div></div></al-stack></section>
+<section id="button" class="ds-sec"><al-stack gap="md"><h2>al-button</h2>
+<p>One look, three forms. Put a native <code>&lt;button&gt;</code> inside: it works with no JavaScript (Alder renders the button inside for you). An <code>&lt;a&gt;</code> inside makes a link that looks like a button. The element alone is presentational: it looks like a button but is not one until a framework gives it a role, focus and Enter/Space handling.</p>
+<section>
+<h3>Variants</h3>
+<form action="#">
+  <al-stack direction="row" gap="sm">
+    <al-button variant="primary" type="submit"><button type="submit">Save</button></al-button>
+    <al-button variant="secondary" type="button"><button type="button">Secondary</button></al-button>
+    <al-button variant="outline" type="button"><button type="button">Cancel</button></al-button>
+    <al-button variant="ghost" type="button"><button type="button">Ghost</button></al-button>
+    <al-button variant="destructive" type="submit"><button type="submit">Delete</button></al-button>
+    <al-button variant="link" type="button"><button type="button">Link</button></al-button>
+  </al-stack>
+</form>
+</section>
+
+<section>
+<h3>Sizes</h3>
+<al-stack direction="row" gap="sm">
+  <al-button size="sm"><button type="button">Small</button></al-button>
+  <al-button size="md"><button type="button">Medium</button></al-button>
+  <al-button size="lg"><button type="button">Large</button></al-button>
+  <al-button size="xs"><button type="button">Extra small</button></al-button>
+</al-stack>
+</section>
+
+<section>
+<h3>Icons</h3>
+<al-stack direction="row" gap="sm">
+  <al-button size="icon-sm"><button type="button" aria-label="Next"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+  <al-button size="icon"><button type="button" aria-label="Next"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+  <al-button size="icon-lg"><button type="button" aria-label="Next"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></al-button>
+  <al-button><button type="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>Next</button></al-button>
+</al-stack>
+</section>
+
+<section>
+<h3>Disabled</h3>
+<al-stack direction="row" gap="sm">
+  <al-button variant="primary" disabled><button type="button" disabled>Primary</button></al-button>
+  <al-button variant="outline" disabled><button type="button" disabled>Outline</button></al-button>
+</al-stack>
+</section>
+
+<section>
+<h3>Links</h3>
+<al-stack direction="row" gap="sm">
+  <al-button variant="outline"><a href="#">All posts</a></al-button>
+  <al-button variant="ghost"><a href="#">Cancel</a></al-button>
+  <al-button variant="link"><a href="#">Learn more</a></al-button>
+</al-stack>
+</section>
+
+<section>
+<h3>The element alone (presentational)</h3>
+<al-stack direction="row" gap="sm">
+  <al-button variant="primary">Primary</al-button>
+  <al-button variant="secondary">Secondary</al-button>
+  <al-button variant="outline">Outline</al-button>
+  <al-button variant="ghost">Ghost</al-button>
+  <al-button variant="destructive">Delete</al-button>
+  <al-button variant="link">Link</al-button>
+  <al-button size="sm" disabled>Disabled</al-button>
+</al-stack>
+</section>
+
+</al-stack></section>
+<section id="input" class="ds-sec"><al-stack gap="md"><h2>al-input</h2>
+<p>The markup Alder renders for <code>&lt;al-input field="title" label="Title" /&gt;</code>: a real <code>&lt;label&gt;</code> around the input, then the help text (when given) and the <code>ul.errors</code> list. <code>help</code> is a <code>&lt;small class="help"&gt;</code>; <code>invalid</code> colours the border.</p>
+<section>
+<h3>Default</h3>
+<al-input label="Title" placeholder="A short title"><label>Title<input name="title" type="text" required placeholder="A short title"></label><ul class="errors" data-errors="title"></ul></al-input>
+</section>
+
+<section>
+<h3>With help</h3>
+<p>The markup Alder renders: a <code>&lt;small class="help"&gt;</code> after the label, named by the control's <code>aria-describedby</code> so a screen reader reads it.</p>
+<al-input label="Email" help="We never share it."><label>Email<input name="email" type="email" required aria-describedby="help-email"></label><small class="help" id="help-email">We never share it.</small><ul class="errors" data-errors="email"></ul></al-input>
+<p>The attribute alone also draws the text (but it is not announced):</p>
+<al-input label="Email" help="We never share it."><label>Email<input name="email" type="email" required></label><ul class="errors" data-errors="email"></ul></al-input>
+</section>
+
+<section>
+<h3>Invalid</h3>
+<al-input label="Title" invalid><label>Title<input name="title" type="text" required></label><ul class="errors" data-errors="title"><li>must not be empty</li></ul></al-input>
+</section>
+
+<section>
+<h3>Disabled</h3>
+<al-input label="Slug" disabled><label>Slug<input name="slug" type="text" value="hello-world" disabled></label><ul class="errors" data-errors="slug"></ul></al-input>
+</section>
+
+</al-stack></section>
+<section id="textarea" class="ds-sec"><al-stack gap="md"><h2>al-textarea</h2>
+<p>The markup Alder renders for <code>&lt;al-textarea field="body" label="Body" /&gt;</code>.</p>
+<section>
+<h3>Default</h3>
+<al-textarea label="Body" placeholder="Write something"><label>Body<textarea name="body" required placeholder="Write something"></textarea></label><ul class="errors" data-errors="body"></ul></al-textarea>
+</section>
+
+<section>
+<h3>With help</h3>
+<p>The markup Alder renders: a <code>&lt;small class="help"&gt;</code> after the label, named by the control's <code>aria-describedby</code> so a screen reader reads it.</p>
+<al-textarea label="Bio" help="Markdown is not supported."><label>Bio<textarea name="bio" aria-describedby="help-bio"></textarea></label><small class="help" id="help-bio">Markdown is not supported.</small><ul class="errors" data-errors="bio"></ul></al-textarea>
+<p>The attribute alone also draws the text (but it is not announced):</p>
+<al-textarea label="Bio" help="Markdown is not supported."><label>Bio<textarea name="bio"></textarea></label><ul class="errors" data-errors="bio"></ul></al-textarea>
+</section>
+
+<section>
+<h3>Invalid</h3>
+<al-textarea label="Body" invalid><label>Body<textarea name="body" required></textarea></label><ul class="errors" data-errors="body"><li>must not be empty</li><li>must be at most 5000 characters</li></ul></al-textarea>
+</section>
+
+<section>
+<h3>Disabled</h3>
+<al-textarea label="Notes" disabled><label>Notes<textarea name="notes" disabled>Locked.</textarea></label><ul class="errors" data-errors="notes"></ul></al-textarea>
+</section>
+
+</al-stack></section>
+<section id="select" class="ds-sec"><al-stack gap="md"><h2>al-select</h2>
+<p>The markup Alder renders for <code>&lt;al-select field="kind" label="Kind" /&gt;</code>. The native select keeps its arrow and keyboard behaviour.</p>
+<section>
+<h3>Default</h3>
+<al-select label="Kind"><label>Kind<select name="kind" required><option value="Bug">Bug</option><option value="Feature">Feature</option></select></label><ul class="errors" data-errors="kind"></ul></al-select>
+</section>
+
+<section>
+<h3>With help</h3>
+<p>The markup Alder renders: a <code>&lt;small class="help"&gt;</code> after the label, named by the control's <code>aria-describedby</code> so a screen reader reads it.</p>
+<al-select label="Priority" help="High wakes someone up."><label>Priority<select name="priority" required aria-describedby="help-priority"><option value="Low">Low</option><option value="High">High</option></select></label><small class="help" id="help-priority">High wakes someone up.</small><ul class="errors" data-errors="priority"></ul></al-select>
+<p>The attribute alone also draws the text (but it is not announced):</p>
+<al-select label="Priority" help="High wakes someone up."><label>Priority<select name="priority" required><option value="Low">Low</option><option value="High">High</option></select></label><ul class="errors" data-errors="priority"></ul></al-select>
+</section>
+
+<section>
+<h3>Invalid</h3>
+<al-select label="Kind" invalid><label>Kind<select name="kind" required><option value="Bug">Bug</option><option value="Feature">Feature</option></select></label><ul class="errors" data-errors="kind"><li>must be one of Bug, Feature</li></ul></al-select>
+</section>
+
+<section>
+<h3>Disabled</h3>
+<al-select label="Kind" disabled><label>Kind<select name="kind" disabled><option value="Bug">Bug</option></select></label><ul class="errors" data-errors="kind"></ul></al-select>
+</section>
+
+</al-stack></section>
+<section id="checkbox" class="ds-sec"><al-stack gap="md"><h2>al-checkbox</h2>
+<p>The markup Alder renders for <code>&lt;al-checkbox field="done" label="Done" /&gt;</code> on a Bool field. The box is drawn before the text.</p>
+<section>
+<h3>Default</h3>
+<al-checkbox label="Done"><label>Done<input name="done" type="checkbox" value="True"></label><ul class="errors" data-errors="done"></ul></al-checkbox>
+</section>
+
+<section>
+<h3>Checked</h3>
+<al-checkbox label="Published"><label>Published<input name="published" type="checkbox" value="True" checked></label><ul class="errors" data-errors="published"></ul></al-checkbox>
+</section>
+
+<section>
+<h3>With help</h3>
+<p>The markup Alder renders: a <code>&lt;small class="help"&gt;</code> after the label, named by the control's <code>aria-describedby</code> so a screen reader reads it.</p>
+<al-checkbox label="Subscribe" help="One email a month."><label>Subscribe<input name="subscribe" type="checkbox" value="True" aria-describedby="help-subscribe"></label><small class="help" id="help-subscribe">One email a month.</small><ul class="errors" data-errors="subscribe"></ul></al-checkbox>
+<p>The attribute alone also draws the text (but it is not announced):</p>
+<al-checkbox label="Subscribe" help="One email a month."><label>Subscribe<input name="subscribe" type="checkbox" value="True"></label><ul class="errors" data-errors="subscribe"></ul></al-checkbox>
+</section>
+
+<section>
+<h3>Invalid</h3>
+<al-checkbox label="I agree to the terms" invalid><label>I agree to the terms<input name="agree" type="checkbox" value="True"></label><ul class="errors" data-errors="agree"><li>must be checked</li></ul></al-checkbox>
+</section>
+
+<section>
+<h3>Disabled</h3>
+<al-checkbox label="Archived" disabled><label>Archived<input name="archived" type="checkbox" value="True" checked disabled></label><ul class="errors" data-errors="archived"></ul></al-checkbox>
+</section>
+
+</al-stack></section>
+<section id="table" class="ds-sec"><al-stack gap="md"><h2>al-table</h2>
+<p>Styles the <code>&lt;table&gt;</code> inside it; scrolls sideways when the table is wider than the page.</p>
+<section>
+<h3>Default</h3>
+<al-table>
+  <table>
+    <thead><tr><th>Title</th><th>Status</th><th>Comments</th></tr></thead>
+    <tbody>
+      <tr><td>Hello, world</td><td><al-badge>Published</al-badge></td><td>3</td></tr>
+      <tr><td>Drafts are fine</td><td><al-badge variant="secondary">Draft</al-badge></td><td>0</td></tr>
+      <tr><td>On tokens</td><td><al-badge>Published</al-badge></td><td>12</td></tr>
+      <tr><td>Old news</td><td><al-badge variant="outline">Archived</al-badge></td><td>1</td></tr>
+    </tbody>
+  </table>
+</al-table>
+</section>
+
+<section>
+<h3>Striped</h3>
+<al-table striped>
+  <table>
+    <thead><tr><th>Title</th><th>Status</th><th>Comments</th></tr></thead>
+    <tbody>
+      <tr><td>Hello, world</td><td><al-badge>Published</al-badge></td><td>3</td></tr>
+      <tr><td>Drafts are fine</td><td><al-badge variant="secondary">Draft</al-badge></td><td>0</td></tr>
+      <tr><td>On tokens</td><td><al-badge>Published</al-badge></td><td>12</td></tr>
+      <tr><td>Old news</td><td><al-badge variant="outline">Archived</al-badge></td><td>1</td></tr>
+    </tbody>
+  </table>
+</al-table>
+</section>
+
+<section>
+<h3>Dense</h3>
+<al-table dense>
+  <table>
+    <thead><tr><th>Title</th><th>Status</th><th>Comments</th></tr></thead>
+    <tbody>
+      <tr><td>Hello, world</td><td><al-badge>Published</al-badge></td><td>3</td></tr>
+      <tr><td>Drafts are fine</td><td><al-badge variant="secondary">Draft</al-badge></td><td>0</td></tr>
+      <tr><td>On tokens</td><td><al-badge>Published</al-badge></td><td>12</td></tr>
+      <tr><td>Old news</td><td><al-badge variant="outline">Archived</al-badge></td><td>1</td></tr>
+    </tbody>
+  </table>
+</al-table>
+</section>
+
+<section>
+<h3>Striped and dense</h3>
+<al-table striped dense>
+  <table>
+    <thead><tr><th>Title</th><th>Status</th><th>Comments</th></tr></thead>
+    <tbody>
+      <tr><td>Hello, world</td><td><al-badge>Published</al-badge></td><td>3</td></tr>
+      <tr><td>Drafts are fine</td><td><al-badge variant="secondary">Draft</al-badge></td><td>0</td></tr>
+      <tr><td>On tokens</td><td><al-badge>Published</al-badge></td><td>12</td></tr>
+      <tr><td>Old news</td><td><al-badge variant="outline">Archived</al-badge></td><td>1</td></tr>
+    </tbody>
+  </table>
+</al-table>
+</section>
+
+</al-stack></section>
+<section id="card" class="ds-sec"><al-stack gap="md"><h2>al-card</h2>
+<p>A bordered surface. Children are placed by slot, whatever their order in the source: <code>header</code>, <code>description</code> and <code>action</code> (the title area), the body, <code>footer</code>, then <code>actions</code>.</p>
+<section>
+<h3>Every slot</h3>
+<al-card>
+  <h3 slot="header">Hello, world</h3>
+  <p slot="description">The first post, in brief.</p>
+  <al-badge slot="action">New</al-badge>
+  <p>The first post. Cards hold any content; the body is everything without a slot.</p>
+  <p slot="footer">Posted on 12 October 2026</p>
+  <div slot="actions">
+    <al-button variant="outline" type="button"><button type="button">Edit</button></al-button>
+    <al-button variant="destructive" type="submit"><button type="submit">Delete</button></al-button>
+  </div>
+</al-card>
+</section>
+
+<section>
+<h3>Unslotted heading</h3>
+<p>A leading <code>h3</code> with no slot is the title, and a <code>p</code> right after it the description.</p>
+<al-card>
+  <h3>Hello, again</h3>
+  <p>Styled like the slotted header and description.</p>
+  <p>The body.</p>
+</al-card>
+</section>
+
+<section>
+<h3>Body only</h3>
+<al-card>
+  <p>Just a surface.</p>
+</al-card>
+</section>
+
+</al-stack></section>
+<section id="badge" class="ds-sec"><al-stack gap="md"><h2>al-badge</h2>
+<p>A small pill for a status or a count.</p>
+<section>
+<h3>Variants</h3>
+<al-stack direction="row" gap="sm">
+  <al-badge>Default</al-badge>
+  <al-badge variant="default">Published</al-badge>
+  <al-badge variant="secondary">Draft</al-badge>
+  <al-badge variant="outline">Archived</al-badge>
+  <al-badge variant="destructive">Failed</al-badge>
+</al-stack>
+</section>
+
+<section>
+<h3>As a link</h3>
+<al-stack direction="row" gap="sm">
+  <al-badge><a href="#">Default</a></al-badge>
+  <al-badge variant="secondary"><a href="#">Secondary</a></al-badge>
+  <al-badge variant="outline"><a href="#">Outline</a></al-badge>
+  <al-badge variant="destructive"><a href="#">Destructive</a></al-badge>
+</al-stack>
+</section>
+
+</al-stack></section>
+<section id="alert" class="ds-sec"><al-stack gap="md"><h2>al-alert</h2>
+<p>A message box. Write <code>role="alert"</code> (warning, destructive) or <code>role="status"</code> (info, success) yourself: CSS cannot add a role. <code>heading</code> is drawn as the heading. <code>dismissible</code> makes room for the close button that the optional <code>al-alert.js</code> module adds.</p>
+<section>
+<h3>Variants</h3>
+<al-stack gap="sm">
+  <al-alert variant="info" heading="Heads up" role="status">Comments are moderated before they appear.</al-alert>
+  <al-alert variant="success" heading="Saved" role="status">Your post is live.</al-alert>
+  <al-alert variant="warning" heading="Unsaved changes" role="alert">Leaving this page discards your draft.</al-alert>
+  <al-alert variant="destructive" heading="Could not save" role="alert">The title must not be empty.</al-alert>
+</al-stack>
+</section>
+
+<section>
+<h3>Holding a form's errors</h3>
+<p>An alert whose only child is an empty <code>ul.errors</code> is not drawn (Alder's <code>&lt;al-alert variant="destructive"&gt;&lt;Errors form /&gt;&lt;/al-alert&gt;</code> before any error). Below: the empty one (hidden), then one with an error.</p>
+<al-stack gap="sm">
+  <al-alert variant="destructive" role="alert"><ul class="errors" data-errors=""></ul></al-alert>
+  <al-alert variant="destructive" role="alert"><ul class="errors" data-errors=""><li>That slug is taken.</li></ul></al-alert>
+</al-stack>
+</section>
+
+<section>
+<h3>Without a heading</h3>
+<al-alert role="status">The default variant is info.</al-alert>
+</section>
+
+<section>
+<h3>Dismissible (with al-alert.js)</h3>
+<al-alert variant="success" heading="Saved" role="status" dismissible>Close me with the button.</al-alert>
+</section>
+
+</al-stack></section>
+<section id="pagination" class="ds-sec"><al-stack gap="md"><h2>al-pagination</h2>
+<p>Lays out the links the app renders: previous, then "Page N of M" from the attributes, then next. A side with nowhere to go is a <code>&lt;span aria-disabled="true"&gt;</code>. Children without a slot go in the middle and replace the generated text.</p>
+<section>
+<h3>First page</h3>
+<al-pagination page="1" pages="5" role="navigation" aria-label="Pagination">
+  <span slot="prev" aria-disabled="true">Previous</span>
+  <a slot="next" href="?page=2">Next</a>
+</al-pagination>
+</section>
+
+<section>
+<h3>A middle page</h3>
+<al-pagination page="2" pages="5" role="navigation" aria-label="Pagination">
+  <a slot="prev" href="?page=1">Previous</a>
+  <a slot="next" href="?page=3">Next</a>
+</al-pagination>
+</section>
+
+<section>
+<h3>Last page</h3>
+<al-pagination page="5" pages="5" role="navigation" aria-label="Pagination">
+  <a slot="prev" href="?page=4">Previous</a>
+  <span slot="next" aria-disabled="true">Next</span>
+</al-pagination>
+</section>
+
+<section>
+<h3>Your own middle text (the default slot)</h3>
+<al-pagination page="2" pages="5" role="navigation" aria-label="Pagination">
+  <a slot="prev" href="?page=1">Previous</a>
+  <span>Showing 11 to 20 of 48</span>
+  <a slot="next" href="?page=3">Next</a>
+</al-pagination>
+</section>
+
+<section>
+<h3>Page links (the default slot)</h3>
+<p>Unslotted links are square buttons; <code>aria-current="page"</code> outlines the current one.</p>
+<al-pagination role="navigation" aria-label="Pagination">
+  <a slot="prev" href="?page=1">Previous</a>
+  <a href="?page=1">1</a>
+  <a href="?page=2" aria-current="page">2</a>
+  <a href="?page=3">3</a>
+  <span aria-hidden="true">&hellip;</span>
+  <a slot="next" href="?page=3">Next</a>
+</al-pagination>
+</section>
+
+</al-stack></section>
+<section id="stack" class="ds-sec"><al-stack gap="md"><h2>al-stack</h2>
+<p>Lays its children out in a column (the default) or a wrapping row, with a gap.</p>
+<section>
+<h3>Column</h3>
+<al-stack direction="column">
+  <al-badge variant="outline">One</al-badge>
+  <al-badge variant="outline">Two</al-badge>
+  <al-badge variant="outline">Three</al-badge>
+</al-stack>
+</section>
+
+<section>
+<h3>Row</h3>
+<al-stack direction="row">
+  <al-badge variant="outline">One</al-badge>
+  <al-badge variant="outline">Two</al-badge>
+  <al-badge variant="outline">Three</al-badge>
+</al-stack>
+</section>
+
+<section>
+<h3>A form column: fields stretch, buttons and badges do not</h3>
+<al-stack>
+  <al-input label="Name"><label>Name<input name="name" type="text"></label><ul class="errors" data-errors="name"></ul></al-input>
+  <al-badge variant="secondary">Optional</al-badge>
+  <al-button variant="primary"><button type="submit">Save</button></al-button>
+</al-stack>
+</section>
+
+<section>
+<h3>Gaps: sm, md, lg</h3>
+<al-stack direction="row" gap="sm">
+  <al-badge variant="outline">One</al-badge>
+  <al-badge variant="outline">Two</al-badge>
+  <al-badge variant="outline">Three</al-badge>
+</al-stack>
+<al-stack direction="row" gap="md">
+  <al-badge variant="outline">One</al-badge>
+  <al-badge variant="outline">Two</al-badge>
+  <al-badge variant="outline">Three</al-badge>
+</al-stack>
+<al-stack direction="row" gap="lg">
+  <al-badge variant="outline">One</al-badge>
+  <al-badge variant="outline">Two</al-badge>
+  <al-badge variant="outline">Three</al-badge>
+</al-stack>
+</section>
+
+</al-stack></section>
+<section id="page" class="ds-sec"><al-stack gap="md"><h2>al-page</h2>
+<p>The content frame: a centred column of a set maximum width. Put one directly in <code>&lt;body&gt;</code>; this demo nests them to compare the widths.</p>
+<section>
+<h3>Widths</h3>
+<al-page width="narrow"><al-card><p>narrow: at most 40rem</p></al-card></al-page>
+<al-page width="normal"><al-card><p>normal (the default): at most 56rem</p></al-card></al-page>
+<al-page width="wide"><al-card><p>wide: at most 80rem</p></al-card></al-page>
+</section>
+<section>
+<h3>Typography</h3>
+<p>Flow content in a page gets shadcn's typography: headings, paragraphs, <a href="#plain">links</a>, <code>code</code>, quotes, lists, rules and tables.</p>
+<blockquote>A quoted passage.</blockquote>
+<ul>
+  <li>First item</li>
+  <li>Second item</li>
+</ul>
+<hr>
+<table>
+  <thead><tr><th>Name</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td>Alpha</td><td>One</td></tr>
+    <tr><td>Beta</td><td>Two</td></tr>
+  </tbody>
+</table>
+</section>
+
+</al-stack></section>
+<section id="dialog" class="ds-sec"><al-stack gap="md"><h2>al-dialog</h2>
+<p>A modal dialog around a native <code>&lt;dialog&gt;</code> that you write: Alder's renderer writes it for you (heading, close button and all), other stacks write it by hand, as here. Opened by <code>commandfor</code> / <code>command="show-modal"</code> on a button. The no-JS form comes first.</p>
+<!-- no-js -->
+<section>
+<h3>Without JavaScript</h3>
+<p>A link to the dialog's id shows it (<code>:target</code>); the close link <code>#</code> hides it. No script, no invoker commands.</p>
+<al-stack direction="row" gap="sm">
+  <al-button variant="outline"><a href="#about-nojs">Open (link)</a></al-button>
+</al-stack>
+<al-dialog heading="About" size="sm">
+  <dialog id="about-nojs">
+    <h2 slot="header">About</h3>
+    <p slot="description">Shown by the URL fragment alone.</p>
+    <div slot="actions"><al-button variant="primary"><a href="#">Close</a></al-button></div>
+  </dialog>
+</al-dialog>
+</section>
+
+<section>
+<h3>Sizes</h3>
+<al-stack direction="row" gap="sm">
+  <al-button variant="outline"><button type="button" commandfor="d-sm" command="show-modal">Small</button></al-button>
+  <al-button variant="outline"><button type="button" commandfor="d-md" command="show-modal">Medium</button></al-button>
+  <al-button variant="outline"><button type="button" commandfor="d-lg" command="show-modal">Large</button></al-button>
+</al-stack>
+<al-dialog heading="Small" size="sm">
+  <dialog id="d-sm" closedby="any">
+    <h2 slot="header">Small</h3>
+    <p>Escape or a backdrop click closes it.</p>
+    <div slot="actions"><al-button variant="primary"><button type="button" commandfor="d-sm" command="close">Done</button></al-button></div>
+  </dialog>
+</al-dialog>
+<al-dialog heading="Medium" size="md">
+  <dialog id="d-md" closedby="any">
+    <h2 slot="header">Medium</h3>
+    <p>The default size.</p>
+    <div slot="actions"><al-button variant="primary"><button type="button" commandfor="d-md" command="close">Done</button></al-button></div>
+  </dialog>
+</al-dialog>
+<al-dialog heading="Large" size="lg">
+  <dialog id="d-lg" closedby="any">
+    <h2 slot="header">Large</h3>
+    <p>Room for a form or a table.</p>
+    <div slot="actions"><al-button variant="primary"><button type="button" commandfor="d-lg" command="close">Done</button></al-button></div>
+  </dialog>
+</al-dialog>
+</section>
+
+<section>
+<h3>Dismissible, with actions</h3>
+<p>The shape Alder emits for <code>dismissible</code>: the close form first, the heading <code>&lt;h2 slot="header"&gt;</code> with an id the dialog's <code>aria-labelledby</code> names, then a <code>slot="description"</code> line in muted text.</p>
+<al-button variant="destructive"><button type="button" commandfor="d-confirm" command="show-modal">Delete post</button></al-button>
+<al-dialog heading="Delete this post?" dismissible>
+  <dialog id="d-confirm" aria-labelledby="d-confirm-heading" closedby="any">
+    <form method="dialog"><button type="submit" aria-label="Close Delete this post?">&times;</button></form>
+    <h2 slot="header" id="d-confirm-heading">Delete this post?</h3>
+    <p slot="description">This cannot be undone.</p>
+    <div slot="actions">
+      <al-button variant="outline"><button type="button" commandfor="d-confirm" command="close">Cancel</button></al-button>
+      <al-button variant="destructive"><button type="button" commandfor="d-confirm" command="close">Delete</button></al-button>
+    </div>
+  </dialog>
+</al-dialog>
+</section>
+</al-stack></section>
+<section id="popover" class="ds-sec"><al-stack gap="md"><h2>al-popover</h2>
+<p>A floating panel anchored to its invoker. <code>placement</code> picks the side, <code>offset</code> the gap, <code>anchor</code> another anchor by id; the browser flips it when there is no room.</p>
+<!-- no-js -->
+<section>
+<h3>Without JavaScript</h3>
+<p><code>popovertarget</code> and the <code>popover</code> attribute are the platform's: no script runs. (Only the placement needs a browser with CSS anchor positioning.)</p>
+<al-button variant="outline"><button type="button" popovertarget="p-nojs">Details</button></al-button>
+<al-popover popover id="p-nojs" placement="bottom" offset="sm">Opened by <code>popovertarget</code>. Escape or a click outside closes it.</al-popover>
+</section>
+
+<section>
+<h3>Placements and offsets</h3>
+<al-stack direction="row" gap="lg">
+  <al-button variant="outline"><button type="button" id="b-top" commandfor="p-top" command="toggle-popover">Top</button></al-button>
+  <al-button variant="outline"><button type="button" id="b-left" commandfor="p-left" command="toggle-popover">Left</button></al-button>
+  <al-button variant="outline"><button type="button" id="b-right" commandfor="p-right" command="toggle-popover">Right</button></al-button>
+  <al-button variant="outline"><button type="button" id="b-anchor" commandfor="p-anchor" command="toggle-popover">Anchored elsewhere</button></al-button>
+</al-stack>
+<al-popover popover id="p-top" placement="top" offset="md">Above, with a medium gap.</al-popover>
+<al-popover popover id="p-left" placement="left" offset="lg">To the left, with a large gap.</al-popover>
+<al-popover popover id="p-right" placement="right">To the right.</al-popover>
+<al-popover popover id="p-anchor" anchor="b-top" placement="bottom">Anchored to the Top button, not its invoker.</al-popover>
+</section>
+
+<section>
+<h3>Title and description</h3>
+<p>A heading inside the popover is its title and a paragraph its description.</p>
+<al-button variant="outline"><button type="button" commandfor="p-header" command="toggle-popover">Dimensions</button></al-button>
+<al-popover popover id="p-header">
+  <h4>Dimensions</h4>
+  <p>Set the dimensions for the layer.</p>
+</al-popover>
+</section>
+</al-stack></section>
+<section id="menu" class="ds-sec"><al-stack gap="md"><h2>al-menu</h2>
+<p>A popover of links or buttons. The optional script adds menu roles, roving arrow keys and closing on select.</p>
+<!-- no-js -->
+<section>
+<h3>Without JavaScript</h3>
+<p>The menu is a popover of plain links; the platform opens and closes it. No roles or arrow keys (those come from <code>al-menu.js</code>).</p>
+<al-button variant="outline"><button type="button" popovertarget="m-nojs">Account</button></al-button>
+<al-menu popover id="m-nojs">
+  <a href="#profile">Profile</a>
+  <a href="#settings">Settings</a>
+</al-menu>
+</section>
+
+<section>
+<h3>Enhanced</h3>
+<p>With the script: arrow keys, Home/End, focus on the first item, closes on select. Try it with the keyboard. An <code>&lt;hr&gt;</code> is a separator; <code>data-variant="destructive"</code> tints an item (and its icon) with the destructive colour.</p>
+<al-button variant="outline"><button type="button" commandfor="m-main" command="toggle-popover">Actions</button></al-button>
+<al-menu popover id="m-main">
+  <a href="#edit">Edit</a>
+  <a href="#duplicate">Duplicate</a>
+  <button type="button">Archive</button>
+  <button type="button" disabled>Move (disabled)</button>
+  <hr>
+  <button type="button" data-variant="destructive"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Delete</button>
+</al-menu>
+</section>
+
+<section>
+<h3>Anchored elsewhere</h3>
+<p><code>anchor</code> names another element by id; the menu opens against it, not its invoker (this needs <code>al.js</code>).</p>
+<al-stack direction="row" gap="sm">
+  <al-button variant="outline"><button type="button" id="m-target">Anchor</button></al-button>
+  <al-button variant="outline"><button type="button" commandfor="m-anchor" command="toggle-popover">Open anchored elsewhere</button></al-button>
+</al-stack>
+<al-menu popover id="m-anchor" anchor="m-target">
+  <a href="#profile">Profile</a>
+  <a href="#settings">Settings</a>
+</al-menu>
+</section>
+</al-stack></section>
+<section id="tabs" class="ds-sec"><al-stack gap="md"><h2>al-tabs</h2>
+<p>Tabs backed by a radio group: they work with no script; the script builds the ARIA tabs pattern from them: a <code>tablist</code> of <code>button role=tab</code> (<code>aria-selected</code>, <code>aria-controls</code>, a roving <code>tabindex</code>) before the panels, the labels hidden, <code>tabpanel</code> with <code>aria-labelledby</code>. <code>al-tab</code> holds a label with a radio and its <code>al-panel</code>.</p>
+<!-- no-js -->
+<section>
+<h3>Without JavaScript</h3>
+<p>The radio group selects the tab and the arrow keys move between tabs; the server writes <code>checked</code> on the radio it picks.</p>
+<al-tabs>
+  <al-tab name="t-nojs">
+    <label><input type="radio" name="t-nojs" checked>Overview</label>
+    <al-panel>The overview panel.</al-panel>
+  </al-tab>
+  <al-tab name="t-nojs">
+    <label><input type="radio" name="t-nojs">Details</label>
+    <al-panel>The details panel.</al-panel>
+  </al-tab>
+</al-tabs>
+<p>With <code>variant="line"</code> the checked label is underlined; without the script there is no muted pill (the labels and panels share one flex row).</p>
+<al-tabs variant="line">
+  <al-tab name="t-nojs-line">
+    <label><input type="radio" name="t-nojs-line" checked>Overview</label>
+    <al-panel>The overview panel.</al-panel>
+  </al-tab>
+  <al-tab name="t-nojs-line">
+    <label><input type="radio" name="t-nojs-line">Details</label>
+    <al-panel>The details panel.</al-panel>
+  </al-tab>
+</al-tabs>
+</section>
+
+<section>
+<h3>Enhanced</h3>
+<p>With the script: the ARIA roles and states, Home and End, <code>selected</code> picks the open tab (here the second), and a <code>name</code> on the tab supplies the radio's group.</p>
+<al-tabs variant="default">
+  <al-tab name="t-main">
+    <label><input type="radio">Posts</label>
+    <al-panel>Three posts.</al-panel>
+  </al-tab>
+  <al-tab name="t-main" selected>
+    <label><input type="radio">Comments</label>
+    <al-panel>Twelve comments (selected by the server).</al-panel>
+  </al-tab>
+  <al-tab name="t-main">
+    <label><input type="radio">Settings</label>
+    <al-panel>Settings live here.</al-panel>
+  </al-tab>
+</al-tabs>
+</section>
+
+<section>
+<h3>Line</h3>
+<p><code>variant="line"</code> drops the muted pill and underlines the active tab.</p>
+<al-tabs variant="line">
+  <al-tab name="t-line" selected>
+    <label><input type="radio">Overview</label>
+    <al-panel>The overview panel.</al-panel>
+  </al-tab>
+  <al-tab name="t-line">
+    <label><input type="radio">Details</label>
+    <al-panel>The details panel.</al-panel>
+  </al-tab>
+</al-tabs>
+</section>
+</al-stack></section>
+<section id="toast" class="ds-sec"><al-stack gap="md"><h2>al-toast</h2>
+<p>A transient message in a corner region. The script shows the region, sets <code>role="status"</code> and closes the toast after <code>timeout</code>.</p>
+<!-- no-js -->
+<section>
+<h3>Without JavaScript</h3>
+<p>The toast region is a hidden popover until the script shows it, so the server also renders the message in the page as an <code>al-alert</code>:</p>
+<al-alert variant="success" role="status">Post saved.</al-alert>
+</section>
+
+<section>
+<h3>Enhanced</h3>
+<p>With the script, each region is shown when its toast connects. On demo/toast.html these are sticky (<code>timeout="0"</code>) so you can see all four variants at all four corners; the default <code>timeout</code> is 5000 ms and the toast closes itself. Text or a <code>strong</code> before the first block (<code>div</code>, <code>p</code>, list) is the title and the blocks are the description; a one-line message, even with inline elements, is all title. A toast with no <code>variant</code> has no icon.</p>
+<al-toasts popover="manual" position="bottom-right" id="demo-toasts"></al-toasts>
+</section>
+
+<section>
+<h3>Timeout and motion</h3>
+<p>A toast slides in from its region's edge and, when it closes, slides back out before it is removed (not with reduced motion). This one closes after 3000 ms.</p>
+<al-button variant="outline"><button type="button" onclick="addToast()">Show a toast</button></al-button>
+<script>
+function addToast(){var t=document.createElement("al-toast");t.setAttribute("variant","success");t.setAttribute("timeout","3000");t.innerHTML="<strong>Saved</strong><div>Closes in 3 seconds.</div>";document.getElementById("demo-toasts").append(t)}
+</script>
+</section>
+</al-stack></section>
+<section id="tooltip" class="ds-sec"><al-stack gap="md"><h2>al-tooltip</h2>
+<p>A text-only hint for the element named by <code>for</code>, shown on hover and focus.</p>
+<!-- no-js -->
+<section>
+<h3>Without JavaScript</h3>
+<p>The tooltip stays hidden; put the same text in a <code>title</code> on the trigger.</p>
+<al-button variant="outline"><button type="button" title="Saves the draft">Save</button></al-button>
+</section>
+
+<section>
+<h3>Enhanced</h3>
+<p>Hover or focus the button: the tooltip is anchored to it, and the button gains <code>aria-describedby</code>. Escape hides it.</p>
+<al-button variant="outline"><button type="button" id="tip-trigger">Save draft</button></al-button>
+<al-tooltip for="tip-trigger">Saves without publishing</al-tooltip>
+</section>
+</al-stack></section>
+<section id="devpanel" class="ds-sec"><al-stack gap="md"><h2>al-devpanel</h2>
+<p>Alder's developer bar, as a design-system element: a collapsed bar and an expanded tabbed panel, server-rendered, with monospace code.</p>
+<!-- no-js -->
+<section>
+<h3>Without JavaScript</h3>
+<p>Open, every section shows (no tab switching); collapsed, only the bar. The server picks with <code>open</code>.</p>
+<al-devpanel open>
+  <nav><button type="button" aria-controls="np-sql">SQL</button><button type="button" aria-controls="np-msgs">Messages</button></nav>
+  <section id="np-sql"><ul><li>Rows: 2</li></ul><pre>SELECT id, title FROM posts WHERE published = 1 ORDER BY id DESC;</pre></section>
+  <section id="np-msgs">Msg: PostSaved</section>
+</al-devpanel>
+</section>
+
+<section>
+<h3>Enhanced and collapsed</h3>
+<p>With the script, the buttons switch sections and toggle <code>open</code>. This one starts collapsed: click a tab.</p>
+<al-devpanel>
+  <nav><button type="button" aria-controls="p-sql">SQL (2)</button><button type="button" aria-controls="p-state">State</button></nav>
+  <section id="p-sql"><pre>SELECT id, title FROM posts;
+UPDATE posts SET title = ? WHERE id = ?;</pre></section>
+  <section id="p-state"><code>{"page": "home"}</code></section>
+</al-devpanel>
+</section>
+
+<section>
+<h3>Patched by the server</h3>
+<p>A server that patches the panel's inner content need not render <code>hidden</code> or <code>aria-selected</code>: the script re-applies the selection. "Patch" below replaces the panel's content with markup that has neither; the chosen section stays the only one showing.</p>
+<al-devpanel id="p-patched" open>
+  <nav><button type="button" aria-controls="pp-a">A</button><button type="button" aria-controls="pp-b">B</button></nav>
+  <section id="pp-a">Section A (render 1)</section>
+  <section id="pp-b">Section B (render 1)</section>
+</al-devpanel>
+<al-button variant="outline" size="sm"><button type="button" onclick="var n=(window.__r=(window.__r||1)+1);document.getElementById('p-patched').innerHTML='&lt;nav&gt;&lt;button type=button aria-controls=pp-a&gt;A&lt;/button&gt;&lt;button type=button aria-controls=pp-b&gt;B&lt;/button&gt;&lt;/nav&gt;&lt;section id=pp-a&gt;Section A (render '+n+')&lt;/section&gt;&lt;section id=pp-b&gt;Section B (render '+n+')&lt;/section&gt;'">Patch</button></al-button>
+</section>
+</al-stack></section>
+</al-stack>
+</al-page>
+</body>
+</html>

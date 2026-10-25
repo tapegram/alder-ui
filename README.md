@@ -37,8 +37,10 @@ README is the short version.
 
 `al.css` is the whole library (tokens and every component, inside
 `@layer al`). Copy it from a tagged release, or link the raw file at a tag
-(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.1/al.css`). Open
-`demo/index.html` to see every element, variant and state in both themes.
+(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.1/al.css`). See every
+element, variant and state in both themes at
+<https://tapegram.github.io/alder-ui/> (the root `index.html`, built from the
+demos), or one element per page in `demo/`.
 
 ## Elements
 
@@ -213,7 +215,7 @@ python3 test/check.py          # all checks
 python3 -m unittest discover -s test -p 'test_*.py'  # unit tests
 python3 test/parity.py --strict  # parity with shadcn/ui (needs the dev venv, see below)
 python3 test/check.py --table  # and print the contrast table
-python3 scripts/build.py       # rebuild al.css after editing tokens or components
+python3 scripts/build.py       # rebuild al.css, al.js and index.html after editing tokens, components or demos
 ```
 
 Python 3 with the standard library only; no Node. The checks: the manifest
