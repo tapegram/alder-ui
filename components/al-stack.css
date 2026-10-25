@@ -1,5 +1,6 @@
 /* al-stack: children in a column (default) or a wrapping row, with a gap. */
 
+/* flex flex-col gap-4 */
 al-stack {
   display: flex;
   flex-direction: column;
@@ -10,22 +11,26 @@ al-stack[direction="column"] {
   flex-direction: column;
 }
 
+/* flex-row flex-wrap items-center */
 al-stack[direction="row"] {
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
 }
 
+/* gap-2 */
 al-stack[gap="sm"] {
   gap: 0.5rem;
 }
 
+/* gap-4 */
 al-stack[gap="md"] {
   gap: 1rem;
 }
 
+/* gap-6 */
 al-stack[gap="lg"] {
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 /* The gap alone spaces a stack's children: typography's flow margins (p and

@@ -6,17 +6,22 @@
  *   </al-pagination>
  * prev, then "Page 2 of 5" (from the attributes), then next. A slot with no
  * page to go to can be <span slot="prev" aria-disabled="true">. Children
- * without a slot (your own "Page 2 of 5", page links) go in the middle and
- * replace the generated text.
+ * without a slot go in the middle and replace the generated text: page
+ * links (<a>) are 2.25rem square buttons, the current one
+ * (aria-current="page") outlined; anything else is muted text.
+ * Content: flex flex-row items-center gap-1 (centred, as Pagination's
+ * mx-auto flex w-full justify-center)
  */
 
 al-pagination {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
   font-family: var(--font-sans);
   font-size: 0.875rem;
+  line-height: 1.25rem;
   color: var(--foreground);
 }
 
@@ -24,9 +29,11 @@ al-pagination > [slot="prev"] {
   order: 0;
 }
 
+/* "Page n of m": text-sm text-muted-foreground */
 al-pagination[page][pages]::after {
   content: "Page " attr(page) " of " attr(pages);
   order: 1;
+  padding-inline: 0.5rem;
   color: var(--muted-foreground);
 }
 
@@ -42,31 +49,113 @@ al-pagination > [slot="next"] {
   order: 2;
 }
 
-al-pagination > [slot="prev"],
-al-pagination > [slot="next"] {
-  display: inline-flex;
-  align-items: center;
-  box-sizing: border-box;
-  min-height: 2rem;
-  padding: 0 0.75rem;
-  border: 1px solid var(--input);
-  border-radius: var(--radius);
-  background: var(--background);
-  color: var(--foreground);
-  font-weight: 500;
-  text-decoration: none;
+al-pagination > :not([slot]):not(a) {
+  padding-inline: 0.5rem;
+  color: var(--muted-foreground);
 }
 
-al-pagination > a[slot]:hover {
-  background: var(--accent);
+/* Link: buttonVariants({ variant: "ghost" | "outline", size: "icon" }) =
+   inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm
+   font-medium whitespace-nowrap outline-none size-9
+   ghost: hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50
+   Previous/Next: size default (h-9 px-4 py-2 has-[>svg]:px-3) with gap-1
+   (the icon is an svg in shadcn, so the px-3 wins over px-2.5) */
+al-pagination > a,
+al-pagination > [slot="prev"],
+al-pagination > [slot="next"] {
+  --_al-bg: transparent;
+  --_al-hover: var(--accent);
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  block-size: 2.25rem;
+  inline-size: 2.25rem;
+  margin: 0;
+  padding: 0;
+  border: 0 solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--_al-bg);
+  color: var(--foreground);
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+  outline-style: none;
+}
+
+al-pagination > [slot="prev"],
+al-pagination > [slot="next"] {
+  inline-size: auto;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+}
+
+/* ChevronLeftIcon / ChevronRightIcon, size-4 */
+al-pagination > [slot="prev"]::before,
+al-pagination > [slot="next"]::after {
+  content: "";
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  background: currentColor;
+}
+
+al-pagination > [slot="prev"]::before {
+  mask: var(--_al-icon-chevron-left) center / contain no-repeat;
+}
+
+al-pagination > [slot="next"]::after {
+  mask: var(--_al-icon-chevron-right) center / contain no-repeat;
+}
+
+.dark al-pagination > a,
+.dark al-pagination > [slot="prev"],
+.dark al-pagination > [slot="next"] {
+  --_al-hover: color-mix(in oklab, var(--accent) 50%, transparent);
+}
+
+/* active link: outline: border bg-background shadow-xs hover:bg-accent
+   hover:text-accent-foreground dark:border-input dark:bg-input/30
+   dark:hover:bg-input/50 */
+al-pagination > a[aria-current="page"] {
+  --_al-bg: var(--background);
+  --_al-hover: var(--accent);
+  border-width: 1px;
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-xs);
+}
+
+.dark al-pagination > a[aria-current="page"] {
+  --_al-bg: color-mix(in oklab, var(--input) 30%, transparent);
+  --_al-hover: color-mix(in oklab, var(--input) 50%, transparent);
+  border-color: var(--input);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  al-pagination > a,
+  al-pagination > [slot="prev"],
+  al-pagination > [slot="next"] {
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+al-pagination > a:hover {
+  background: var(--_al-hover);
   color: var(--accent-foreground);
 }
 
-al-pagination > a[slot]:focus-visible {
-  outline: none;
+/* focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 */
+al-pagination > a:focus-visible {
+  border-color: var(--ring);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
+.dark al-pagination > a[aria-current="page"]:focus-visible {
+  border-color: var(--input);
+}
+
+/* disabled:pointer-events-none disabled:opacity-50 */
 al-pagination > [slot][aria-disabled="true"] {
   opacity: 0.5;
   pointer-events: none;

@@ -313,6 +313,14 @@
             {
               "name": "actions",
               "description": "The card's buttons."
+            },
+            {
+              "name": "description",
+              "description": "The line under the header (CardDescription)."
+            },
+            {
+              "name": "action",
+              "description": "A control at the header's end (CardAction)."
             }
           ]
         }

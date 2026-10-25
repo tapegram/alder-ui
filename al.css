@@ -1655,95 +1655,228 @@ al-checkbox ul.errors:empty {
  * al-table styles the <table> you put inside it:
  *   <al-table striped><table>…</table></al-table>
  * The element scrolls sideways when the table is wider than the page.
+ * shadcn's recipe, with no frame round the table (it has none).
  */
 
+/* wrapper: relative w-full overflow-x-auto */
 al-table {
   display: block;
+  position: relative;
+  width: 100%;
   overflow-x: auto;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  color: var(--foreground);
 }
 
-al-table table {
+/* Table: w-full caption-bottom text-sm */
+al-table > table {
   width: 100%;
   border-collapse: collapse;
   caption-side: bottom;
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
-al-table caption {
-  padding: 0.75rem;
-  color: var(--muted-foreground);
-}
-
-al-table th,
-al-table td {
-  padding: 0.75rem 1rem;
+/* TableHeader: [&_tr]:border-b; TableRow: border-b transition-colors
+   hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted */
+al-table tr {
   border-bottom: 1px solid var(--border);
-  text-align: start;
-  vertical-align: middle;
 }
 
-al-table th {
-  color: var(--muted-foreground);
+al-table tr:hover,
+al-table tr:has([aria-expanded="true"]) {
+  background: color-mix(in oklab, var(--muted) 50%, transparent);
+}
+
+al-table tr[aria-selected="true"] {
+  background: var(--muted);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  al-table tr {
+    transition: color 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* TableBody: [&_tr:last-child]:border-0 */
+al-table tbody tr:last-child {
+  border-bottom-width: 0;
+}
+
+/* TableFooter: border-t bg-muted/50 font-medium [&>tr]:last:border-b-0 */
+al-table tfoot {
+  border-top: 1px solid var(--border);
+  background: color-mix(in oklab, var(--muted) 50%, transparent);
   font-weight: 500;
 }
 
-al-table tbody tr:last-child > * {
-  border-bottom: 0;
+al-table tfoot > tr:last-child {
+  border-bottom-width: 0;
 }
 
+/* TableHead: h-10 px-2 text-left align-middle font-medium whitespace-nowrap
+   text-foreground [&:has([role=checkbox])]:pr-0
+   [&>[role=checkbox]]:translate-y-[2px] */
+al-table th {
+  height: 2.5rem;
+  padding: 0 0.5rem;
+  color: var(--foreground);
+  font-weight: 500;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* TableCell: p-2 align-middle whitespace-nowrap (same checkbox rules) */
+al-table td {
+  padding: 0.5rem;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+al-table th:has([role="checkbox"]),
+al-table td:has([role="checkbox"]) {
+  padding-right: 0;
+}
+
+al-table th > [role="checkbox"],
+al-table td > [role="checkbox"] {
+  translate: 0 2px;
+}
+
+/* TableCaption: mt-4 text-sm text-muted-foreground */
+al-table caption {
+  margin-top: 1rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+}
+
+/* striped: even:bg-muted/50 on the body rows (row hover is the same mix) */
 al-table[striped] tbody tr:nth-child(even) {
-  background: var(--muted);
+  background: color-mix(in oklab, var(--muted) 50%, transparent);
+}
+
+/* dense: th h-8, cells p-1 */
+al-table[dense] th {
+  height: 2rem;
 }
 
 al-table[dense] th,
 al-table[dense] td {
-  padding: 0.375rem 0.75rem;
+  padding: 0.25rem;
 }
 
 /* ---- components/al-card.css ---- */
 
 /*
  * al-card: a bordered surface. Children are placed by slot, whatever their
- * source order: header, the body (no slot), footer, then actions.
+ * source order. The slots map to shadcn's parts:
+ *   header = CardTitle, description = CardDescription, action = CardAction,
+ *   the body (no slot) = CardContent, footer = CardFooter,
+ *   actions = CardFooter with the buttons pushed to the end.
+ * shadcn's CardHeader is a wrapper element; Alder emits none, so the card
+ * itself is the grid: two columns (1fr auto), the action in the second.
+ * Title, description and action take their 1.5rem side gutter as margin, not
+ * padding, so they stay padding-free like shadcn's leaf elements; the body
+ * and footer take it as padding (px-6).
+ *
+ * Spec 12 choice: an unslotted leading h2/h3 is the title, and a p right
+ * after it the description. `:nth-child(1 of :not([slot]))` counts only the
+ * unslotted children, so a slotted element before the heading does not
+ * break the rule (:first-child would).
  */
 
+/* flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground
+   shadow-sm   (a grid rather than a flex column, to hold the action; the
+   gap is gap-6 both ways, and the header's gap-2 is a negative margin on the
+   description (rows) and on the action (columns)) */
 al-card {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-content: start;
+  align-items: start;
+  gap: 1.5rem;
+  padding-block: 1.5rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-xl);
   background: var(--card);
   color: var(--card-foreground);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-sm);
   font-family: var(--font-sans);
 }
 
+/* CardContent: px-6 (every child but the header parts, below) */
 al-card > * {
+  grid-column: 1 / -1;
   margin-block: 0;
 }
 
-al-card > [slot="header"] {
-  order: -1;
-  font-size: 1.125rem;
-  font-weight: 600;
-  line-height: 1.25;
+al-card > :not([slot="header"], [slot="description"], [slot="action"]) {
+  padding-inline: 1.5rem;
 }
 
-al-card > [slot="footer"] {
-  order: 1;
+/* CardTitle: leading-none font-semibold; CardDescription: text-sm
+   text-muted-foreground; CardAction: col-start-2 row-start-1 self-start
+   justify-self-end row-span-2 (span 2 only when a description exists, below:
+   otherwise it would leave an empty row); the -1rem start margin turns the
+   1.5rem column gap into CardHeader's gap-2. All inside CardHeader's px-6. */
+al-card > [slot="header"],
+al-card > [slot="description"],
+al-card > :is(h2, h3):nth-child(1 of :not([slot])),
+al-card > :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot])) {
+  padding-inline: 0;
+  margin-inline: 1.5rem;
+}
+
+al-card > [slot="header"],
+al-card > :is(h2, h3):nth-child(1 of :not([slot])) {
+  order: -3;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: normal;
+}
+
+al-card > [slot="description"],
+al-card > :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot])) {
+  order: -2;
+  margin-block-start: -1rem;
   color: var(--muted-foreground);
   font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
+al-card > [slot="action"] {
+  order: -3;
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  justify-self: end;
+  margin-inline: -1rem 1.5rem;
+}
+
+al-card:has(> [slot="action"]) > :is([slot="header"], [slot="description"], :is(h2, h3):nth-child(1 of :not([slot])), :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot]))) {
+  grid-column: 1;
+  margin-inline-end: 0;
+}
+
+al-card:has(> [slot="description"], > :is(h2, h3):nth-child(1 of :not([slot])) ~ p:nth-child(2 of :not([slot]))) > [slot="action"] {
+  grid-row: 1 / span 2;
+}
+
+/* CardFooter: flex items-center px-6 */
+al-card > [slot="footer"] {
+  order: 1;
+  display: flex;
+  align-items: center;
+}
+
+/* actions: CardFooter, justify-end gap-2 */
 al-card > [slot="actions"] {
   order: 2;
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 0.5rem;
@@ -1753,135 +1886,254 @@ al-card > [slot="actions"] {
 
 /* al-badge: a small pill for a status or a count. */
 
+/* inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden
+   rounded-full border border-transparent px-2 py-0.5 text-xs font-medium
+   whitespace-nowrap  ([&>svg]:size-3 omitted: Alder emits no icon child)
+   default: bg-primary text-primary-foreground [a&]:hover:bg-primary/90 */
 al-badge {
+  --_al-hover: color-mix(in oklab, var(--primary) 90%, transparent);
   display: inline-flex;
   inline-size: fit-content;
+  flex-shrink: 0;
   align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  overflow: hidden;
   padding: 0.125rem 0.5rem;
-  border: 1px solid var(--primary);
-  border-radius: 9999px;
+  border: 1px solid transparent;
+  border-radius: calc(infinity * 1px);
   background: var(--primary);
   color: var(--primary-foreground);
   font-family: var(--font-sans);
   font-size: 0.75rem;
-  font-weight: 600;
-  line-height: 1.5;
+  font-weight: 500;
+  line-height: 1rem;
   white-space: nowrap;
 }
 
-al-badge[variant="default"] {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: var(--primary-foreground);
-}
-
+/* secondary: bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90 */
 al-badge[variant="secondary"] {
-  border-color: var(--secondary);
+  --_al-hover: color-mix(in oklab, var(--secondary) 90%, transparent);
   background: var(--secondary);
   color: var(--secondary-foreground);
 }
 
+/* destructive: bg-destructive text-white focus-visible:ring-destructive/20
+   dark:bg-destructive/60 dark:focus-visible:ring-destructive/40
+   [a&]:hover:bg-destructive/90 */
+al-badge[variant="destructive"] {
+  --_al-hover: color-mix(in oklab, var(--destructive) 90%, transparent);
+  --_al-ring: color-mix(in oklab, var(--destructive) 20%, transparent);
+  background: var(--destructive);
+  color: var(--color-white);
+}
+
+.dark al-badge[variant="destructive"] {
+  --_al-ring: color-mix(in oklab, var(--destructive) 40%, transparent);
+  background: color-mix(in oklab, var(--destructive) 60%, transparent);
+}
+
+/* outline: border-border text-foreground [a&]:hover:bg-accent
+   [a&]:hover:text-accent-foreground */
 al-badge[variant="outline"] {
+  --_al-hover: var(--accent);
   border-color: var(--border);
   background: transparent;
   color: var(--foreground);
 }
 
-al-badge[variant="destructive"] {
-  border-color: var(--destructive);
-  background: var(--destructive);
-  color: var(--color-white);
+/* A badge that is a link: al-badge > a is the [a&] of shadcn. It takes the
+   badge's look; the badge shows the hover and the focus ring. */
+al-badge > a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* [a&]:hover:bg-... */
+al-badge:has(> a:hover) {
+  background: var(--_al-hover);
+}
+
+al-badge[variant="outline"]:has(> a:hover) {
+  color: var(--accent-foreground);
+}
+
+/* focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50
+   (destructive: focus-visible:ring-destructive/20, dark /40, via --_al-ring) */
+al-badge:has(> a:focus-visible) {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px var(--_al-ring, color-mix(in oklab, var(--ring) 50%, transparent));
+}
+
+/* the host draws the ring, so the link inside draws no outline of its own */
+al-badge > a:focus-visible {
+  outline: none;
 }
 
 /* ---- components/al-alert.css ---- */
 
 /*
- * al-alert: a message box. The heading attribute is drawn as its heading.
- * Write role="alert" (warning, destructive) or role="status" (info,
- * success) on the element yourself: CSS cannot add a role. dismissible
- * makes room for the close button that the optional al-alert.js adds.
+ * al-alert: a message box. The heading attribute is drawn as its title (a
+ * ::before) and the variant's icon is drawn as an ::after, both placed in the
+ * grid below; every other child is the description. Write role="alert"
+ * (warning, destructive) or role="status" (info, success) on the element
+ * yourself: CSS cannot add a role. dismissible makes room for the close
+ * button that the optional al-alert.js adds.
+ *
+ * shadcn has only default and destructive. info, success and warning are
+ * the default look; they differ only in the icon (info, circle-check,
+ * triangle-alert; destructive has octagon-x). No tinted backgrounds.
  */
 
+/* relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 rounded-lg
+   border px-4 py-3 text-sm has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr]
+   has-[>svg]:gap-x-3  (every alert has an icon, so the icon column is always
+   there)
+   default: bg-card text-card-foreground */
 al-alert {
-  display: block;
+  --_al-icon: var(--_al-icon-info);
+  display: grid;
   position: relative;
-  padding: 1rem;
+  box-sizing: border-box;
+  width: 100%;
+  grid-template-columns: 1rem minmax(0, 1fr);
+  align-items: start;
+  gap: 0.125rem 0.75rem;
+  padding: 0.75rem 1rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   background: var(--card);
   color: var(--card-foreground);
   font-family: var(--font-sans);
   font-size: 0.875rem;
-  line-height: 1.5;
+  line-height: 1.25rem;
 }
 
-al-alert[variant="info"] {
-  border-color: var(--border);
-  background: var(--card);
-  color: var(--card-foreground);
+/* [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current  (the icon;
+   it spans both rows so that text without an element of its own, which the
+   grid places by itself, lands in the second column) */
+al-alert::after {
+  content: "";
+  grid-column: 1;
+  grid-row: 1;
+  width: 1rem;
+  height: 1rem;
+  translate: 0 0.125rem;
+  background: currentColor;
+  mask: var(--_al-icon) center / contain no-repeat;
+}
+
+al-alert[heading]::after {
+  grid-row: 1 / span 2;
 }
 
 al-alert[variant="success"] {
-  border-color: var(--border);
-  background: var(--card);
-  color: var(--card-foreground);
+  --_al-icon: var(--_al-icon-circle-check);
 }
 
 al-alert[variant="warning"] {
-  border-color: var(--border);
-  background: var(--card);
-  color: var(--card-foreground);
+  --_al-icon: var(--_al-icon-triangle-alert);
 }
 
+/* destructive: bg-card text-destructive
+   *:data-[slot=alert-description]:text-destructive/90 */
 al-alert[variant="destructive"] {
-  border-color: var(--border);
-  background: var(--card);
+  --_al-icon: var(--_al-icon-octagon-x);
   color: var(--destructive);
 }
 
+/* AlertTitle: col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight */
 al-alert[heading]::before {
   content: attr(heading);
-  display: block;
-  margin-bottom: 0.25rem;
-  font-weight: 600;
-  line-height: 1.25;
+  grid-column: 2;
+  display: -webkit-box;
+  overflow: hidden;
+  min-height: 1rem;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  font-weight: 500;
+  letter-spacing: -0.025em;
 }
 
-al-alert > :first-child {
-  margin-top: 0;
+/* AlertDescription: col-start-2 grid justify-items-start gap-1 text-sm
+   text-muted-foreground [&_p]:leading-relaxed */
+al-alert > :not(.al-alert-dismiss) {
+  grid-column: 2;
+  display: grid;
+  justify-items: start;
+  gap: 0.25rem;
+  margin: 0;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
-al-alert > :last-child {
-  margin-bottom: 0;
+al-alert[variant="destructive"] > :not(.al-alert-dismiss) {
+  color: color-mix(in oklab, var(--destructive) 90%, transparent);
+}
+
+/* an errors list is plain lines here, not bullets */
+al-alert > ul {
+  padding: 0;
+  list-style: none;
+}
+
+al-alert > :not(.al-alert-dismiss) p {
+  line-height: 1.625;
 }
 
 al-alert[dismissible] {
-  padding-inline-end: 2.5rem;
+  padding-inline-end: 3rem;
 }
 
+/* The dismiss button: a ghost icon button, size-7, top right.
+   hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50
+   focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 */
 al-alert > .al-alert-dismiss {
   position: absolute;
   top: 0.5rem;
   inset-inline-end: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 1.75rem;
+  height: 1.75rem;
   margin: 0;
-  padding: 0.25rem 0.5rem;
+  padding: 0;
   border: 0;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   background: transparent;
   color: inherit;
-  font-family: inherit;
-  font-size: 1rem;
-  line-height: 1.25;
   cursor: pointer;
+  outline: none;
+}
+
+al-alert > .al-alert-dismiss::before {
+  content: "";
+  width: 1rem;
+  height: 1rem;
+  background: currentColor;
+  mask: var(--_al-icon-x) center / contain no-repeat;
 }
 
 al-alert > .al-alert-dismiss:hover {
-  background: color-mix(in srgb, currentColor 12%, transparent);
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.dark al-alert > .al-alert-dismiss:hover {
+  background: color-mix(in oklab, var(--accent) 50%, transparent);
 }
 
 al-alert > .al-alert-dismiss:focus-visible {
-  outline: none;
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  al-alert > .al-alert-dismiss {
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
 }
 
 /* An alert that holds only an empty errors list (Alder's
@@ -1901,17 +2153,22 @@ al-alert:has(> ul.errors:empty) {
  *   </al-pagination>
  * prev, then "Page 2 of 5" (from the attributes), then next. A slot with no
  * page to go to can be <span slot="prev" aria-disabled="true">. Children
- * without a slot (your own "Page 2 of 5", page links) go in the middle and
- * replace the generated text.
+ * without a slot go in the middle and replace the generated text: page
+ * links (<a>) are 2.25rem square buttons, the current one
+ * (aria-current="page") outlined; anything else is muted text.
+ * Content: flex flex-row items-center gap-1 (centred, as Pagination's
+ * mx-auto flex w-full justify-center)
  */
 
 al-pagination {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  justify-content: center;
+  gap: 0.25rem;
+  width: 100%;
   font-family: var(--font-sans);
   font-size: 0.875rem;
+  line-height: 1.25rem;
   color: var(--foreground);
 }
 
@@ -1919,9 +2176,11 @@ al-pagination > [slot="prev"] {
   order: 0;
 }
 
+/* "Page n of m": text-sm text-muted-foreground */
 al-pagination[page][pages]::after {
   content: "Page " attr(page) " of " attr(pages);
   order: 1;
+  padding-inline: 0.5rem;
   color: var(--muted-foreground);
 }
 
@@ -1937,31 +2196,113 @@ al-pagination > [slot="next"] {
   order: 2;
 }
 
-al-pagination > [slot="prev"],
-al-pagination > [slot="next"] {
-  display: inline-flex;
-  align-items: center;
-  box-sizing: border-box;
-  min-height: 2rem;
-  padding: 0 0.75rem;
-  border: 1px solid var(--input);
-  border-radius: var(--radius);
-  background: var(--background);
-  color: var(--foreground);
-  font-weight: 500;
-  text-decoration: none;
+al-pagination > :not([slot]):not(a) {
+  padding-inline: 0.5rem;
+  color: var(--muted-foreground);
 }
 
-al-pagination > a[slot]:hover {
-  background: var(--accent);
+/* Link: buttonVariants({ variant: "ghost" | "outline", size: "icon" }) =
+   inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm
+   font-medium whitespace-nowrap outline-none size-9
+   ghost: hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50
+   Previous/Next: size default (h-9 px-4 py-2 has-[>svg]:px-3) with gap-1
+   (the icon is an svg in shadcn, so the px-3 wins over px-2.5) */
+al-pagination > a,
+al-pagination > [slot="prev"],
+al-pagination > [slot="next"] {
+  --_al-bg: transparent;
+  --_al-hover: var(--accent);
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  block-size: 2.25rem;
+  inline-size: 2.25rem;
+  margin: 0;
+  padding: 0;
+  border: 0 solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--_al-bg);
+  color: var(--foreground);
+  font-weight: 500;
+  white-space: nowrap;
+  text-decoration: none;
+  outline-style: none;
+}
+
+al-pagination > [slot="prev"],
+al-pagination > [slot="next"] {
+  inline-size: auto;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+}
+
+/* ChevronLeftIcon / ChevronRightIcon, size-4 */
+al-pagination > [slot="prev"]::before,
+al-pagination > [slot="next"]::after {
+  content: "";
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  background: currentColor;
+}
+
+al-pagination > [slot="prev"]::before {
+  mask: var(--_al-icon-chevron-left) center / contain no-repeat;
+}
+
+al-pagination > [slot="next"]::after {
+  mask: var(--_al-icon-chevron-right) center / contain no-repeat;
+}
+
+.dark al-pagination > a,
+.dark al-pagination > [slot="prev"],
+.dark al-pagination > [slot="next"] {
+  --_al-hover: color-mix(in oklab, var(--accent) 50%, transparent);
+}
+
+/* active link: outline: border bg-background shadow-xs hover:bg-accent
+   hover:text-accent-foreground dark:border-input dark:bg-input/30
+   dark:hover:bg-input/50 */
+al-pagination > a[aria-current="page"] {
+  --_al-bg: var(--background);
+  --_al-hover: var(--accent);
+  border-width: 1px;
+  box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-xs);
+}
+
+.dark al-pagination > a[aria-current="page"] {
+  --_al-bg: color-mix(in oklab, var(--input) 30%, transparent);
+  --_al-hover: color-mix(in oklab, var(--input) 50%, transparent);
+  border-color: var(--input);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  al-pagination > a,
+  al-pagination > [slot="prev"],
+  al-pagination > [slot="next"] {
+    transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+al-pagination > a:hover {
+  background: var(--_al-hover);
   color: var(--accent-foreground);
 }
 
-al-pagination > a[slot]:focus-visible {
-  outline: none;
+/* focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 */
+al-pagination > a:focus-visible {
+  border-color: var(--ring);
   box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
+.dark al-pagination > a[aria-current="page"]:focus-visible {
+  border-color: var(--input);
+}
+
+/* disabled:pointer-events-none disabled:opacity-50 */
 al-pagination > [slot][aria-disabled="true"] {
   opacity: 0.5;
   pointer-events: none;
@@ -1971,6 +2312,7 @@ al-pagination > [slot][aria-disabled="true"] {
 
 /* al-stack: children in a column (default) or a wrapping row, with a gap. */
 
+/* flex flex-col gap-4 */
 al-stack {
   display: flex;
   flex-direction: column;
@@ -1981,22 +2323,26 @@ al-stack[direction="column"] {
   flex-direction: column;
 }
 
+/* flex-row flex-wrap items-center */
 al-stack[direction="row"] {
   flex-direction: row;
   flex-wrap: wrap;
   align-items: center;
 }
 
+/* gap-2 */
 al-stack[gap="sm"] {
   gap: 0.5rem;
 }
 
+/* gap-4 */
 al-stack[gap="md"] {
   gap: 1rem;
 }
 
+/* gap-6 */
 al-stack[gap="lg"] {
-  gap: 2rem;
+  gap: 1.5rem;
 }
 
 /* The gap alone spaces a stack's children: typography's flow margins (p and
@@ -2012,7 +2358,7 @@ al-stack > * {
 
 /* al-page: the content frame, a centred column of a set maximum width. */
 
-/* py-8 px-4 sm:px-6 */
+/* mx-auto w-full py-8 px-4 (max-w from --al-width-*) */
 al-page {
   display: block;
   box-sizing: border-box;
@@ -2022,6 +2368,7 @@ al-page {
   padding: 2rem 1rem;
 }
 
+/* sm:px-6 */
 @media (min-width: 40rem) {
   al-page {
     padding-inline: 1.5rem;

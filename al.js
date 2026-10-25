@@ -38,7 +38,7 @@ document.addEventListener("toggle", (e) => e.newState === "closed" && closed(e, 
 customElements.get("al-alert") || customElements.define("al-alert", class extends HTMLElement {
   connectedCallback() {
     if (!this.hasAttribute("dismissible") || this.querySelector(":scope > .al-alert-dismiss")) return;
-    const b = Object.assign(document.createElement("button"), { type: "button", className: "al-alert-dismiss", textContent: "×" });
+    const b = Object.assign(document.createElement("button"), { type: "button", className: "al-alert-dismiss" });
     b.setAttribute("aria-label", "Dismiss");
     b.addEventListener("click", () => this.remove());
     this.append(b);

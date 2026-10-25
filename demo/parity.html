@@ -35,8 +35,8 @@ window.addEventListener("load", function () {
 </script>
 </head>
 <body data-expect="font-family: Geist, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji">
-<al-page width="wide">
-<al-stack gap="lg">
+<al-page width="wide" data-expect="padding-top: 32px; padding-bottom: 32px; padding-left: 24px; padding-right: 24px; max-width: 1280px">
+<al-stack gap="lg" data-expect="row-gap: 24px">
 
 <al-stack gap="md" data-section="button">
   <h2>button</h2>
@@ -97,10 +97,17 @@ window.addEventListener("load", function () {
   <h2>card</h2>
   <al-card data-ref="card/root/default">
     <h3 slot="header" data-ref="card/title/default">Card Title</h3>
-    <p data-ref="card/description/default">Card Description</p>
-    <div data-ref="card/action/default">Card Action</div>
-    <div data-ref="card/content/default"><p>Card Content</p></div>
-    <div slot="footer" data-ref="card/footer/default"><p>Card Footer</p></div>
+    <p slot="description" data-ref="card/description/default">Card Description</p>
+    <div slot="action" data-ref="card/action/default">Card Action</div>
+    <div data-ref="card/content/default">Card Content</div>
+    <div slot="footer" data-ref="card/footer/default">Card Footer</div>
+  </al-card>
+  <!-- twin: an unslotted leading heading and the p after it are title and description -->
+  <al-card>
+    <h3 data-ref="card/title/unslotted">Card Title</h3>
+    <p data-ref="card/description/unslotted">Card Description</p>
+    <div slot="action">Card Action</div>
+    <div>Card Content</div>
   </al-card>
 </al-stack>
 
@@ -300,6 +307,14 @@ window.addEventListener("load", function () {
 <al-page plain>
   <p>A plain page brings its own typography.</p>
   <p data-expect="margin-top: 0px">Its second paragraph has no top margin.</p>
+</al-page>
+<!-- No shadcn counterpart for stack and page: their values are pinned here. -->
+<al-page width="narrow" data-expect="max-width: 640px; padding-left: 24px">
+  <al-stack gap="sm" data-expect="row-gap: 8px; column-gap: 8px"><span>a</span><span>b</span></al-stack>
+  <al-stack data-expect="row-gap: 16px"><span>a</span><span>b</span></al-stack>
+  <al-stack gap="md" data-expect="row-gap: 16px"><span>a</span><span>b</span></al-stack>
+  <al-stack gap="lg" data-expect="row-gap: 24px"><span>a</span><span>b</span></al-stack>
+  <al-stack direction="row" gap="lg" data-expect="column-gap: 24px; flex-direction: row"><span>a</span><span>b</span></al-stack>
 </al-page>
 </body>
 </html>
