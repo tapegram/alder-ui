@@ -269,6 +269,26 @@ THEME_CLASSES = {"dark", "light"}  # the token sheet's theme selectors (spec sec
 ALDER_CLASSES = {"errors", "help", "_alder-click"}
 
 
+def split_pseudos(comp):
+    """A compound -> (bare, args): the compound with every :pseudo(...) removed
+    (parentheses balanced), and the arguments of :has/:not/:is/:where."""
+    bare, args, i = "", [], 0
+    while i < len(comp):
+        m = re.compile(r":{1,2}([\w-]+)\(").match(comp, i)
+        if not m:
+            bare += comp[i]
+            i += 1
+            continue
+        depth, j = 1, m.end()
+        while j < len(comp) and depth:
+            depth += {"(": 1, ")": -1}.get(comp[j], 0)
+            j += 1
+        if m.group(1) in ("has", "not", "is", "where"):
+            args.append(comp[m.end():j - 1])
+        i = j
+    return bare, args
+
+
 def check_selector(sel, els, file_tag, seen):
     if sel in ALDER_MARKUP:
         return
@@ -276,11 +296,10 @@ def check_selector(sel, els, file_tag, seen):
         fail("css", "%s.css: selector %r does not name <%s>" % (file_tag, sel, file_tag))
     last = None
     for comp in compounds(sel):
-        inner = re.findall(r":(?:has|not|is|where)\((.*)\)", comp)
+        bare, inner = split_pseudos(comp)
         for sub in inner:
             for s in split_top(sub):
                 check_selector_inner(s, els, last, seen)
-        bare = re.sub(r":(?:has|not|is|where)\(.*\)", "", comp)
         m = re.match(r"([a-zA-Z][\w-]*)", bare)
         tag = m.group(1) if m else None
         if tag and tag.startswith("al-"):
@@ -300,14 +319,18 @@ def check_selector(sel, els, file_tag, seen):
 
 def check_selector_inner(sel, els, parent, seen):
     for comp in compounds(sel):
-        m = re.match(r"(al-[\w-]+)", comp)
-        for name, op, val in ATTR_RE.findall(comp):
+        bare, inner = split_pseudos(comp)
+        m = re.match(r"(al-[\w-]+)", bare)
+        for name, op, val in ATTR_RE.findall(bare):
             if name == "slot" and val and parent:
                 check_slot(parent, val, els, sel, parent, seen)
             elif m and m.group(1) in els and name != "slot":
                 # an al- element inside :where()/:not()/:is()/:has(), e.g.
                 # typography.css's :where(al-page:not([plain]))
                 check_attr(m.group(1), name, op, val, els, sel, m.group(1), seen)
+        for sub in inner:
+            for s in split_top(sub):
+                check_selector_inner(s, els, m.group(1) if m and m.group(1) in els else parent, seen)
 
 
 def check_attr(tag, name, op, val, els, sel, file_tag, seen):
@@ -672,6 +695,11 @@ def tok(name, theme=None):
     return "var(%s)" % (name if name.startswith("--") else "--" + name)
 
 
+def al_definitions(css):
+    """The --al-* custom properties defined anywhere in css (comments stripped), at any nesting."""
+    return set(re.findall(r"(--al-[\w-]+)\s*:", strip_comments(css)))
+
+
 def check_tokens(light, dark, common):
     for theme, vals in (("light", light), ("dark", dark)):
         for n in SHADCN:
@@ -686,8 +714,8 @@ def check_tokens(light, dark, common):
     for banned in ("[data-theme", "prefers-color-scheme"):
         if banned in raw:
             fail("tokens", "tokens.css mentions %s (themes are .dark and .light only)" % banned)
-    for name in sorted(set(light) | set(dark) | set(common)):
-        if name.startswith("--al-") and name not in AL_TOKENS:
+    for name in sorted(al_definitions(raw)):
+        if name not in AL_TOKENS:
             fail("tokens", "tokens.css defines %s (only %s survive)" % (name, ", ".join(sorted(AL_TOKENS))))
     for p in styled_files():
         css = strip_comments(p.read_text())

@@ -143,6 +143,12 @@ def _mix(body, env):
     return (*rgb, alpha * min(total, 100) / 100)
 
 
+def _lower_keep_vars(s):
+    """Lower-case a colour body, but not the names inside var(--x): custom properties are case-sensitive."""
+    return "".join(p if p.lower().startswith("var(") else p.lower()
+                   for p in re.split(r"(var\(\s*--[\w-]+\s*\))", s, flags=re.I))
+
+
 def _parse(s, env):
     """A CSS colour -> (r, g, b, a) floats in sRGB, unclamped."""
     s = s.strip()
@@ -163,10 +169,10 @@ def _parse(s, env):
             raise ValueError("bad hex colour: %r" % s)
         vals = [int(h[i:i + 2], 16) / 255 for i in range(0, len(h), 2)]
         return tuple(vals) if len(vals) == 4 else (*vals, 1.0)
-    m = re.fullmatch(r"([a-z-]+)\((.*)\)", low, re.S)
-    if not m or m.group(1) not in COLOUR_FUNCS:
+    m = re.fullmatch(r"([a-z-]+)\((.*)\)", s, re.S | re.I)
+    if not m or m.group(1).lower() not in COLOUR_FUNCS:
         raise ValueError("not a colour: %r" % s)
-    fn, body = m.groups()
+    fn, body = m.group(1).lower(), _lower_keep_vars(m.group(2))
     if fn == "color-mix":
         return _mix(body, env)
     if fn in ("rgb", "rgba"):
