@@ -128,7 +128,9 @@ Notes:
   shadcn theme's `:root { … }` and `.dark { … }` blocks (for example from the
   shadcn themes page) into your own CSS.
 - **Light and dark.** The theme classes are `.dark` and `.light` on `<html>`
-  (or any subtree). Without the theme script a page is light. Put this in
+  (or any subtree). If you use `.light` subtrees inside a dark page, write
+  the pasted light block as `:root, .light { … }`; a bare `:root` block does
+  not reach them. Without the theme script a page is light. Put this in
   `<head>` before the stylesheet link; it follows the OS until the visitor
   chooses:
 
