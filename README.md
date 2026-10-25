@@ -60,7 +60,7 @@ declares each one with its type, default and description.
 | `al-pagination` | `page`, `pages` | `prev`, default, `next` |
 | `al-dialog` | `heading`, `size` (`sm`, `md` default, `lg`), `dismissible` | `header`, default, `actions`, `description` |
 | `al-popover` | `placement` (`top`, `bottom` default, `left`, `right`), `offset` (`sm` default, `md`, `lg`), `anchor` (an id; needs `al.js`, without it the invoker is the anchor) | default |
-| `al-menu` | | default (links or buttons) |
+| `al-menu` | `anchor` (an id; needs `al.js`, without it the invoker is the anchor) | default (links or buttons) |
 | `al-tabs` | `variant` (`default`, `line`) | default (`al-tab`s) |
 | `al-tab` | `name`, `selected` | default (a `<label>` with a radio, then an `al-panel`) |
 | `al-panel` | | default |

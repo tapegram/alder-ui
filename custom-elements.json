@@ -610,7 +610,7 @@
               "type": {
                 "text": "string"
               },
-              "description": "The id of the element to anchor to, when it is not the invoker (the platform's `anchor` attribute)."
+              "description": "The id of the element to anchor to, when it is not the invoker. Needs al.js (al-shim.js); without it the invoker is the anchor."
             }
           ],
           "slots": [
@@ -638,7 +638,15 @@
           "tagName": "al-menu",
           "customElement": true,
           "description": "A menu: a popover of links or buttons. Open it with `<button commandfor=\"id\" command=\"toggle-popover\">`. Without JavaScript it is a popover of links (which still navigate); `al-menu.js` adds the `menu` / `menuitem` roles, roving arrow keys, Home/End, and closes on select.",
-          "attributes": [],
+          "attributes": [
+            {
+              "name": "anchor",
+              "type": {
+                "text": "string"
+              },
+              "description": "The id of the element to anchor to, when it is not the invoker. Needs al.js (al-shim.js); without it the invoker is the anchor."
+            }
+          ],
           "slots": [
             {
               "name": "",

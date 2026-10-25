@@ -100,12 +100,44 @@ class AnchorTest(unittest.TestCase):
         self.assert_centred("#b-top", below=True)
         self.assertEqual(self.errors, [])
 
+    def test_stylesheet_anchor_name_kept(self):
+        # Review Focus 2, from a stylesheet: the shim's inline anchor-name must carry
+        # the cascaded --author too, or the inline value would override it.
+        self.page.add_style_tag(content="#b-top { anchor-name: --author }"
+                                " #probe { position: fixed; position-anchor: --author;"
+                                " position-area: top; width: 10px; height: 10px }")
+        self.page.evaluate("document.body.append(Object.assign(document.createElement('div'), {id: 'probe'}))")
+        self.open_anchor()
+        names = self.page.eval_on_selector("#b-top", "el => getComputedStyle(el).anchorName")
+        self.assertIn("--author", names)
+        self.assertIn("--al-anchor-", names)
+        self.assert_centred("#b-top", below=True)
+        p, a = self.rect("#probe"), self.rect("#b-top")
+        self.assertLessEqual(abs((p[0] + p[2]) / 2 - (a[0] + a[2]) / 2), 1, "probe is off #b-top")
+        self.assertLessEqual(abs(p[3] - a[1]), 1, "probe is not above #b-top")
+        self.assertEqual(self.errors, [])
+
     def test_reopen_after_retarget(self):
         self.open_anchor()
         self.page.eval_on_selector("#p-anchor", "el => el.hidePopover()")
         self.page.eval_on_selector("#p-anchor", "el => el.setAttribute('anchor', 'b-left')")
         self.open_anchor()
         self.assert_centred("#b-left", below=True)
+        self.assertEqual(self.errors, [])
+
+    def test_menu_anchor_attr(self):
+        # al-menu[anchor] too: block-end span-inline-end, so its start edge sits at the
+        # target's (plus the 4px margin), not under the invoker.
+        self.page.goto(self.url.replace("popover.html", "menu.html"), wait_until="load")
+        self.page.add_style_tag(content=NO_MOTION)
+        # menu.html fits in 800px with the target near the bottom, where the menu
+        # would flip above it; a taller viewport leaves room below.
+        self.page.set_viewport_size({"width": 1280, "height": 1200})
+        self.page.click("[commandfor=m-anchor]")
+        self.page.wait_for_function("document.querySelector('#m-anchor').matches(':popover-open')")
+        m, a = self.rect("#m-anchor"), self.rect("#m-target")
+        self.assertTrue(0 <= m[0] - a[0] <= 8, "menu left is %.1fpx from the target's" % (m[0] - a[0]))
+        self.assertTrue(0 <= m[1] - a[3] <= 12, "menu top is %.1fpx below the target" % (m[1] - a[3]))
         self.assertEqual(self.errors, [])
 
 

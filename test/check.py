@@ -80,7 +80,7 @@ API.update({
     "al-tabs": ([], [""]),
     "al-tab": ([("name", "string"), ("selected", "boolean")], [""]),
     "al-panel": ([], [""]),
-    "al-menu": ([], [""]),
+    "al-menu": ([("anchor", "string")], [""]),
     "al-popover": ([("placement", '"top" | "bottom" | "left" | "right"'), ("offset", '"sm" | "md" | "lg"'), ("anchor", "string")], [""]),
     "al-dialog": ([("heading", "string"), ("size", '"sm" | "md" | "lg"'), ("dismissible", "boolean")], ["header", "", "actions"]),
 })
@@ -105,7 +105,8 @@ NOT_STYLED = {
     ("al-toast", "timeout"): "read by al-toast.js, which closes the toast",
     ("al-tab", "name"): "copied onto the radio input by al-tabs.js",
     ("al-tab", "selected"): "read by al-tabs.js, which checks the tab's radio",
-    ("al-popover", "anchor"): "the platform's anchor attribute: it anchors to the element with that id",
+    ("al-popover", "anchor"): "read by al-shim.js, which sets position-anchor to the element with that id",
+    ("al-menu", "anchor"): "read by al-shim.js, which sets position-anchor to the element with that id",
     ("al-dialog", "heading"): "rendered by the framework as the header slot's <h2>",
     ("al-button", "type"): "selects the native button's type; no look",
     ("al-input", "label"): "rendered as a real <label>",

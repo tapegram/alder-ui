@@ -38,7 +38,9 @@ document.addEventListener("beforetoggle", (e) => {
   const ours = p.style.getPropertyValue("position-anchor").startsWith("--al-anchor-");
   if (!a) return ours && p.style.removeProperty("position-anchor");
   if (!names.has(a)) names.set(a, "--al-anchor-" + ++seq);
-  const n = names.get(a), own = a.style.getPropertyValue("anchor-name");
+  // The inline value, else the cascaded one (an author stylesheet's anchor-name).
+  const n = names.get(a);
+  const own = a.style.getPropertyValue("anchor-name") || getComputedStyle(a).anchorName;
   const list = own && own !== "none" ? own.split(",").map((s) => s.trim()) : [];
   if (!list.includes(n)) a.style.setProperty("anchor-name", list.concat(n).join(", "));
   p.style.setProperty("position-anchor", n);
