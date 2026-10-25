@@ -75,6 +75,12 @@ al-dialog > dialog > * {
   margin: 0;
 }
 
+/* DialogContent sets no leading: a body paragraph inherits the page's
+   leading-normal (24px at text-base), not Typography's p leading-7 (R27) */
+al-dialog > dialog > p {
+  line-height: 1.5rem;
+}
+
 /* DialogHeader: flex flex-col gap-2 text-center sm:text-left
    DialogTitle: text-lg leading-none font-semibold */
 al-dialog > dialog > [slot="header"] {

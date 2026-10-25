@@ -121,6 +121,12 @@ window.addEventListener("load", function () {
     <h2 slot="header" data-expect="border-bottom-width: 0px; padding-bottom: 0px; margin-top: 0px">Card Title</h2>
     <div>Card Content</div>
   </al-card>
+  <!-- twin-only (R27): a body paragraph inherits shadcn's 24px leading, not Typography's leading-7 -->
+  <al-card>
+    <h3 slot="header">Card Title</h3>
+    <p slot="description" data-expect="line-height: 20px">Card Description</p>
+    <p data-expect="line-height: 24px">Card body text.</p>
+  </al-card>
 </al-stack>
 
 <al-stack gap="md" data-section="badge">
@@ -244,6 +250,8 @@ window.addEventListener("load", function () {
   <al-dialog heading="Small" size="sm"><dialog data-expect="max-width: 448px"><h2 slot="header">Small</h2></dialog></al-dialog>
   <al-dialog heading="Medium" size="md"><dialog data-expect="max-width: 512px"><h2 slot="header">Medium</h2></dialog></al-dialog>
   <al-dialog heading="Large" size="lg"><dialog data-expect="max-width: 672px"><h2 slot="header">Large</h2></dialog></al-dialog>
+  <!-- twin-only (R27): a body paragraph inherits shadcn's 24px leading, not Typography's leading-7 -->
+  <al-dialog heading="Body"><dialog aria-label="Body"><h2 slot="header">Body</h2><p slot="description" data-expect="line-height: 20px">Dialog Description</p><p data-expect="line-height: 24px">Dialog body text.</p></dialog></al-dialog>
 </al-stack>
 
 <al-stack gap="md" data-section="popover, menu, tooltip">

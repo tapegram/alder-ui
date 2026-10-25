@@ -1818,6 +1818,12 @@ al-card > :not([slot="header"], [slot="description"], [slot="action"]) {
   padding-inline: 1.5rem;
 }
 
+/* CardContent sets no leading: a body paragraph inherits the page's
+   leading-normal (24px at text-base), not Typography's p leading-7 (R27) */
+al-card > p {
+  line-height: 1.5rem;
+}
+
 /* CardTitle: leading-none font-semibold (and no Typography h2 divider:
    border-b pb-2 is reset, as in al-dialog); CardDescription: text-sm
    text-muted-foreground; CardAction: col-start-2 row-start-1 self-start
@@ -2490,6 +2496,12 @@ al-dialog > dialog::backdrop {
 
 al-dialog > dialog > * {
   margin: 0;
+}
+
+/* DialogContent sets no leading: a body paragraph inherits the page's
+   leading-normal (24px at text-base), not Typography's p leading-7 (R27) */
+al-dialog > dialog > p {
+  line-height: 1.5rem;
 }
 
 /* DialogHeader: flex flex-col gap-2 text-center sm:text-left
