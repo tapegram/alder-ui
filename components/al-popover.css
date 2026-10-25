@@ -3,9 +3,11 @@
  * popover attribute yourself and open it with a button carrying
  * popovertarget="<id>" or commandfor="<id>" command="toggle-popover"; both
  * work with no JavaScript. Position: CSS anchor positioning (the invoker is
- * the implicit anchor, or name another element with the HTML anchor="<id>"
- * attribute); position-try flips it to the other side when it would overflow.
- * placement and offset choose the side and the gap.
+ * the implicit anchor, or name another element with anchor="<id>");
+ * position-try flips it to the other side when it would overflow.
+ * placement and offset choose the side and the gap. anchor= needs al.js
+ * (al-shim.js sets position-anchor at each open; Chromium ignores the HTML
+ * attribute); without it the invoker is the anchor.
  *
  * The parts map to shadcn's: the element is PopoverContent; a heading inside
  * it is PopoverTitle and a paragraph PopoverDescription (PopoverHeader's

@@ -275,6 +275,13 @@ window.addEventListener("load", function () {
     <button type="button" data-variant="destructive" data-ref="menu/item-destructive/open">Delete</button>
   </al-menu>
   <al-tooltip for="parity-tooltip-trigger" data-ref="tooltip/content/open" data-ref-after="tooltip/arrow/open" data-ref-open>Tooltip text</al-tooltip>
+  <!-- anchor= (#6): the popover opens from the invoker but sits under the target; only
+       al-shim.js can anchor it there (Chromium ignores the HTML anchor attribute). -->
+  <al-stack gap="sm">
+    <al-button variant="outline"><button type="button" id="parity-anchor-target">Anchor target</button></al-button>
+    <al-button variant="outline"><button type="button" id="parity-anchor-invoker" popovertarget="parity-popover-elsewhere">Open anchored elsewhere</button></al-button>
+  </al-stack>
+  <al-popover popover id="parity-popover-elsewhere" anchor="parity-anchor-target">Anchored to the target, not its invoker.</al-popover>
 </al-stack>
 
 <al-stack gap="md" data-section="toast">

@@ -59,7 +59,7 @@ declares each one with its type, default and description.
 | `al-alert` | `variant` (`info` default, `success`, `warning`, `destructive`), `heading`, `dismissible` | default |
 | `al-pagination` | `page`, `pages` | `prev`, default, `next` |
 | `al-dialog` | `heading`, `size` (`sm`, `md` default, `lg`), `dismissible` | `header`, default, `actions`, `description` |
-| `al-popover` | `placement` (`top`, `bottom` default, `left`, `right`), `offset` (`sm` default, `md`, `lg`), `anchor` | default |
+| `al-popover` | `placement` (`top`, `bottom` default, `left`, `right`), `offset` (`sm` default, `md`, `lg`), `anchor` (an id; needs `al.js`, without it the invoker is the anchor) | default |
 | `al-menu` | | default (links or buttons) |
 | `al-tabs` | `variant` (`default`, `line`) | default (`al-tab`s) |
 | `al-tab` | `name`, `selected` | default (a `<label>` with a radio, then an `al-panel`) |
@@ -289,12 +289,14 @@ Every script (`al-tabs.js`, `al-devpanel.js`, ...) is at most 60 lines and optio
 `popovertarget`/`#id` links, tabs are a radio group, and a menu is a popover of
 links without it. `al-shim.js` polyfills `command` / `commandfor`
 (`show-modal`, `close`, `toggle-popover`, `show-popover`, `hide-popover`) and
-re-announces closing as `al-close`; `al-tooltip.js` shows tooltips on hover and
-focus, whether or not `popover="hint"` exists.
+re-announces closing as `al-close`, and makes `anchor=` on `al-popover` and
+`al-menu` work (Chromium ignores the HTML attribute); `al-tooltip.js` shows
+tooltips on hover and focus, whether or not `popover="hint"` exists.
 
 Browser support: invoker commands, `popover="hint"` and CSS anchor
 positioning need Chromium 135+, Safari 26 or Firefox 140. The shim covers
 invoker commands on older browsers that have `<dialog>` and popover. Without
 anchor positioning a popover, menu or tooltip appears at the browser's default
-popover position (usable, not anchored). Events: `al-close` (dialog, popover,
+popover position (usable, not anchored). `anchor=` needs al.js; without it
+the invoker is the anchor. Events: `al-close` (dialog, popover,
 menu, toasts) and `al-select` (menu, tabs).

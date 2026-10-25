@@ -532,6 +532,8 @@ def run_close_checks(browser, base, comps):
 ANCHOR_CHECKS = [
     ("tooltip", "hover", "al-tooltip[for=parity-tooltip-trigger]", "#parity-tooltip-trigger",
      "(el) => %s.dispatchEvent(new PointerEvent('pointerenter'))" % _TIP_TRIGGER, "above"),
+    ("popover", "anchor attr", "#parity-popover-elsewhere", "#parity-anchor-target",
+     "(el) => el.showPopover()", "below"),
 ]
 ANCHOR_GAP_PX = 12  # the tooltip's 5px offset, with room; an unanchored one is far off
 
@@ -567,6 +569,9 @@ def run_anchor_checks(browser, base, comps):
             page.wait_for_selector("html[data-ref-ready]", state="attached", timeout=20000)
             page.add_style_tag(content=NO_MOTION)
             el, anchor = page.query_selector(selector), page.query_selector(anchor_sel)
+            # Centred in the viewport, so position-try has room on either side and
+            # flips only when the overlay really is placed on the wrong side.
+            anchor.evaluate("(a) => a.scrollIntoView({ block: 'center' })")
             el.evaluate(open_js)
             page.evaluate(SETTLE_JS)
             probs = anchor_problems(el.evaluate(RECT_JS), anchor.evaluate(RECT_JS), side)
