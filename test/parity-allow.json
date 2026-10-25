@@ -1,5 +1,5 @@
 {
-  "pending": ["button", "label", "input", "textarea", "select", "checkbox", "card", "badge", "alert", "table", "pagination", "dialog", "popover", "menu", "tooltip", "toast", "tabs", "typography"],
+  "pending": ["button", "label", "input", "textarea", "select", "checkbox", "card", "badge", "alert", "table", "pagination", "dialog", "popover", "menu", "tooltip", "toast", "tabs"],
   "map": {
     "alert/info/root": "alert/default/root",
     "alert/info/icon": "alert/default/icon",

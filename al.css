@@ -1,5 +1,6 @@
 /*! alder-ui v0.3.3 | Apache-2.0 | https://github.com/tapegram/alder-ui
- * Built by scripts/build.py from tokens.css and components/; do not edit. */
+ * Built by scripts/build.py from tokens.css, base.css, typography.css and components/;
+ * do not edit. Geist and Geist Mono (SIL OFL 1.1) load from fonts/ beside this file. */
 
 @layer al {
 
@@ -130,12 +131,461 @@
   --al-width-wide: 80rem;
 }
 
+/* ---- base.css ---- */
+
+/*
+ * alder-ui base layer: the fonts, a translation of Tailwind v4's Preflight with
+ * shadcn's own base rules on top (design spec §7, "Base layer"), and
+ * cross-document view transitions. It is global and not switchable; like
+ * everything alder-ui ships it sits inside @layer al, so a page's unlayered CSS
+ * wins over it. The flow-content typography is typography.css, scoped to
+ * al-page:not([plain]).
+ *
+ * The selectors are bare element names (specificity 0,0,1 at most) so every
+ * component rule, which names its al- element, wins over them.
+ */
+
+/* Geist and Geist Mono (SIL OFL 1.1, fonts/OFL.txt), variable, self-hosted
+ * beside al.css. --font-sans / --font-mono (tokens.css) name them first. */
+@font-face {
+  font-family: "Geist";
+  src: url("fonts/Geist-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("fonts/GeistMono-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Preflight: border-box, zero margins and padding, a 0-width solid border in
+ * the border colour (shadcn: `* { @apply border-border outline-ring/50 }`, so
+ * a bare `border-b` draws a --border line and an outline is ring/50). */
+*,
+::before,
+::after,
+::backdrop,
+::file-selector-button {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0 solid var(--border);
+  outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+}
+
+html {
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+  font-family: var(--font-sans);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* shadcn: body `bg-background text-foreground`; the docs' antialiasing and no
+ * synthesised bold. */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-synthesis-weight: none;
+}
+
+hr {
+  height: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+
+abbr:where([title]) {
+  text-decoration: underline dotted;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+b,
+strong {
+  font-weight: bolder;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-mono);
+  font-size: 1em;
+}
+
+small {
+  font-size: 80%;
+}
+
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+table {
+  text-indent: 0;
+  border-color: inherit;
+  border-collapse: collapse;
+}
+
+progress {
+  vertical-align: baseline;
+}
+
+summary {
+  display: list-item;
+}
+
+ol,
+ul,
+menu {
+  list-style: none;
+}
+
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block;
+  vertical-align: middle;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+input,
+select,
+optgroup,
+textarea,
+::file-selector-button {
+  font: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  border-radius: 0;
+  background: transparent;
+  opacity: 1;
+}
+
+::file-selector-button {
+  margin-inline-end: 4px;
+}
+
+/* shadcn's inputs: `placeholder:text-muted-foreground`. */
+::placeholder {
+  opacity: 1;
+  color: var(--muted-foreground);
+}
+
+textarea {
+  resize: vertical;
+}
+
+::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+::-webkit-date-and-time-value {
+  min-height: 1lh;
+  text-align: inherit;
+}
+
+::-webkit-datetime-edit {
+  display: inline-flex;
+}
+
+::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+::-webkit-calendar-picker-indicator {
+  line-height: 1;
+}
+
+button,
+input:where([type="button"], [type="reset"], [type="submit"]),
+::file-selector-button {
+  appearance: button;
+}
+
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+  height: auto;
+}
+
+[hidden]:where(:not([hidden="until-found"])) {
+  display: none !important;
+}
+
 /* Cross-document view transitions: a same-origin page load cross-fades from
  * the old page to the new one instead of painting a blank (white) frame in
  * between, which in the dark theme is a flash. Browsers without view
  * transitions ignore the rule. */
 @view-transition {
   navigation: auto;
+}
+
+/* ---- typography.css ---- */
+
+/*
+ * alder-ui typography: shadcn's Typography recipe (the docs' Typography page,
+ * Ref §3 "typography") for raw flow content inside al-page, with `hr` drawn as
+ * the Separator and a bare <table> drawn with the shadcn Table recipe (Ref §3
+ * "table"), not the Typography page's bordered table. Design spec §5.2/§7.
+ *
+ * Scope: every rule sits under al-page:not([plain]); <al-page plain> switches
+ * the whole file off for a page that brings its own typography (base.css's
+ * reset still applies). The scope is wrapped in :where(), so each rule weighs
+ * no more than its bare element (0,0,1 to 0,1,2): a component that re-styles
+ * what it contains (al-card's title, al-dialog's heading, al-table's table)
+ * wins with any selector that names it. Typography applies wherever some
+ * enclosing al-page is not plain, so put a plain page directly in <body>
+ * rather than inside another al-page.
+ */
+
+/* h1: scroll-m-20 text-4xl font-extrabold tracking-tight text-balance */
+:where(al-page:not([plain])) h1 {
+  scroll-margin-top: 5rem;
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+/* h2: mt-10 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0
+ * (mt-10 is the Typography page's spacing between sections) */
+:where(al-page:not([plain])) h2 {
+  margin-top: 2.5rem;
+  scroll-margin-top: 5rem;
+  border-bottom-width: 1px;
+  padding-bottom: 0.5rem;
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+:where(al-page:not([plain])) h2:first-child {
+  margin-top: 0;
+}
+
+/* h3: scroll-m-20 text-2xl font-semibold tracking-tight */
+:where(al-page:not([plain])) h3 {
+  scroll-margin-top: 5rem;
+  font-size: 1.5rem;
+  line-height: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* h4: scroll-m-20 text-xl font-semibold tracking-tight */
+:where(al-page:not([plain])) h4 {
+  scroll-margin-top: 5rem;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* p: leading-7 [&:not(:first-child)]:mt-6 */
+:where(al-page:not([plain])) p {
+  line-height: 1.75rem;
+}
+
+:where(al-page:not([plain])) p:not(:first-child) {
+  margin-top: 1.5rem;
+}
+
+/* blockquote: mt-6 border-l-2 pl-6 italic */
+:where(al-page:not([plain])) blockquote {
+  margin-top: 1.5rem;
+  border-left-width: 2px;
+  padding-left: 1.5rem;
+  font-style: italic;
+}
+
+/* ul: my-6 ml-6 list-disc [&>li]:mt-2
+ * (ol: mine, the same with list-decimal, so a numbered list keeps its numbers) */
+:where(al-page:not([plain])) ul,
+:where(al-page:not([plain])) ol {
+  margin-block: 1.5rem;
+  margin-left: 1.5rem;
+}
+
+:where(al-page:not([plain])) ul {
+  list-style: disc;
+}
+
+:where(al-page:not([plain])) ol {
+  list-style: decimal;
+}
+
+:where(al-page:not([plain])) ul > li,
+:where(al-page:not([plain])) ol > li {
+  margin-top: 0.5rem;
+}
+
+/* code: relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold */
+:where(al-page:not([plain])) code {
+  position: relative;
+  border-radius: 0.25rem;
+  background: var(--muted);
+  padding: 0.2rem 0.3rem;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+}
+
+/* a: font-medium text-primary underline underline-offset-4 */
+:where(al-page:not([plain])) a {
+  font-weight: 500;
+  color: var(--primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* small: text-sm leading-none font-medium */
+:where(al-page:not([plain])) small {
+  font-size: 0.875rem;
+  line-height: 1;
+  font-weight: 500;
+}
+
+/* hr = Separator: shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full */
+:where(al-page:not([plain])) hr {
+  flex-shrink: 0;
+  border-width: 0;
+  height: 1px;
+  width: 100%;
+  background: var(--border);
+}
+
+/* table = the shadcn Table recipe.
+ * Table: w-full caption-bottom text-sm */
+:where(al-page:not([plain])) table {
+  width: 100%;
+  caption-side: bottom;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+/* TableHeader: [&_tr]:border-b; TableRow: border-b transition-colors */
+:where(al-page:not([plain])) tr {
+  border-bottom-width: 1px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :where(al-page:not([plain])) tr {
+    transition: color 150ms cubic-bezier(.4, 0, .2, 1), background-color 150ms cubic-bezier(.4, 0, .2, 1), border-color 150ms cubic-bezier(.4, 0, .2, 1);
+  }
+}
+
+/* TableRow: hover:bg-muted/50 has-aria-expanded:bg-muted/50 */
+:where(al-page:not([plain])) tr:hover,
+:where(al-page:not([plain])) tr:has([aria-expanded="true"]) {
+  background: color-mix(in oklab, var(--muted) 50%, transparent);
+}
+
+/* TableRow: data-[state=selected]:bg-muted */
+:where(al-page:not([plain])) tr[aria-selected="true"] {
+  background: var(--muted);
+}
+
+/* TableBody: [&_tr:last-child]:border-0 */
+:where(al-page:not([plain])) tbody tr:last-child {
+  border-width: 0;
+}
+
+/* TableFooter: border-t bg-muted/50 font-medium [&>tr]:last:border-b-0 */
+:where(al-page:not([plain])) tfoot {
+  border-top-width: 1px;
+  background: color-mix(in oklab, var(--muted) 50%, transparent);
+  font-weight: 500;
+}
+
+:where(al-page:not([plain])) tfoot > tr:last-child {
+  border-bottom-width: 0;
+}
+
+/* TableHead: h-10 px-2 text-left align-middle font-medium whitespace-nowrap text-foreground
+ * [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] */
+:where(al-page:not([plain])) th {
+  height: 2.5rem;
+  padding: 0 0.5rem;
+  text-align: left;
+  vertical-align: middle;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--foreground);
+}
+
+/* TableCell: p-2 align-middle whitespace-nowrap
+ * [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] */
+:where(al-page:not([plain])) td {
+  padding: 0.5rem;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+:where(al-page:not([plain])) :is(th, td):has([role="checkbox"]) {
+  padding-right: 0;
+}
+
+:where(al-page:not([plain])) :is(th, td) > [role="checkbox"] {
+  translate: 0 2px;
+}
+
+/* TableCaption: mt-4 text-sm text-muted-foreground */
+:where(al-page:not([plain])) caption {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--muted-foreground);
 }
 
 /* ---- components/al-button.css ---- */
@@ -1050,6 +1500,7 @@ al-stack[gap="lg"] {
 
 /* al-page: the content frame, a centred column of a set maximum width. */
 
+/* py-8 px-4 sm:px-6 */
 al-page {
   display: block;
   box-sizing: border-box;
@@ -1057,6 +1508,12 @@ al-page {
   max-width: var(--al-width-normal);
   margin-inline: auto;
   padding: 2rem 1rem;
+}
+
+@media (min-width: 40rem) {
+  al-page {
+    padding-inline: 1.5rem;
+  }
 }
 
 al-page[width="narrow"] {
@@ -1069,6 +1526,14 @@ al-page[width="normal"] {
 
 al-page[width="wide"] {
   max-width: var(--al-width-wide);
+}
+
+/* plain: no look of its own. typography.css scopes every rule to
+ * al-page:not([plain]), so a plain page's flow content keeps only base.css's
+ * reset (unstyled headings, no list markers, zero margins), for a page that
+ * brings its own typography. */
+al-page[plain] {
+  display: block;
 }
 
 /* ---- components/al-dialog.css ---- */

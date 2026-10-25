@@ -33,7 +33,7 @@ window.addEventListener("load", function () {
 });
 </script>
 </head>
-<body>
+<body data-expect="font-family: Geist, ui-sans-serif, system-ui, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji">
 <al-page width="wide">
 <al-stack gap="lg">
 
@@ -190,6 +190,7 @@ window.addEventListener("load", function () {
         <tr><td>Beta</td><td>Two</td></tr>
       </tbody>
     </table>
+    <hr data-expect="height: 1px">
   </div>
 </al-stack>
 
@@ -240,6 +241,12 @@ window.addEventListener("load", function () {
 </al-stack>
 
 </al-stack>
+</al-page>
+<!-- A plain page after the grid (it shifts no marker): typography.css is off inside it, so a
+     paragraph that is not the first child keeps Preflight's zero margin. -->
+<al-page plain>
+  <p>A plain page brings its own typography.</p>
+  <p data-expect="margin-top: 0px">Its second paragraph has no top margin.</p>
 </al-page>
 </body>
 </html>

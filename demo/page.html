@@ -24,8 +24,34 @@ function toggleTheme() { var r = document.documentElement, dark = r.dataset.them
 <al-page width="normal"><al-card><p>normal (the default): at most 56rem</p></al-card></al-page>
 <al-page width="wide"><al-card><p>wide: at most 80rem</p></al-card></al-page>
 </section>
+<section>
+<h2>Typography</h2>
+<p>Flow content in a page gets shadcn's typography: headings, paragraphs, <a href="#plain">links</a>, <code>code</code>, quotes, lists, rules and tables.</p>
+<blockquote>A quoted passage.</blockquote>
+<ul>
+  <li>First item</li>
+  <li>Second item</li>
+</ul>
+<hr>
+<table>
+  <thead><tr><th>Name</th><th>Value</th></tr></thead>
+  <tbody>
+    <tr><td>Alpha</td><td>One</td></tr>
+    <tr><td>Beta</td><td>Two</td></tr>
+  </tbody>
+</table>
+</section>
 
 </al-stack>
+</al-page>
+<!-- A plain page sits directly in <body>, not inside another al-page. -->
+<al-page plain id="plain">
+<h2>Plain</h2>
+<p><code>plain</code> switches the typography off for a page that brings its own; only the reset stays.</p>
+<ul>
+  <li>No list markers</li>
+  <li>No margins</li>
+</ul>
 </al-page>
 </body>
 </html>

@@ -10,7 +10,8 @@ Checks:
   css          every selector names a declared element, attribute, value and
                slot (and every class is al- prefixed, or one of the classes
                Alder renders: errors, help, _alder-click); every element, attribute,
-               value and slot in the manifest is styled
+               value and slot in the manifest is styled (typography.css
+               counts as al-page's stylesheet)
   tokens-only  no literal colour and no literal font-family in components/,
                base.css, typography.css; every var(--x) is defined
   tokens       tokens.css has shadcn's names (Ref section 1) in light and
@@ -85,6 +86,7 @@ API.update({
 ADDED = {
     "al-select": [("help", "string")],
     "al-checkbox": [("invalid", "boolean"), ("help", "string")],
+    "al-page": [("plain", "boolean")],
 }
 # Additive growth since the API above (restyle): extra members appended to an
 # attribute's string union, and extra slots appended after the original ones.
@@ -291,9 +293,14 @@ def check_selector(sel, els, file_tag, seen):
 
 def check_selector_inner(sel, els, parent, seen):
     for comp in compounds(sel):
+        m = re.match(r"(al-[\w-]+)", comp)
         for name, op, val in ATTR_RE.findall(comp):
             if name == "slot" and val and parent:
                 check_slot(parent, val, els, sel, parent, seen)
+            elif m and m.group(1) in els and name != "slot":
+                # an al- element inside :where()/:not()/:is()/:has(), e.g.
+                # typography.css's :where(al-page:not([plain]))
+                check_attr(m.group(1), name, op, val, els, sel, m.group(1), seen)
 
 
 def check_attr(tag, name, op, val, els, sel, file_tag, seen):
@@ -319,6 +326,10 @@ def check_slot(tag, val, els, sel, file_tag, seen):
     seen.add((tag, "slot", val))
 
 
+# typography.css is scoped to al-page:not([plain]), so it is al-page's too.
+EXTRA_CSS = {"al-page": ["typography.css"]}
+
+
 def check_css(els):
     files = {}
     for tag, d in els.items():
@@ -333,6 +344,13 @@ def check_css(els):
         for head, _ in rules(css):
             for sel in split_top(head):
                 check_selector(sel, els, main, seen)
+        # Files outside components/ that style an element: their selectors are
+        # checked as that element's and count toward what it styles.
+        for extra in EXTRA_CSS.get(main, []):
+            if (ROOT / extra).exists():
+                for head, _ in rules((ROOT / extra).read_text()):
+                    for sel in split_top(head):
+                        check_selector(sel, els, main, seen)
         for name in re.findall(r"attr\(([\w-]+)\)", strip_comments(css)):
             seen.add((main, "attr", name))
         for tag in tags:

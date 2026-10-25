@@ -122,11 +122,3 @@
   --al-width-normal: 56rem;
   --al-width-wide: 80rem;
 }
-
-/* Cross-document view transitions: a same-origin page load cross-fades from
- * the old page to the new one instead of painting a blank (white) frame in
- * between, which in the dark theme is a flash. Browsers without view
- * transitions ignore the rule. */
-@view-transition {
-  navigation: auto;
-}
