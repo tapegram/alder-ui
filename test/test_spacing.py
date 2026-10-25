@@ -171,6 +171,33 @@ class DialogFooterButtonTest(unittest.TestCase):
                 for id in ("full", "full-inner"):
                     self.assertAlmostEqual(b[id]["width"], content, delta=TOL, msg=id)
 
+    def click_form(self, width):
+        page = open_page("parity.html", width)
+        try:
+            page.emulate_media(reduced_motion="reduce")
+            page.evaluate("""() => {
+                const f = document.querySelector('#parity-dialog > [slot=actions]');
+                f.insertAdjacentHTML('beforeend',
+                    '<form class="_alder-click" method="post"><al-button id="f-click"><button type="submit">Delete</button></al-button></form>');
+                document.getElementById('parity-dialog').showModal();
+            }""")
+            content = page.eval_on_selector("#parity-dialog > [slot=actions]", """f => {
+                const s = getComputedStyle(f);
+                return f.clientWidth - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight);
+            }""")
+            return content, box(page, "#f-click"), box(page, "#f-click > button")
+        finally:
+            page.close()
+
+    def test_click_form_button_stretches_at_phone_width(self):
+        content, host, inner = self.click_form(400)
+        self.assertAlmostEqual(host["width"], content, delta=TOL)
+        self.assertAlmostEqual(inner["width"], content, delta=TOL)
+
+    def test_click_form_button_natural_width_in_row(self):
+        content, host, inner = self.click_form(1280)
+        self.assertLess(host["width"], content / 2)
+        self.assertAlmostEqual(inner["width"], host["width"], delta=TOL)
 
 @unittest.skipIf(sync_playwright is None, "playwright is not installed")
 class BadgeLayoutTest(unittest.TestCase):
@@ -189,6 +216,7 @@ class BadgeLayoutTest(unittest.TestCase):
                     self.assertLess(badge["width"], stack["width"] / 2)
         finally:
             page.close()
+
 
 @unittest.skipIf(sync_playwright is None, "playwright is not installed")
 class DetailListTest(unittest.TestCase):

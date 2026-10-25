@@ -136,17 +136,21 @@ al-dialog > dialog > [slot="actions"] {
    al-button is a flex row around its <button> or <a>, so the inner one grows.
    The host's width goes back to auto so the column can stretch it (an
    al-button is fit-content elsewhere); in the row from 40rem auto is its
-   content width. Icon sizes keep their square and `full` its 100%. */
-al-dialog > dialog > [slot="actions"] > al-button:not([full], [size^="icon"]) {
+   content width. Icon sizes keep their square and `full` its 100%. Alder's click form is
+   display: contents, so the al-button inside it is the flex item. */
+al-dialog > dialog > [slot="actions"] > al-button:not([full], [size^="icon"]),
+al-dialog > dialog > [slot="actions"] > form._alder-click > al-button:not([full], [size^="icon"]) {
   inline-size: auto;
 }
 
-al-dialog > dialog > [slot="actions"] > al-button > :is(button, a) {
+al-dialog > dialog > [slot="actions"] > al-button > :is(button, a),
+al-dialog > dialog > [slot="actions"] > form._alder-click > al-button > :is(button, a) {
   flex: auto;
 }
 
 @media (min-width: 40rem) {
-  al-dialog > dialog > [slot="actions"] > al-button > :is(button, a) {
+  al-dialog > dialog > [slot="actions"] > al-button > :is(button, a),
+  al-dialog > dialog > [slot="actions"] > form._alder-click > al-button > :is(button, a) {
     flex: none;
   }
 
