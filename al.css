@@ -356,6 +356,9 @@ input:where([type="button"], [type="reset"], [type="submit"]),
   height: auto;
 }
 
+/* Tailwind Preflight's rule, kept as is. Inside `@layer al` this !important
+   still beats an unlayered app `!important`: for important declarations the
+   layer order inverts, so an earlier layer wins over the unlayered styles. */
 [hidden]:where(:not([hidden="until-found"])) {
   display: none !important;
 }
@@ -674,6 +677,11 @@ al-button {
   --_al-hover-fg: var(--primary-foreground);
   --_al-ring: color-mix(in oklab, var(--ring) 50%, transparent);
   --_al-border: var(--border);
+  /* The transparent layers mirror how Tailwind composes box-shadow, so the
+     computed list matches the reference's. --_al-shadow (4 no-op layers +
+     shadow) and --_al-shadow-end (the last layer, under the focus ring: 3
+     no-op layers + ring + shadow-end) must stay in step; change one, change
+     the other. */
   --_al-shadow: none;
   --_al-shadow-end: 0 0 transparent;
   --_al-border-focus: var(--ring);
@@ -1303,7 +1311,9 @@ al-select label {
 
 /* The chevron: <ChevronDownIcon className="size-4 opacity-50" />, drawn by the
    label's ::after over the select's right padding (a <select> takes no
-   pseudo-element). right-3 is 0.75rem; the select is the label's last row. */
+   pseudo-element). right-3 is 0.75rem. The bottom offset (select height 2.25rem / 2 minus
+   icon 1rem / 2, from the label's bottom edge) assumes the select is the
+   label's last row: a hint or error line after it would shift the chevron. */
 al-select label::after {
   content: "";
   position: absolute;
@@ -1352,6 +1362,9 @@ al-select select {
   white-space: nowrap;
   color-scheme: inherit;
   cursor: pointer;
+  /* `outline-style: none` at width 3px keeps the computed `outline` equal to
+     the reference's; on focus the width becomes 1px (below) to match its
+     outline-width. The visible ring is the box-shadow. */
   outline: 3px none color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
@@ -1377,7 +1390,10 @@ al-select select:has(option[value=""]:checked) {
   color: var(--muted-foreground);
 }
 
-/* the open listbox is native: its options keep the page colours */
+/* the open listbox is native: its options keep the page colours. In .dark,
+   `color-scheme: inherit` (above) already gives the listbox dark chrome, so
+   these colours partly duplicate it; they stay because the computed colours
+   are compared with the reference's. */
 al-select select option {
   background-color: var(--popover);
   color: var(--popover-foreground);
@@ -1793,6 +1809,10 @@ al-table[striped] tbody tr[aria-selected="true"]:nth-child(even) {
  * after it the description. `:nth-child(1 of :not([slot]))` counts only the
  * unslotted children, so a slotted element before the heading does not
  * break the rule (:first-child would).
+ *
+ * Typography (#11): a body paragraph keeps 24px leading (CardContent sets
+ * none, so it inherits leading-normal); the description is text-sm, 20px.
+ * Every surface keeps shadcn's per-part values; none is reset uniformly.
  */
 
 /* flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground
@@ -1810,6 +1830,8 @@ al-card {
   border-radius: var(--radius-xl);
   background: var(--card);
   color: var(--card-foreground);
+  /* the four transparent layers are Tailwind's no-op shadow slots (see
+     al-button.css), kept so the computed list matches the reference's */
   box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-sm);
   font-family: var(--font-sans);
 }
@@ -2013,6 +2035,10 @@ al-badge > a:focus-visible {
  * the icon and the close button take the title colour (--_al-title). An h1-h6
  * child is styled as AlertTitle, not as Typography's heading. An empty
  * ul.errors is hidden; with a heading the alert still draws the heading.
+ *
+ * Typography (#11): the description is text-sm, 20px, and a p nested in a
+ * block child is leading-relaxed (1.625), as in shadcn's [&_p]:leading-relaxed.
+ * Every surface keeps shadcn's per-part values; none is reset uniformly.
  */
 
 /* relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 rounded-lg
@@ -2166,7 +2192,8 @@ al-alert[dismissible] {
 
 /* The dismiss button: a ghost icon button, size-7, top right.
    hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50
-   focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 */
+   focus-visible:ring-[3px] focus-visible:ring-ring/50 (no border-ring: the
+   button's border is 0, so focus draws the ring as a box-shadow only) */
 al-alert > .al-alert-dismiss {
   position: absolute;
   top: 0.5rem;
@@ -2535,7 +2562,14 @@ al-page[plain] {
  * actions = DialogFooter, the close form's button = the Close. shadcn's
  * DialogHeader is a wrapper element; Alder emits none, so the <dialog> itself
  * is the grid, and the header's gap-2 is a negative margin on the
- * description. Children are placed by slot, whatever their source order.
+ * description. Children are placed by slot (order), so the layout does not
+ * depend on source order, with one exception: the description's negative
+ * margin applies only when it directly follows the header in the source,
+ * which is how the renderer always emits them.
+ *
+ * Typography (#11): a body paragraph keeps 24px leading (DialogContent sets
+ * none, so it inherits leading-normal); the description is text-sm, 20px.
+ * Every surface keeps shadcn's per-part values; none is reset uniformly.
  */
 
 al-dialog {
@@ -2611,7 +2645,8 @@ al-dialog > dialog > [slot="header"] {
 }
 
 /* DialogDescription: text-sm text-muted-foreground   (the -0.5rem top margin
-   turns the grid's gap-4 into DialogHeader's gap-2) */
+   turns the grid's gap-4 into DialogHeader's gap-2; it applies only when the
+   description directly follows the header in source order, below) */
 al-dialog > dialog > [slot="description"] {
   order: -1;
   color: var(--muted-foreground);
@@ -2761,7 +2796,13 @@ al-dialog[dismissible] > dialog > form[method="dialog"]:first-child > button:dis
  *
  * The parts map to shadcn's: the element is PopoverContent; a heading inside
  * it is PopoverTitle and a paragraph PopoverDescription (PopoverHeader's
- * gap-1 is the paragraph's top margin after a heading).
+ * gap-1 is the paragraph's top margin after a heading). Children have no
+ * margin between them (`al-popover > * { margin: 0 }`): PopoverContent has no
+ * inter-child spacing either, only the header's gap-1.
+ *
+ * Typography (#11): the paragraph is text-sm, 20px (the reference computes the
+ * same), pinned in demo/parity.html. Every surface keeps shadcn's per-part
+ * values; none is reset uniformly (card and dialog body p are 24px).
  *
  * Limit (#13): when position-try flips the popover to the other side, its
  * transform-origin and slide-in direction stay those of the first choice.
@@ -2824,6 +2865,7 @@ al-popover[offset="lg"] {
   margin: 1rem;
 }
 
+/* shadcn-faithful: no spacing between children (see the header) */
 al-popover > * {
   margin: 0;
 }
@@ -3040,8 +3082,13 @@ al-menu > hr {
  * same name; one `checked`) and its al-panel. The labels sit in a row, the
  * checked tab's panel shows beneath. The optional al-tabs.js builds a
  * <div role="tablist"> of <button role="tab"> from the labels (which it hides),
- * styled below like the labels, and adds the arrow keys, Home/End, the selected
- * attribute, and the al-select event.
+ * styled as shadcn's TabsList / TabsTrigger (the rules below), and adds the
+ * arrow keys, Home/End, the selected attribute, and the al-select event.
+ *
+ * With no script the radio labels are the tab row, a plain fallback with no
+ * shadcn counterpart. variant=line applies there too (a transparent checked
+ * label with the same underline); the muted pill does not, because labels and
+ * panels share one flex row, so nothing wraps just the labels.
  */
 
 /* Tabs: group/tabs flex flex-col gap-2. Written as a wrapping row so the no-JS
@@ -3238,6 +3285,29 @@ al-tabs > al-tab > label:has(> input:checked) {
   background: var(--background);
   color: var(--foreground);
   box-shadow: var(--shadow-sm);
+}
+
+/* variant=line, no script: no pill and no shadow, the checked label gets the
+   built tab's underline (the same ::after as the tablist's line tab). The muted
+   pill is not possible here: labels and panels share one flex row, so there is
+   no container that holds only the labels. */
+al-tabs[variant="line"] > al-tab > label:has(> input:checked) {
+  background: transparent;
+  box-shadow: none;
+}
+
+al-tabs[variant="line"] > al-tab > label::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -5px;
+  block-size: 2px;
+  background: var(--foreground);
+  opacity: 0;
+}
+
+al-tabs[variant="line"] > al-tab > label:has(> input:checked)::after {
+  opacity: 1;
 }
 
 al-tabs > al-tab > label:has(> input:focus-visible) {

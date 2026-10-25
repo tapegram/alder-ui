@@ -279,7 +279,7 @@ dismissible dialog has the renderer's shape.
 `tabindex`) made from the labels' text and inserted before the panels, the radio
 labels hidden, `role=tabpanel` with `id` and `aria-labelledby` on each panel.
 Click and the arrow keys, Home and End check the (hidden) radio, so the CSS and
-`al-select` work as before. With no script nothing changes: radios and labels. `al-devpanel.js` hides the sections that are not
+`al-select` work as before. With no script nothing changes: radios and labels. `variant=line` applies to those labels too (a transparent checked label with the same underline), but the muted pill does not: the labels and panels share one flex row, so nothing wraps only the labels. `al-devpanel.js` hides the sections that are not
 selected and re-applies the selection after any DOM patch (a MutationObserver),
 so a server that patches the panel's inner content need not render `hidden`.
 

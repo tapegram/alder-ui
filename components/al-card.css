@@ -14,6 +14,10 @@
  * after it the description. `:nth-child(1 of :not([slot]))` counts only the
  * unslotted children, so a slotted element before the heading does not
  * break the rule (:first-child would).
+ *
+ * Typography (#11): a body paragraph keeps 24px leading (CardContent sets
+ * none, so it inherits leading-normal); the description is text-sm, 20px.
+ * Every surface keeps shadcn's per-part values; none is reset uniformly.
  */
 
 /* flex flex-col gap-6 rounded-xl border bg-card py-6 text-card-foreground
@@ -31,6 +35,8 @@ al-card {
   border-radius: var(--radius-xl);
   background: var(--card);
   color: var(--card-foreground);
+  /* the four transparent layers are Tailwind's no-op shadow slots (see
+     al-button.css), kept so the computed list matches the reference's */
   box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-sm);
   font-family: var(--font-sans);
 }

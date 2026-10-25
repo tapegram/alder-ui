@@ -4,8 +4,13 @@
  * same name; one `checked`) and its al-panel. The labels sit in a row, the
  * checked tab's panel shows beneath. The optional al-tabs.js builds a
  * <div role="tablist"> of <button role="tab"> from the labels (which it hides),
- * styled below like the labels, and adds the arrow keys, Home/End, the selected
- * attribute, and the al-select event.
+ * styled as shadcn's TabsList / TabsTrigger (the rules below), and adds the
+ * arrow keys, Home/End, the selected attribute, and the al-select event.
+ *
+ * With no script the radio labels are the tab row, a plain fallback with no
+ * shadcn counterpart. variant=line applies there too (a transparent checked
+ * label with the same underline); the muted pill does not, because labels and
+ * panels share one flex row, so nothing wraps just the labels.
  */
 
 /* Tabs: group/tabs flex flex-col gap-2. Written as a wrapping row so the no-JS
@@ -202,6 +207,29 @@ al-tabs > al-tab > label:has(> input:checked) {
   background: var(--background);
   color: var(--foreground);
   box-shadow: var(--shadow-sm);
+}
+
+/* variant=line, no script: no pill and no shadow, the checked label gets the
+   built tab's underline (the same ::after as the tablist's line tab). The muted
+   pill is not possible here: labels and panels share one flex row, so there is
+   no container that holds only the labels. */
+al-tabs[variant="line"] > al-tab > label:has(> input:checked) {
+  background: transparent;
+  box-shadow: none;
+}
+
+al-tabs[variant="line"] > al-tab > label::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: -5px;
+  block-size: 2px;
+  background: var(--foreground);
+  opacity: 0;
+}
+
+al-tabs[variant="line"] > al-tab > label:has(> input:checked)::after {
+  opacity: 1;
 }
 
 al-tabs > al-tab > label:has(> input:focus-visible) {

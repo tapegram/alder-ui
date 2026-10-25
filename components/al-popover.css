@@ -11,7 +11,13 @@
  *
  * The parts map to shadcn's: the element is PopoverContent; a heading inside
  * it is PopoverTitle and a paragraph PopoverDescription (PopoverHeader's
- * gap-1 is the paragraph's top margin after a heading).
+ * gap-1 is the paragraph's top margin after a heading). Children have no
+ * margin between them (`al-popover > * { margin: 0 }`): PopoverContent has no
+ * inter-child spacing either, only the header's gap-1.
+ *
+ * Typography (#11): the paragraph is text-sm, 20px (the reference computes the
+ * same), pinned in demo/parity.html. Every surface keeps shadcn's per-part
+ * values; none is reset uniformly (card and dialog body p are 24px).
  *
  * Limit (#13): when position-try flips the popover to the other side, its
  * transform-origin and slide-in direction stay those of the first choice.
@@ -74,6 +80,7 @@ al-popover[offset="lg"] {
   margin: 1rem;
 }
 
+/* shadcn-faithful: no spacing between children (see the header) */
 al-popover > * {
   margin: 0;
 }

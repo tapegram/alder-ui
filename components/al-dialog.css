@@ -19,7 +19,14 @@
  * actions = DialogFooter, the close form's button = the Close. shadcn's
  * DialogHeader is a wrapper element; Alder emits none, so the <dialog> itself
  * is the grid, and the header's gap-2 is a negative margin on the
- * description. Children are placed by slot, whatever their source order.
+ * description. Children are placed by slot (order), so the layout does not
+ * depend on source order, with one exception: the description's negative
+ * margin applies only when it directly follows the header in the source,
+ * which is how the renderer always emits them.
+ *
+ * Typography (#11): a body paragraph keeps 24px leading (DialogContent sets
+ * none, so it inherits leading-normal); the description is text-sm, 20px.
+ * Every surface keeps shadcn's per-part values; none is reset uniformly.
  */
 
 al-dialog {
@@ -95,7 +102,8 @@ al-dialog > dialog > [slot="header"] {
 }
 
 /* DialogDescription: text-sm text-muted-foreground   (the -0.5rem top margin
-   turns the grid's gap-4 into DialogHeader's gap-2) */
+   turns the grid's gap-4 into DialogHeader's gap-2; it applies only when the
+   description directly follows the header in source order, below) */
 al-dialog > dialog > [slot="description"] {
   order: -1;
   color: var(--muted-foreground);

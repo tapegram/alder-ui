@@ -36,7 +36,9 @@ al-select label {
 
 /* The chevron: <ChevronDownIcon className="size-4 opacity-50" />, drawn by the
    label's ::after over the select's right padding (a <select> takes no
-   pseudo-element). right-3 is 0.75rem; the select is the label's last row. */
+   pseudo-element). right-3 is 0.75rem. The bottom offset (select height 2.25rem / 2 minus
+   icon 1rem / 2, from the label's bottom edge) assumes the select is the
+   label's last row: a hint or error line after it would shift the chevron. */
 al-select label::after {
   content: "";
   position: absolute;
@@ -85,6 +87,9 @@ al-select select {
   white-space: nowrap;
   color-scheme: inherit;
   cursor: pointer;
+  /* `outline-style: none` at width 3px keeps the computed `outline` equal to
+     the reference's; on focus the width becomes 1px (below) to match its
+     outline-width. The visible ring is the box-shadow. */
   outline: 3px none color-mix(in oklab, var(--ring) 50%, transparent);
 }
 
@@ -110,7 +115,10 @@ al-select select:has(option[value=""]:checked) {
   color: var(--muted-foreground);
 }
 
-/* the open listbox is native: its options keep the page colours */
+/* the open listbox is native: its options keep the page colours. In .dark,
+   `color-scheme: inherit` (above) already gives the listbox dark chrome, so
+   these colours partly duplicate it; they stay because the computed colours
+   are compared with the reference's. */
 al-select select option {
   background-color: var(--popover);
   color: var(--popover-foreground);

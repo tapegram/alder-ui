@@ -299,7 +299,7 @@ window.addEventListener("load", function () {
   <button type="button" hidden commandfor="parity-popover" command="hide-popover">Close popover</button>
   <al-popover popover id="parity-popover" anchor="parity-popover-trigger" placement="bottom" data-ref="popover/content/open" data-ref-open>
     <h4>Popover Title</h4>
-    <p>Popover Description</p>
+    <p data-expect="line-height: 20px">Popover Description</p>
   </al-popover>
   <al-menu popover id="parity-menu" data-ref="menu/content/open" data-ref-open>
     <a href="#" data-ref="menu/item/open" data-ref-states="hover focus">Profile</a>

@@ -17,6 +17,10 @@
  * the icon and the close button take the title colour (--_al-title). An h1-h6
  * child is styled as AlertTitle, not as Typography's heading. An empty
  * ul.errors is hidden; with a heading the alert still draws the heading.
+ *
+ * Typography (#11): the description is text-sm, 20px, and a p nested in a
+ * block child is leading-relaxed (1.625), as in shadcn's [&_p]:leading-relaxed.
+ * Every surface keeps shadcn's per-part values; none is reset uniformly.
  */
 
 /* relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 rounded-lg
@@ -170,7 +174,8 @@ al-alert[dismissible] {
 
 /* The dismiss button: a ghost icon button, size-7, top right.
    hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50
-   focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 */
+   focus-visible:ring-[3px] focus-visible:ring-ring/50 (no border-ring: the
+   button's border is 0, so focus draws the ring as a box-shadow only) */
 al-alert > .al-alert-dismiss {
   position: absolute;
   top: 0.5rem;
