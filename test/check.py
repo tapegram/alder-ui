@@ -370,6 +370,39 @@ def check_typography_weight():
                 fail("css", "typography.css: %r names no element outside :where() (weight 0,0,0)" % sel)
 
 
+MOTION_GUARD = re.compile(r"prefers-reduced-motion\s*:\s*no-preference")
+MOTION_PROP = re.compile(r"(?:^|[;{\s])((?:transition|animation)[\w-]*)\s*:\s*([^;]+)")
+
+
+def unguarded_motion(css):
+    """The selectors of style rules in css that declare a transition or
+    animation (other than none) outside @media (prefers-reduced-motion:
+    no-preference). Plan Global Constraints: all motion sits under that query."""
+    css = strip_comments(css)
+    out, stack, start = [], [], 0
+    for i, c in enumerate(css):
+        if c == "{":
+            stack.append(css[start:i].strip())
+            start = i + 1
+        elif c == "}":
+            head = stack.pop()
+            body = css[start:i]
+            start = i + 1
+            if head.startswith("@") or any(MOTION_GUARD.search(h) for h in stack):
+                continue
+            if any(v.strip() != "none" for _, v in MOTION_PROP.findall(body)):
+                out.append(" ".join(head.split()))
+        elif c == ";" and stack and stack[-1].startswith("@"):
+            start = i + 1
+    return out
+
+
+def check_motion():
+    for p in styled_files():
+        for sel in unguarded_motion(p.read_text()):
+            fail("css", "%s: %r has motion outside @media (prefers-reduced-motion: no-preference)" % (p.name, sel))
+
+
 def check_css(els):
     files = {}
     for tag, d in els.items():
@@ -845,6 +878,7 @@ def main(argv):
     check_manifest(m, els)
     check_css(els)
     check_typography_weight()
+    check_motion()
     light, dark, common = load_tokens()
     defined = set(light) | set(dark) | set(common)
     check_tokens_only(defined)
