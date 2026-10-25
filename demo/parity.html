@@ -74,7 +74,7 @@ window.addEventListener("load", function () {
 
 <al-stack gap="md" data-section="textarea">
   <h2>textarea</h2>
-  <al-textarea label="Message" placeholder="Message"><label>Message<textarea name="message" placeholder="Message" data-ref="textarea/default/default"></textarea></label><ul class="errors" data-errors="message"></ul></al-textarea>
+  <al-textarea label="Message" placeholder="Message"><label>Message<textarea name="message" placeholder="Message" data-ref="textarea/default/default" data-ref-states="focus"></textarea></label><ul class="errors" data-errors="message"></ul></al-textarea>
   <al-textarea label="Message" placeholder="Message" invalid><label>Message<textarea name="message-invalid" placeholder="Message" aria-invalid="true" data-ref="textarea/default/invalid"></textarea></label><ul class="errors" data-errors="message-invalid"></ul></al-textarea>
   <!-- twin-only: textarea help text matches input's (input/description/default) -->
   <al-textarea label="Message" help="Markdown is fine."><label>Message<textarea name="message-help" aria-describedby="help-message-help"></textarea></label><small class="help" id="help-message-help" data-expect="font-weight: 400; font-size: 14px; line-height: 20px">Markdown is fine.</small><ul class="errors" data-errors="message-help"></ul></al-textarea>

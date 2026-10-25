@@ -373,7 +373,7 @@ export default function App() {
         <Section name="textarea">
           <Field>
             <Label htmlFor="message">Message</Label>
-            <Textarea id="message" placeholder="Message" data-ref="textarea/default/default" />
+            <Textarea id="message" placeholder="Message" data-ref="textarea/default/default" data-ref-states="focus" />
           </Field>
           <Field>
             <Label htmlFor="message-invalid">Message</Label>
