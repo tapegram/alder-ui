@@ -136,8 +136,8 @@ al-dialog > dialog > [slot="actions"] {
    al-button is a flex row around its <button> or <a>, so the inner one grows.
    The host's width goes back to auto so the column can stretch it (an
    al-button is fit-content elsewhere); in the row from 40rem auto is its
-   content width. */
-al-dialog > dialog > [slot="actions"] > al-button {
+   content width. Icon sizes keep their square and `full` its 100%. */
+al-dialog > dialog > [slot="actions"] > al-button:not([full], [size^="icon"]) {
   inline-size: auto;
 }
 

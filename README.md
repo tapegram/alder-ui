@@ -83,7 +83,8 @@ Notes:
   presentational: it looks like a button but has no role, focus or
   Enter/Space handling, so use it only from a framework that supplies them.
   A button keeps its natural width in a grid form or a column `al-stack`;
-  add `full` for a full-width button.
+  add `full` for a full-width button. A badge keeps its own width in a
+  column `al-stack` too.
   The native form is styled through `al-button:has(> button)`, so it needs a
   browser with `:has()` (Baseline 2023: Chrome and Edge 105, Safari 15.4,
   Firefox 121); an older browser draws the element's look around the

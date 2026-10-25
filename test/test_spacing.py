@@ -48,9 +48,9 @@ def tearDownModule():
         _server.server_close()
 
 
-def open_page(demo):
-    """A 1280x800 page on demo/<demo>; the caller closes it."""
-    page = _browser.new_page(viewport={"width": 1280, "height": 800})
+def open_page(demo, width=1280):
+    """A <width>x800 page on demo/<demo>; the caller closes it."""
+    page = _browser.new_page(viewport={"width": width, "height": 800})
     page.goto("http://127.0.0.1:%d/demo/%s" % (_server.server_address[1], demo))
     return page
 
@@ -134,6 +134,61 @@ class ButtonLayoutTest(unittest.TestCase):
         for mid in rects[1:]:
             self.near(mid, rects[0])
 
+
+@unittest.skipIf(sync_playwright is None, "playwright is not installed")
+class DialogFooterButtonTest(unittest.TestCase):
+    """The dialog footer stretches plain buttons in its phone column, but an icon
+    button stays square and `full` stays full width at every size."""
+
+    def footer(self, width):
+        page = open_page("parity.html", width)
+        try:
+            page.emulate_media(reduced_motion="reduce")  # no zoom-in while measuring
+            page.evaluate("""() => {
+                const f = document.querySelector('#parity-dialog > [slot=actions]');
+                f.insertAdjacentHTML('beforeend',
+                    '<al-button id="f-icon" size="icon" variant="outline"><button type="button" aria-label="Add">+</button></al-button>' +
+                    '<al-button id="f-full" full><button type="button">Full</button></al-button>');
+                document.getElementById('parity-dialog').showModal();
+            }""")
+            content = page.eval_on_selector("#parity-dialog > [slot=actions]", """f => {
+                const s = getComputedStyle(f);
+                return f.clientWidth - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight);
+            }""")
+            return content, {id: box(page, sel) for id, sel in (
+                ("icon", "#f-icon"), ("icon-inner", "#f-icon > button"),
+                ("full", "#f-full"), ("full-inner", "#f-full > button"))}
+        finally:
+            page.close()
+
+    def test_footer(self):
+        for width in (400, 1280):
+            content, b = self.footer(width)
+            with self.subTest(width=width):
+                for id in ("icon", "icon-inner"):
+                    self.assertAlmostEqual(b[id]["width"], 36, delta=TOL, msg=id)
+                    self.assertAlmostEqual(b[id]["height"], 36, delta=TOL, msg=id)
+                for id in ("full", "full-inner"):
+                    self.assertAlmostEqual(b[id]["width"], content, delta=TOL, msg=id)
+
+
+@unittest.skipIf(sync_playwright is None, "playwright is not installed")
+class BadgeLayoutTest(unittest.TestCase):
+    """al-badge keeps its own width in a column stack (demo/stack.html's column)."""
+
+    def test_column_stack(self):
+        page = open_page("stack.html")
+        try:
+            stack = box(page, 'al-stack[direction="column"]')
+            n = page.eval_on_selector_all('al-stack[direction="column"] > al-badge', "es => es.length")
+            self.assertGreater(n, 0)
+            for i in range(1, n + 1):
+                with self.subTest(badge=i):
+                    badge = box(page, 'al-stack[direction="column"] > al-badge:nth-of-type(%d)' % i)
+                    self.assertAlmostEqual(badge["x"], stack["x"], delta=TOL)
+                    self.assertLess(badge["width"], stack["width"] / 2)
+        finally:
+            page.close()
 
 if __name__ == "__main__":
     unittest.main()
