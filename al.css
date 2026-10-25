@@ -1974,8 +1974,10 @@ al-badge > a:focus-visible {
 
 /*
  * al-alert: a message box. The heading attribute is drawn as its title (a
- * ::before) and the variant's icon is drawn as an ::after, both placed in the
- * grid below; every other child is the description. Write role="alert"
+ * ::before) and the variant's icon as an absolute ::after in the start
+ * padding. The alert is block flow, not shadcn's grid, so a message may mix
+ * text and inline elements ("Saved <code>post.md</code>"); its block
+ * children (p, div, ul, ol) are the description. Write role="alert"
  * (warning, destructive) or role="status" (info, success) on the element
  * yourself: CSS cannot add a role. dismissible makes room for the close
  * button that the optional al-alert.js adds.
@@ -1987,19 +1989,19 @@ al-badge > a:focus-visible {
 
 /* relative grid w-full grid-cols-[0_1fr] items-start gap-y-0.5 rounded-lg
    border px-4 py-3 text-sm has-[>svg]:grid-cols-[calc(var(--spacing)*4)_1fr]
-   has-[>svg]:gap-x-3  (every alert has an icon, so the icon column is always
-   there)
-   default: bg-card text-card-foreground */
+   has-[>svg]:gap-x-3
+   default: bg-card text-card-foreground
+   Block flow here, not grid: in a grid every inline child (a, code, strong)
+   and every run of text between them would be a row of its own. The icon
+   column and gap-x-3 are the start padding: px-4 + size-4 + gap-x-3. */
 al-alert {
   --_al-icon: var(--_al-icon-info);
-  display: grid;
+  display: block;
   position: relative;
   box-sizing: border-box;
   width: 100%;
-  grid-template-columns: 1rem minmax(0, 1fr);
-  align-items: start;
-  gap: 0.125rem 0.75rem;
   padding: 0.75rem 1rem;
+  padding-inline-start: calc(1rem + 1rem + 0.75rem);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--card);
@@ -2009,22 +2011,18 @@ al-alert {
   line-height: 1.25rem;
 }
 
-/* [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current  (the icon;
-   it spans both rows so that text without an element of its own, which the
-   grid places by itself, lands in the second column) */
+/* [&>svg]:size-4 [&>svg]:translate-y-0.5 [&>svg]:text-current  (the icon,
+   at the top of the first line: px-4, py-3) */
 al-alert::after {
   content: "";
-  grid-column: 1;
-  grid-row: 1;
+  position: absolute;
+  inset-inline-start: 1rem;
+  inset-block-start: 0.75rem;
   width: 1rem;
   height: 1rem;
   translate: 0 0.125rem;
   background: currentColor;
   mask: var(--_al-icon) center / contain no-repeat;
-}
-
-al-alert[heading]::after {
-  grid-row: 1 / span 2;
 }
 
 al-alert[variant="success"] {
@@ -2042,10 +2040,10 @@ al-alert[variant="destructive"] {
   color: var(--destructive);
 }
 
-/* AlertTitle: col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight */
+/* AlertTitle: col-start-2 line-clamp-1 min-h-4 font-medium tracking-tight
+   (-webkit-box is block-level: the title is a line of its own) */
 al-alert[heading]::before {
   content: attr(heading);
-  grid-column: 2;
   display: -webkit-box;
   overflow: hidden;
   min-height: 1rem;
@@ -2056,29 +2054,44 @@ al-alert[heading]::before {
 }
 
 /* AlertDescription: col-start-2 grid justify-items-start gap-1 text-sm
-   text-muted-foreground [&_p]:leading-relaxed */
-al-alert > :not(.al-alert-dismiss) {
-  grid-column: 2;
-  display: grid;
-  justify-items: start;
-  gap: 0.25rem;
+   text-muted-foreground [&_p]:leading-relaxed   (only the block children:
+   inline ones flow with the text around them; a p or div is block flow, so
+   the inline elements inside it stay on its lines too) */
+al-alert > :is(p, div, ul, ol) {
   margin: 0;
+  padding: 0;
+  border-width: 0;
   color: var(--muted-foreground);
   font-size: 0.875rem;
   line-height: 1.25rem;
+  letter-spacing: normal;
 }
 
-al-alert[variant="destructive"] > :not(.al-alert-dismiss) {
+/* gap-y-0.5 between the title and the description, and between blocks */
+al-alert[heading] > :is(p, div, ul, ol),
+al-alert > :not(.al-alert-dismiss) + :is(p, div, ul, ol) {
+  margin-block-start: 0.125rem;
+}
+
+al-alert[variant="destructive"] > :is(p, div, ul, ol) {
   color: color-mix(in oklab, var(--destructive) 90%, transparent);
 }
 
-/* an errors list is plain lines here, not bullets */
-al-alert > ul {
-  padding: 0;
+/* an errors list is plain lines here, not bullets: grid gap-1, and no
+   Typography [&>li]:mt-2 on its items */
+al-alert > :is(ul, ol) {
+  display: grid;
+  justify-items: start;
+  gap: 0.25rem;
   list-style: none;
 }
 
-al-alert > :not(.al-alert-dismiss) p {
+al-alert > :is(ul, ol) > li {
+  margin: 0;
+  padding: 0;
+}
+
+al-alert > :is(p, div, ul, ol) p {
   line-height: 1.625;
 }
 

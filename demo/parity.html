@@ -127,6 +127,13 @@ window.addEventListener("load", function () {
   <al-alert variant="success" heading="Alert Title" role="status" data-ref="alert/success/root" data-ref-before="alert/success/title" data-ref-after="alert/success/icon"><p data-ref="alert/success/description">Alert Description</p></al-alert>
   <al-alert variant="warning" heading="Alert Title" role="alert" data-ref="alert/warning/root" data-ref-before="alert/warning/title" data-ref-after="alert/warning/icon"><p data-ref="alert/warning/description">Alert Description</p></al-alert>
   <al-alert variant="destructive" heading="Alert Title" role="alert" data-ref="alert/destructive/root" data-ref-before="alert/destructive/title" data-ref-after="alert/destructive/icon"><p data-ref="alert/destructive/description">Alert Description</p></al-alert>
+  <!-- twin-only (I1, I4): a message that mixes text and inline elements stays one line
+       (46px = py-3, one 20px line, the border), in bare text or in a paragraph under a
+       heading (68px, the same as the grid rows above); an errors list is plain lines
+       4px apart with no Typography li margin -->
+  <al-alert variant="info" role="status" data-expect="height: 46px">Saved <code data-expect="display: inline">post.md</code> ok, <a href="#" data-expect="display: inline">view it</a>.</al-alert>
+  <al-alert variant="info" heading="Alert Title" role="status" data-expect="height: 68px"><p data-expect="height: 20px">Saved <code>post.md</code> ok, <a href="#">view it</a>.</p></al-alert>
+  <al-alert variant="destructive" role="alert" data-expect="height: 70px"><ul class="errors" data-errors="alert-errors"><li data-expect="margin-top: 0px">That slug is taken.</li><li data-expect="margin-top: 0px">The title must not be empty.</li></ul></al-alert>
 </al-stack>
 
 <al-stack gap="md" data-section="table">
