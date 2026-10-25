@@ -378,10 +378,11 @@ input:where([type="button"], [type="reset"], [type="submit"]),
  *
  * Scope: every rule sits under al-page:not([plain]); <al-page plain> switches
  * the whole file off for a page that brings its own typography (base.css's
- * reset still applies). The scope is wrapped in :where(), so each rule weighs
- * no more than its bare element (0,0,1 to 0,1,2): a component that re-styles
- * what it contains (al-card's title, al-dialog's heading, al-table's table)
- * wins with any selector that names it. Typography applies wherever some
+ * reset still applies). The scope, and every pseudo-class or attribute
+ * condition, is wrapped in :where(), so each rule weighs only its element
+ * names, (0,0,1) or (0,0,2): a component that re-styles what it contains
+ * (al-card's title, al-dialog's paragraphs, al-table's table) wins with any
+ * selector that names its own element. test/check.py enforces this. Typography applies wherever some
  * enclosing al-page is not plain, so put a plain page directly in <body>
  * rather than inside another al-page.
  */
@@ -409,7 +410,7 @@ input:where([type="button"], [type="reset"], [type="submit"]),
   letter-spacing: -0.025em;
 }
 
-:where(al-page:not([plain])) h2:first-child {
+:where(al-page:not([plain])) h2:where(:first-child) {
   margin-top: 0;
 }
 
@@ -436,7 +437,7 @@ input:where([type="button"], [type="reset"], [type="submit"]),
   line-height: 1.75rem;
 }
 
-:where(al-page:not([plain])) p:not(:first-child) {
+:where(al-page:not([plain])) p:where(:not(:first-child)) {
   margin-top: 1.5rem;
 }
 
@@ -526,18 +527,18 @@ input:where([type="button"], [type="reset"], [type="submit"]),
 }
 
 /* TableRow: hover:bg-muted/50 has-aria-expanded:bg-muted/50 */
-:where(al-page:not([plain])) tr:hover,
-:where(al-page:not([plain])) tr:has([aria-expanded="true"]) {
+:where(al-page:not([plain])) tr:where(:hover),
+:where(al-page:not([plain])) tr:where(:has([aria-expanded="true"])) {
   background: color-mix(in oklab, var(--muted) 50%, transparent);
 }
 
 /* TableRow: data-[state=selected]:bg-muted */
-:where(al-page:not([plain])) tr[aria-selected="true"] {
+:where(al-page:not([plain])) tr:where([aria-selected="true"]) {
   background: var(--muted);
 }
 
 /* TableBody: [&_tr:last-child]:border-0 */
-:where(al-page:not([plain])) tbody tr:last-child {
+:where(al-page:not([plain])) tbody tr:where(:last-child) {
   border-width: 0;
 }
 
@@ -548,7 +549,7 @@ input:where([type="button"], [type="reset"], [type="submit"]),
   font-weight: 500;
 }
 
-:where(al-page:not([plain])) tfoot > tr:last-child {
+:where(al-page:not([plain])) tfoot > tr:where(:last-child) {
   border-bottom-width: 0;
 }
 
@@ -572,11 +573,11 @@ input:where([type="button"], [type="reset"], [type="submit"]),
   white-space: nowrap;
 }
 
-:where(al-page:not([plain])) :is(th, td):has([role="checkbox"]) {
+:where(al-page:not([plain])) :where(th, td):where(:has([role="checkbox"])) {
   padding-right: 0;
 }
 
-:where(al-page:not([plain])) :is(th, td) > [role="checkbox"] {
+:where(al-page:not([plain])) :where(th, td) > :where([role="checkbox"]) {
   translate: 0 2px;
 }
 

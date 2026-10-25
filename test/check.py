@@ -11,7 +11,8 @@ Checks:
                slot (and every class is al- prefixed, or one of the classes
                Alder renders: errors, help, _alder-click); every element, attribute,
                value and slot in the manifest is styled (typography.css
-               counts as al-page's stylesheet)
+               counts as al-page's stylesheet, and outside :where() its
+               selectors weigh only element names)
   tokens-only  no literal colour and no literal font-family in components/,
                base.css, typography.css; every var(--x) is defined
   tokens       tokens.css has shadcn's names (Ref section 1) in light and
@@ -328,6 +329,37 @@ def check_slot(tag, val, els, sel, file_tag, seen):
 
 # typography.css is scoped to al-page:not([plain]), so it is al-page's too.
 EXTRA_CSS = {"al-page": ["typography.css"]}
+
+
+def strip_where(sel):
+    """sel with every :where(...) argument list removed (they weigh nothing)."""
+    out, i = "", 0
+    while True:
+        j = sel.find(":where(", i)
+        if j < 0:
+            return out + sel[i:]
+        out += sel[i:j]
+        depth, k = 0, j + len(":where")
+        while k < len(sel):
+            depth += {"(": 1, ")": -1}.get(sel[k], 0)
+            k += 1
+            if depth == 0:
+                break
+        i = k
+
+
+def check_typography_weight():
+    """typography.css: outside :where(), a selector holds only element names and
+    combinators, so it weighs (0,0,n) and any component rule that names its
+    element (al-dialog p, al-card > h2 + p) wins."""
+    path = ROOT / "typography.css"
+    if not path.exists():
+        return
+    for head, _ in rules(path.read_text()):
+        for sel in split_top(head):
+            rest = strip_where(sel)
+            if re.search(r"[:\[.#]", rest):
+                fail("css", "typography.css: %r has class/attribute/pseudo-class weight outside :where()" % sel)
 
 
 def check_css(els):
@@ -758,6 +790,7 @@ def main(argv):
     m, els = load_manifest()
     check_manifest(m, els)
     check_css(els)
+    check_typography_weight()
     light, dark, common = load_tokens()
     defined = set(light) | set(dark) | set(common)
     check_tokens_only(defined)
