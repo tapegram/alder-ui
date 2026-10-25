@@ -126,6 +126,21 @@ class CloseVerdictTest(unittest.TestCase):
         self.assertEqual(len(parity.close_problems(self.state(opened=False, connected=False))), 1)
 
 
+class CloseChecksTest(unittest.TestCase):
+    """Review Focus 4 covers every overlay, and the popover by each way it closes."""
+
+    def labels(self, comp):
+        return [c[1] for c in parity.CLOSE_CHECKS if c[0] == comp]
+
+    def test_every_overlay_is_checked(self):
+        for comp in ("dialog", "popover", "menu", "tooltip"):
+            self.assertTrue(self.labels(comp), comp)
+
+    def test_popover_closes_every_way(self):
+        self.assertIn("hidePopover()", self.labels("popover"))
+        self.assertIn("light dismiss", self.labels("popover"))
+        self.assertTrue(any(c[5] for c in parity.CLOSE_CHECKS if c[0] == "popover"), "no shim run")
+
 class ReportTest(unittest.TestCase):
     def test_expect_only_component_rows_are_printed(self):
         # A data-expect row whose component has no data-ref marker (stack, page) still

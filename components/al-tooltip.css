@@ -10,20 +10,75 @@ al-tooltip:not(:popover-open) {
   display: none;
 }
 
+/* TooltipContent: z-50 w-fit origin-(--radix-tooltip-content-transform-origin)
+   rounded-md bg-foreground px-3 py-1.5 text-xs text-balance text-background
+   (sideOffset={0}; Radix adds the arrow's 5px height to the offset, so the
+   margin is 5px). It sits below its trigger, or above when there is no room. */
 al-tooltip {
   position: fixed;
   inset: auto;
   position-area: block-end;
   position-try-fallbacks: flip-block, flip-inline;
-  margin: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  border: 0;
-  border-radius: var(--radius-sm);
+  container-type: anchored;
+  z-index: 50;
+  inline-size: fit-content;
+  max-inline-size: calc(var(--al-width-narrow) / 2);
+  margin: 5px;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--radius-md);
   background: var(--foreground);
   color: var(--background);
-  font-family: var(--font-sans);
   font-size: 0.75rem;
-  line-height: 1.25;
-  max-inline-size: calc(var(--al-width-narrow) / 2);
+  line-height: 1rem;
+  text-wrap: balance;
   pointer-events: none;
+  transform-origin: top;
+}
+
+/* TooltipArrow: z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45
+   rounded-[2px] bg-foreground fill-foreground   (its centre 2px inside the
+   edge that faces the trigger) */
+al-tooltip::after {
+  content: "";
+  position: absolute;
+  inset-block-start: -3px;
+  inset-inline-start: calc(50% - 5px);
+  z-index: 50;
+  inline-size: 10px;
+  block-size: 10px;
+  border-radius: 2px;
+  background: var(--foreground);
+  rotate: 45deg;
+}
+
+/* Flipped above the trigger: the arrow moves to the bottom edge. */
+@container anchored(fallback: flip-block) {
+  al-tooltip::after {
+    inset-block: auto -3px;
+  }
+}
+
+/* animate-in fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2
+   data-[state=closed]:animate-out fade-out-0 zoom-out-95 */
+@media (prefers-reduced-motion: no-preference) {
+  al-tooltip {
+    transition-property: opacity, scale, translate, display, overlay;
+    transition-duration: 150ms;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-behavior: allow-discrete;
+  }
+
+  al-tooltip:not(:popover-open) {
+    opacity: 0;
+    scale: 0.95;
+    translate: 0 -0.5rem;
+  }
+
+  @starting-style {
+    al-tooltip:popover-open {
+      opacity: 0;
+      scale: 0.95;
+      translate: 0 -0.5rem;
+    }
+  }
 }

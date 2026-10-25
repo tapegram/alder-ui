@@ -299,6 +299,11 @@ CLOSE_JS = """(i) => {
   }
 }"""
 
+BLUR_IN_JS = """(i) => {
+  const el = document.querySelectorAll('[data-ref-open]')[i];
+  if (el.contains(document.activeElement)) document.activeElement.blur();
+}"""
+
 SETTLE_JS = "() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)))"
 
 
@@ -378,6 +383,9 @@ class Page:
     def open(self, group):
         self.page.evaluate(OPEN_JS, group)
         self.settle()
+        # al-menu.js focuses the first item on the (async) toggle event; rest is unfocused.
+        self.page.evaluate(BLUR_IN_JS, group)
+        self.settle()
 
     def close(self, group=None):
         self.page.evaluate(CLOSE_JS, group)
@@ -387,11 +395,16 @@ class Page:
 # ----------------------------------------------------------------------- close checks
 
 # Review Focus 4: with motion on, an overlay must be gone once its exit transition has run.
-# Each entry: (component, label, selector, open js, close js, shim). The js take the element;
-# shim=True deletes HTMLButtonElement.prototype.commandForElement before load, so
-# components/al-shim.js polyfills the invoker commands.
+# Each entry: (component, label, selector, open js, close, shim). The js take the element;
+# close is js, or a Python callable (page, element) for a real pointer or key. shim=True
+# deletes HTMLButtonElement.prototype.commandForElement before load, so
+# components/al-shim.js polyfills the invoker commands. Chromium's own invokers still act
+# (R20), so the shim runs use idempotent commands: a toggle would run twice and cancel out.
 _SHOW_MODAL = "(el) => el.showModal()"
+_SHOW_POPOVER = "(el) => el.showPopover()"
 _INVOKE = "(el) => document.querySelector('[commandfor=\"' + el.id + '\"][command=\"%s\"]').click()"
+_POPOVERTARGET = "(el) => document.querySelector('[popovertarget=\"' + el.id + '\"]').click()"
+_TIP_TRIGGER = "document.getElementById(el.getAttribute('for'))"
 CLOSE_CHECKS = [
     ("dialog", "close()", "#parity-dialog", _SHOW_MODAL, "(el) => el.close()", False),
     ("dialog", "close button", "#parity-dialog", _SHOW_MODAL,
@@ -399,6 +412,16 @@ CLOSE_CHECKS = [
     ("dialog", "command=close", "#parity-dialog", _INVOKE % "show-modal", _INVOKE % "close", False),
     ("dialog", "shim command=close", "#parity-dialog", _INVOKE % "show-modal", _INVOKE % "close", True),
     ("dialog", ":target", "#parity-dialog", "(el) => { location.hash = el.id }", "() => { location.hash = '' }", False),
+    ("popover", "hidePopover()", "#parity-popover", _SHOW_POPOVER, "(el) => el.hidePopover()", False),
+    ("popover", "light dismiss", "#parity-popover", _POPOVERTARGET, lambda page, el: page.mouse.click(2, 2), False),
+    ("popover", "shim command=hide-popover", "#parity-popover", _SHOW_POPOVER, _INVOKE % "hide-popover", True),
+    ("menu", "select an item", "#parity-menu", _SHOW_POPOVER,
+     "(el) => el.querySelector(':scope > button').click()", False),
+    ("tooltip", "blur", "al-tooltip[for=parity-tooltip-trigger]",
+     "(el) => %s.focus()" % _TIP_TRIGGER, "(el) => %s.blur()" % _TIP_TRIGGER, False),
+    ("tooltip", "pointerleave", "al-tooltip[for=parity-tooltip-trigger]",
+     "(el) => %s.dispatchEvent(new PointerEvent('pointerenter'))" % _TIP_TRIGGER,
+     "(el) => %s.dispatchEvent(new PointerEvent('pointerleave'))" % _TIP_TRIGGER, False),
 ]
 CLOSE_WAIT_MS = 300  # longer than the 200ms dialog / 150ms overlay exit transitions
 
@@ -433,15 +456,19 @@ def close_problems(st):
 
 
 def check_closes(page, selector, close_js, open_js=_SHOW_MODAL):
-    """Open the overlay `selector` names, close it with close_js, wait out the exit
-    transition, and return close_problems() for it. The page must have motion on."""
+    """Open the overlay `selector` names, close it with close_js (js, or a callable taking
+    the page and the element), wait out the exit transition, and return close_problems()
+    for it. The page must have motion on."""
     el = page.query_selector(selector)
     if el is None:
         return ["%s is not on the page" % selector]
     el.evaluate(open_js)
     page.wait_for_timeout(CLOSE_WAIT_MS)
     opened = el.evaluate(OPENED_JS)
-    el.evaluate(close_js)
+    if callable(close_js):
+        close_js(page, el)
+    else:
+        el.evaluate(close_js)
     page.wait_for_timeout(CLOSE_WAIT_MS)
     st = page.evaluate(CLOSED_JS, [el, opened["x"], opened["y"]])
     st["opened"] = opened["opened"]
@@ -502,10 +529,15 @@ def collect(ref, twin, allow, only):
         ref_state = {}
         for m in twin_markers:
             t = target(m, allow)
+            g = twin.inventory[m]["group"]
             for state in twin.inventory[m]["states"]:
                 if (t, state) not in ref_state:
                     ref_state[(t, state)] = ref.drive(t, state, t)
+                if g != -1:  # a marker inside an overlay is driven with its overlay open
+                    twin.open(g)
                 got = twin.drive(m, state, t)
+                if g != -1:
+                    twin.close(g)
                 for prop, a, b in diff(ref_state[(t, state)], got):
                     rows.append((component(t), m, theme, state, prop, a, b))
         for label, want, got in twin.page.evaluate(EXPECT_JS):

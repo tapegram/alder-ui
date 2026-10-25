@@ -234,6 +234,9 @@ window.addEventListener("load", function () {
     <al-button variant="outline"><button type="button" id="parity-menu-trigger" popovertarget="parity-menu">Open menu</button></al-button>
     <al-button variant="outline"><button type="button" id="parity-tooltip-trigger">Hover</button></al-button>
   </al-stack>
+  <!-- The close check's shim run clicks this (hide-popover is idempotent; toggle-popover
+       would run twice, the shim's and Chromium's, and cancel out). -->
+  <button type="button" hidden commandfor="parity-popover" command="hide-popover">Close popover</button>
   <al-popover popover id="parity-popover" anchor="parity-popover-trigger" placement="bottom" data-ref="popover/content/open" data-ref-open>
     <h4>Popover Title</h4>
     <p>Popover Description</p>
