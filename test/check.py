@@ -760,7 +760,12 @@ def theme_envs(light, dark, common):
     return (("light", {**common, **light}), ("dark", {**common, **light, **dark}))
 
 
-def contrast_table(light, dark, common, where="tokens.css"):
+def contrast_table(light, dark, common, where="tokens.css", gaps=None):
+    """gaps: apply SPEC_GAPS (shadcn's verbatim shortfalls); by default only
+    for the tokens.css run, so a theme is held to the full ratios."""
+    if gaps is None:
+        gaps = where == "tokens.css"
+    spec_gaps = SPEC_GAPS if gaps else {}
     rows = []
     for use, fg, bg, need in button_pairs() + PAIRS:
         row = [use, tok(fg), tok(bg), need]
@@ -775,15 +780,15 @@ def contrast_table(light, dark, common, where="tokens.css"):
                 msg = "%s: %s in %s: %s on %s is %.2f:1, needs %.1f:1" % (where, use, theme, fg_t, bg_t, r, need)
                 if need < 4.5 and use not in NON_TEXT_FAIL:
                     WARNINGS.append("contrast: %s (non-text)" % msg)
-                elif (use, theme) in SPEC_GAPS:
-                    WARNINGS.append("contrast: %s (%s)" % (msg, SPEC_GAPS[(use, theme)]))
+                elif (use, theme) in spec_gaps:
+                    WARNINGS.append("contrast: %s (%s)" % (msg, spec_gaps[(use, theme)]))
                 else:
                     fail("contrast", msg)
-            elif (use, theme) in SPEC_GAPS and need >= 4.5:
+            elif (use, theme) in spec_gaps and need >= 4.5:
                 fail("contrast", "%s: stale SPEC_GAPS entry: %s in %s now passes (%.2f:1); delete it" % (where, use, theme, r))
             row.append(r)
         rows.append(row)
-    for use, theme in sorted(SPEC_GAPS):
+    for use, theme in sorted(spec_gaps):
         if not any(r[0] == use for r in rows):
             fail("contrast", "%s: SPEC_GAPS names %r, which is not a pairing" % (where, use))
     return rows
@@ -861,11 +866,12 @@ def check_theme(name, theme, tokens, expected):
     except dtcg.DTCGError as e:
         fail("themes", "%s: %s" % (name, e))
         return
-    # --color-white/--color-black belong to every theme, not to its token files
-    fixed = {k: common_css[k] for k in ("--color-white", "--color-black") if k in common_css}
-    contrast_table(light, dark, {**fixed, **common}, where=name)
     if name != "zinc":
+        # --color-white/--color-black belong to every theme, not to its token files
+        fixed = {k: common_css[k] for k in ("--color-white", "--color-black") if k in common_css}
+        contrast_table(light, dark, {**fixed, **common}, where=name)
         return
+    # zinc's contrast is tokens.css's: the parity check below proves the values equal
     for label, got, want in (("base", common, {**common_css, "--radius": light_css.get("--radius")}),
                              ("light", light, light_css), ("dark", dark, dark_css)):
         for n, v in got.items():

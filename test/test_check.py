@@ -262,6 +262,34 @@ class ThemesCheckTest(unittest.TestCase):
         shutil.copytree(self.theme, self.tmp / "themes" / "mystery")
         self.assertFails("mystery")
 
+    def copy_as(self, name):
+        dst = self.tmp / "themes" / name
+        shutil.move(self.theme, dst)
+        self.theme = dst
+        saved = check.THEMES
+        check.THEMES = [name]
+        self.addCleanup(setattr, check, "THEMES", saved)
+
+    def test_themes_no_spec_gap_waivers(self):
+        self.copy_as("paper")
+        saved = dict(check.SPEC_GAPS)
+        self.addCleanup(lambda: (check.SPEC_GAPS.clear(), check.SPEC_GAPS.update(saved)))
+        # a gap that passes in this theme is not a stale-entry failure
+        check.SPEC_GAPS[("al-button primary", "light")] = "x"
+        check.SPEC_GAPS[("no such pairing", "light")] = "x"
+        _, fails = self.run_check()
+        self.assertEqual(fails, [])
+        self.assertEqual(check.WARNINGS and [w for w in check.WARNINGS if "stale" in w or "SPEC_GAPS" in w], [])
+        # a gapped pairing that fails is a FAIL, not a WARN
+        d = self.load("light.tokens.json")
+        d["color"]["muted-foreground"]["$value"] = d["color"]["muted"]["$value"]
+        d["color"]["primary-foreground"]["$value"] = d["color"]["primary"]["$value"]
+        self.save("light.tokens.json", d)
+        check.WARNINGS.clear()
+        _, fails = self.run_check()
+        self.assertTrue(any("paper: al-button primary in light" in f for f in fails), fails)
+        self.assertFalse(any("shadcn" in w and "paper" in w for w in check.WARNINGS), check.WARNINGS)
+
     def test_themes_contrast_labelled(self):
         copy_dir = self.tmp / "themes" / "zinc-copy"
         shutil.move(self.theme, copy_dir)
