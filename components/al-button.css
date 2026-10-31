@@ -191,7 +191,7 @@ al-button > :is(button, a) {
 /* outline: border */
 al-button[variant="outline"],
 al-button[variant="outline"] > :is(button, a) {
-  border-width: 1px;
+  border-width: var(--al-border-width);
 }
 
 al-button > :is(button, a) {

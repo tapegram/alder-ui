@@ -37,7 +37,7 @@ al-menu {
   padding: 0.25rem;
   overflow-x: hidden;
   overflow-y: auto;
-  border: 1px solid var(--border);
+  border: var(--al-border-width) solid var(--border);
   border-radius: var(--radius-md);
   background: var(--popover);
   color: var(--popover-foreground);

@@ -60,7 +60,7 @@
 :where(al-page:not([plain])) h2 {
   margin-top: 2.5rem;
   scroll-margin-top: 5rem;
-  border-bottom-width: 1px;
+  border-bottom-width: var(--al-border-width);
   padding-bottom: 0.5rem;
   font-size: 1.875rem;
   line-height: 2.25rem;
@@ -175,7 +175,7 @@
 
 /* TableHeader: [&_tr]:border-b; TableRow: border-b transition-colors */
 :where(al-page:not([plain])) tr {
-  border-bottom-width: 1px;
+  border-bottom-width: var(--al-border-width);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -202,7 +202,7 @@
 
 /* TableFooter: border-t bg-muted/50 font-medium [&>tr]:last:border-b-0 */
 :where(al-page:not([plain])) tfoot {
-  border-top-width: 1px;
+  border-top-width: var(--al-border-width);
   background: color-mix(in oklab, var(--muted) 50%, transparent);
   font-weight: 500;
 }

@@ -17,7 +17,8 @@ Checks:
                base.css, typography.css; every var(--x) is defined
   tokens       tokens.css has shadcn's names (Ref section 1) in light and
                dark, --radius 0.625rem, .dark/.light only (no data-theme, no
-               media query); --al-width-* are the only --al- tokens left
+               media query); --al-width-* and --al-border-width are the only
+               --al- tokens left; no border declaration uses a literal 1px
   contrast     WCAG AA for each text pairing the components draw (4.5:1,
                a failure; a verbatim shadcn gap in SPEC_GAPS is a WARN) and
                each border and ring (3:1, a WARN only), light and dark,
@@ -584,8 +585,8 @@ SHADCN = ["background", "foreground", "card", "card-foreground", "popover", "pop
           "chart-1", "chart-2", "chart-3", "chart-4", "chart-5",
           "sidebar", "sidebar-foreground", "sidebar-primary", "sidebar-primary-foreground",
           "sidebar-accent", "sidebar-accent-foreground", "sidebar-border", "sidebar-ring"]
-# The only alder-ui tokens left: the page widths.
-AL_TOKENS = {"--al-width-narrow", "--al-width-normal", "--al-width-wide"}
+# The only alder-ui tokens left: the page widths and the border width.
+AL_TOKENS = {"--al-width-narrow", "--al-width-normal", "--al-width-wide", "--al-border-width"}
 
 
 def decls(body):
@@ -706,6 +707,18 @@ def al_definitions(css):
     return set(re.findall(r"(--al-[\w-]+)\s*:", strip_comments(css)))
 
 
+BORDER_DECL = re.compile(
+    r"(?<![\w-])border(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?(?:-width)?\s*:\s*([^;}]*)")
+
+
+def border_literals(css):
+    """Border declarations (border, border-<side>, border-width,
+    border-<side>-width) whose value holds a literal 1px; they take
+    var(--al-border-width) instead."""
+    return [m.group(0).strip() for m in BORDER_DECL.finditer(strip_comments(css))
+            if re.search(r"(?<![\w.-])1px(?![\w-])", m.group(1))]
+
+
 def check_tokens(light, dark, common):
     for theme, vals in (("light", light), ("dark", dark)):
         for n in SHADCN:
@@ -731,6 +744,8 @@ def check_tokens(light, dark, common):
         for name in sorted(set(re.findall(r"var\((--al-[\w-]+)", css))):
             if name not in AL_TOKENS:
                 fail("tokens", "%s uses removed token %s" % (p.name, name))
+        for decl in border_literals(css):
+            fail("tokens", "%s: %s (use var(--al-border-width))" % (p.name, decl))
 
 
 def theme_envs(light, dark, common):

@@ -16,7 +16,7 @@ al-devpanel {
   display: block;
   position: sticky;
   inset-block-end: 0;
-  border-top: 1px solid var(--border);
+  border-top: var(--al-border-width) solid var(--border);
   background: var(--card);
   color: var(--card-foreground);
   font-family: var(--font-mono);
@@ -74,7 +74,7 @@ al-devpanel > section {
   display: none;
   max-block-size: 50dvh;
   padding: 0.5rem 1rem;
-  border-top: 1px solid var(--border);
+  border-top: var(--al-border-width) solid var(--border);
   overflow: auto;
 }
 

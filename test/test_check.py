@@ -96,6 +96,19 @@ class TokenScanTest(unittest.TestCase):
         self.assertEqual(check.al_definitions("/* --al-z: 1 */ a{color:red}"), set())
 
 
+class BorderWidthTest(unittest.TestCase):
+    def test_border_literal_flagged(self):
+        self.assertEqual(len(check.border_literals(".x{border:1px solid var(--border)}")), 1)
+        for css in (".x{border:var(--al-border-width) solid var(--border)}",
+                    ".x{outline-width:1px}", ".x{block-size:1px}",
+                    "hr{height:1px;border-width:0}",
+                    ".x{block-size:calc(100% - 1px)}", ".x{border-width:0}"):
+            self.assertEqual(check.border_literals(css), [], css)
+
+    def test_al_tokens_allows_border_width(self):
+        self.assertIn("--al-border-width", check.AL_TOKENS)
+
+
 class SelectorTest(unittest.TestCase):
     def setUp(self):
         self.saved = list(check.FAILURES)

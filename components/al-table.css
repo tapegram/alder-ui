@@ -27,7 +27,7 @@ al-table > table {
 /* TableHeader: [&_tr]:border-b; TableRow: border-b transition-colors
    hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted */
 al-table tr {
-  border-bottom: 1px solid var(--border);
+  border-bottom: var(--al-border-width) solid var(--border);
 }
 
 al-table tr:hover,
@@ -52,7 +52,7 @@ al-table tbody tr:last-child {
 
 /* TableFooter: border-t bg-muted/50 font-medium [&>tr]:last:border-b-0 */
 al-table tfoot {
-  border-top: 1px solid var(--border);
+  border-top: var(--al-border-width) solid var(--border);
   background: color-mix(in oklab, var(--muted) 50%, transparent);
   font-weight: 500;
 }

@@ -32,7 +32,7 @@ al-toast {
   inline-size: 356px;
   max-inline-size: calc(100dvw - 48px);
   padding: 16px;
-  border: 1px solid var(--border);
+  border: var(--al-border-width) solid var(--border);
   border-radius: var(--radius);
   background: var(--popover);
   color: var(--popover-foreground);

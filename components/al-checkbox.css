@@ -57,7 +57,7 @@ al-checkbox input[type="checkbox"] {
   height: 1rem;
   margin: 0;
   padding: 0;
-  border: 1px solid var(--_al-border);
+  border: var(--al-border-width) solid var(--_al-border);
   border-radius: 4px;
   background: transparent;
   color: var(--foreground);

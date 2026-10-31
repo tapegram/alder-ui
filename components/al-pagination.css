@@ -155,7 +155,7 @@ al-pagination > [slot="next"]::after {
 al-pagination > a[aria-current="page"] {
   --_al-bg: var(--background);
   --_al-hover: var(--accent);
-  border-width: 1px;
+  border-width: var(--al-border-width);
   box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-xs);
 }
 

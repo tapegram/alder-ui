@@ -39,7 +39,7 @@ al-popover {
   max-inline-size: calc(100dvw - 2rem);
   margin: 0.25rem;
   padding: 1rem;
-  border: 1px solid var(--border);
+  border: var(--al-border-width) solid var(--border);
   border-radius: var(--radius-md);
   background: var(--popover);
   color: var(--popover-foreground);

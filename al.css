@@ -28,7 +28,8 @@
  * of shadcn's own pairings fall short; the tokens stay verbatim and the
  * check prints them as warnings.
  *
- * Of alder-ui's own tokens only the page widths remain (--al-width-*).
+ * Of alder-ui's own tokens only the page widths and the border width remain
+ * (--al-width-*, --al-border-width).
  * Components keep private properties under --_al-.
  */
 
@@ -129,6 +130,7 @@
   --al-width-narrow: 40rem;
   --al-width-normal: 56rem;
   --al-width-wide: 80rem;
+  --al-border-width: 1px;
 }
 
 /* ---- base.css ---- */
@@ -201,7 +203,7 @@ body {
 hr {
   height: 0;
   color: inherit;
-  border-top-width: 1px;
+  border-top-width: var(--al-border-width);
 }
 
 abbr:where([title]) {
@@ -435,7 +437,7 @@ input:where([type="button"], [type="reset"], [type="submit"]),
 :where(al-page:not([plain])) h2 {
   margin-top: 2.5rem;
   scroll-margin-top: 5rem;
-  border-bottom-width: 1px;
+  border-bottom-width: var(--al-border-width);
   padding-bottom: 0.5rem;
   font-size: 1.875rem;
   line-height: 2.25rem;
@@ -550,7 +552,7 @@ input:where([type="button"], [type="reset"], [type="submit"]),
 
 /* TableHeader: [&_tr]:border-b; TableRow: border-b transition-colors */
 :where(al-page:not([plain])) tr {
-  border-bottom-width: 1px;
+  border-bottom-width: var(--al-border-width);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -577,7 +579,7 @@ input:where([type="button"], [type="reset"], [type="submit"]),
 
 /* TableFooter: border-t bg-muted/50 font-medium [&>tr]:last:border-b-0 */
 :where(al-page:not([plain])) tfoot {
-  border-top-width: 1px;
+  border-top-width: var(--al-border-width);
   background: color-mix(in oklab, var(--muted) 50%, transparent);
   font-weight: 500;
 }
@@ -873,7 +875,7 @@ al-button > :is(button, a) {
 /* outline: border */
 al-button[variant="outline"],
 al-button[variant="outline"] > :is(button, a) {
-  border-width: 1px;
+  border-width: var(--al-border-width);
 }
 
 al-button > :is(button, a) {
@@ -1035,7 +1037,7 @@ al-input input {
   height: 2.25rem;
   padding: 0.25rem 0.75rem;
   margin: 0;
-  border: 1px solid var(--_al-border);
+  border: var(--al-border-width) solid var(--_al-border);
   border-radius: var(--radius-md);
   background: transparent;
   color: var(--foreground);
@@ -1214,7 +1216,7 @@ al-textarea textarea {
   padding: 0.5rem 0.75rem;
   margin: 0;
   resize: vertical;
-  border: 1px solid var(--_al-border);
+  border: var(--al-border-width) solid var(--_al-border);
   border-radius: var(--radius-md);
   background: transparent;
   color: var(--foreground);
@@ -1412,7 +1414,7 @@ al-select select {
   height: 2.25rem;
   margin: 0;
   padding: 0.5rem 2rem 0.5rem 0.75rem;
-  border: 1px solid var(--_al-border);
+  border: var(--al-border-width) solid var(--_al-border);
   border-radius: var(--radius-md);
   background-color: transparent;
   color: var(--foreground);
@@ -1609,7 +1611,7 @@ al-checkbox input[type="checkbox"] {
   height: 1rem;
   margin: 0;
   padding: 0;
-  border: 1px solid var(--_al-border);
+  border: var(--al-border-width) solid var(--_al-border);
   border-radius: 4px;
   background: transparent;
   color: var(--foreground);
@@ -1778,7 +1780,7 @@ al-table > table {
 /* TableHeader: [&_tr]:border-b; TableRow: border-b transition-colors
    hover:bg-muted/50 has-aria-expanded:bg-muted/50 data-[state=selected]:bg-muted */
 al-table tr {
-  border-bottom: 1px solid var(--border);
+  border-bottom: var(--al-border-width) solid var(--border);
 }
 
 al-table tr:hover,
@@ -1803,7 +1805,7 @@ al-table tbody tr:last-child {
 
 /* TableFooter: border-t bg-muted/50 font-medium [&>tr]:last:border-b-0 */
 al-table tfoot {
-  border-top: 1px solid var(--border);
+  border-top: var(--al-border-width) solid var(--border);
   background: color-mix(in oklab, var(--muted) 50%, transparent);
   font-weight: 500;
 }
@@ -1906,7 +1908,7 @@ al-card {
   align-items: start;
   gap: 1.5rem;
   padding-block: 1.5rem;
-  border: 1px solid var(--border);
+  border: var(--al-border-width) solid var(--border);
   border-radius: var(--radius-xl);
   background: var(--card);
   color: var(--card-foreground);
@@ -2024,8 +2026,8 @@ al-badge {
   gap: 0.25rem;
   overflow: hidden;
   padding: 0.125rem 0.5rem;
-  border: 1px solid transparent;
-  border-radius: calc(infinity * 1px);
+  border: var(--al-border-width) solid transparent;
+  border-radius: calc(infinity * var(--al-border-width));
   background: var(--primary);
   color: var(--primary-foreground);
   font-family: var(--font-sans);
@@ -2146,7 +2148,7 @@ al-alert {
   width: 100%;
   padding: 0.75rem 1rem;
   padding-inline-start: calc(1rem + 1rem + 0.75rem);
-  border: 1px solid var(--border);
+  border: var(--al-border-width) solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--card);
   color: var(--card-foreground);
@@ -2513,7 +2515,7 @@ al-pagination > [slot="next"]::after {
 al-pagination > a[aria-current="page"] {
   --_al-bg: var(--background);
   --_al-hover: var(--accent);
-  border-width: 1px;
+  border-width: var(--al-border-width);
   box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-xs);
 }
 
@@ -2707,7 +2709,7 @@ al-dialog > dialog {
   padding: 1.5rem;
   gap: 1rem;
   overflow: auto;
-  border: 1px solid var(--border);
+  border: var(--al-border-width) solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--background);
   color: var(--foreground);
@@ -2957,7 +2959,7 @@ al-popover {
   max-inline-size: calc(100dvw - 2rem);
   margin: 0.25rem;
   padding: 1rem;
-  border: 1px solid var(--border);
+  border: var(--al-border-width) solid var(--border);
   border-radius: var(--radius-md);
   background: var(--popover);
   color: var(--popover-foreground);
@@ -3090,7 +3092,7 @@ al-menu {
   padding: 0.25rem;
   overflow-x: hidden;
   overflow-y: auto;
-  border: 1px solid var(--border);
+  border: var(--al-border-width) solid var(--border);
   border-radius: var(--radius-md);
   background: var(--popover);
   color: var(--popover-foreground);
@@ -3290,7 +3292,7 @@ al-tabs > [role="tablist"] > [role="tab"] {
   block-size: calc(100% - 1px);
   margin: 0;
   padding: 0.25rem 0.5rem;
-  border: 1px solid transparent;
+  border: var(--al-border-width) solid transparent;
   border-radius: var(--radius-md);
   background: transparent;
   color: color-mix(in oklab, var(--foreground) 60%, transparent);
@@ -3507,7 +3509,7 @@ al-toast {
   inline-size: 356px;
   max-inline-size: calc(100dvw - 48px);
   padding: 16px;
-  border: 1px solid var(--border);
+  border: var(--al-border-width) solid var(--border);
   border-radius: var(--radius);
   background: var(--popover);
   color: var(--popover-foreground);
@@ -3764,7 +3766,7 @@ al-devpanel {
   display: block;
   position: sticky;
   inset-block-end: 0;
-  border-top: 1px solid var(--border);
+  border-top: var(--al-border-width) solid var(--border);
   background: var(--card);
   color: var(--card-foreground);
   font-family: var(--font-mono);
@@ -3822,7 +3824,7 @@ al-devpanel > section {
   display: none;
   max-block-size: 50dvh;
   padding: 0.5rem 1rem;
-  border-top: 1px solid var(--border);
+  border-top: var(--al-border-width) solid var(--border);
   overflow: auto;
 }
 
