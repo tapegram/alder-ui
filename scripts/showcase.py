@@ -125,7 +125,7 @@ function setTheme(n){var c=document.documentElement.classList;c.forEach(function
 <al-stack gap="lg">
 <h1>alder-ui %(v)s</h1>
 <p>A light-DOM, token-based design system with shadcn/ui's look (new-york-v4, neutral): plain CSS in <code>@layer al</code>, plus small scripts that progressively enhance the interactive elements. This page links the built <code>al.css</code> and <code>al.js</code> and shows every element's demo as it renders. The per-element pages, which also show the no-JavaScript fallbacks, are in <a href="demo/index.html">demo/</a>. Source and docs: <a href="https://github.com/tapegram/alder-ui">github.com/tapegram/alder-ui</a>.</p>
-<section id="tokens" class="ds-sec"><al-stack gap="md"><h2>Colour tokens</h2><p>shadcn's canonical neutral theme, verbatim oklch values. Re-theme by pasting a shadcn or tweakcn export after <code>al.css</code>.</p><div class="ds-grid">%(swatches)s</div></al-stack></section>
+<section id="tokens" class="ds-sec"><al-stack gap="md"><h2>Colour tokens</h2><p>The colours of the selected theme (Zinc, shadcn's neutral theme, by default). Switch themes above, or re-theme by pasting a shadcn or tweakcn export after <code>al.css</code>.</p><div class="ds-grid">%(swatches)s</div></al-stack></section>
 %(sections)s</al-stack>
 </al-page>
 <script>try{var s=document.getElementById("ds-theme"),t=localStorage.dsTheme;if(%(known)s.indexOf(t)>0)s.value=t}catch(e){}</script>

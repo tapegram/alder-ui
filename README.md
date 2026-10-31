@@ -52,14 +52,16 @@ prose keeps shadcn's Typography rhythm.
 ### Upgrading to v0.5.0
 
 `--al-border-width` is new, default `1px`, and every component border uses
-it, so a theme can thicken them. Three small changes keep every theme at
+it, so a theme can thicken them. Three small changes keep the themes at
 AA, so existing apps look slightly different:
 
 - The `al-button` link variant's text is `--foreground` (the hover underline
   is `--primary`).
-- Inactive `al-tabs` triggers use `--muted-foreground` (was `--foreground`
-  at 60%).
-- In dark mode the ghost button's hover paints `--accent` at 100% (was 50%).
+- Inactive `al-tabs` triggers use `--muted-foreground`. In light mode this
+  replaces `--foreground` at 60%; in dark mode it already was
+  `--muted-foreground`, so nothing changes there.
+- In dark mode the hover of the ghost button, the pagination links and the
+  alert dismiss button paints `--accent` at 100% (was 50%).
 
 ### Upgrading to v0.4.2
 
@@ -213,8 +215,8 @@ format:
 
 - `theme.resolver.json`: a resolver with a `base` set and a `scheme`
   modifier whose `light` and `dark` contexts load the colour files.
-- `base.tokens.json`: the 15 theme-wide tokens (radius, fonts, shadows,
-  `border-width`).
+- `base.tokens.json`: the 15 theme-wide tokens (radius, the three page
+  widths, fonts, shadows, `al-border-width`).
 - `light.tokens.json` and `dark.tokens.json`: the 32 colours of each scheme.
 
 `catppuccin/` also carries its MIT `LICENSE`.
@@ -229,7 +231,9 @@ what it generates. The check fails on a different order.
 
 **Add a theme.**
 
-1. Copy `themes/zinc/` to `themes/<name>/` and edit the values.
+1. Copy `themes/zinc/` to `themes/<name>/`, edit the values, and set the
+   `name` and `description` in its `theme.resolver.json` (the select and
+   `alder theme use` show them).
 2. Add the name to `THEMES` in `test/check.py` and in `scripts/showcase.py`
    (a test keeps the two lists equal).
 3. Run `python3 test/check.py` and tune each failure by the AA rule:
@@ -240,9 +244,11 @@ what it generates. The check fails on a different order.
 
 **What the check enforces** (the `themes` section of `test/check.py`): the
 exact token set, in key order; the types; a description on every token;
-Zinc's values equal to `tokens.css`; and WCAG AA contrast for every pair in
-every non-zinc theme, with no waivers. Borders and rings need only 3:1 as
-non-text; a miss is a WARN, not a failure.
+Zinc's values equal to `tokens.css`; and, for every non-zinc theme with no
+waivers, WCAG AA (4.5:1) for each text pairing listed in `PAIRS` in
+`test/check.py` (including hover and field-fill states). Non-text pairings
+(field borders, focus rings, the alert dismiss icon) need 3:1, and a miss is a
+WARN, not a failure. A pairing no component draws is not checked.
 
 ## Migrating from v0.3.x
 
