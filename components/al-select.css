@@ -75,7 +75,7 @@ al-select select {
   height: 2.25rem;
   margin: 0;
   padding: 0.5rem 2rem 0.5rem 0.75rem;
-  border: 1px solid var(--_al-border);
+  border: var(--al-border-width) solid var(--_al-border);
   border-radius: var(--radius-md);
   background-color: transparent;
   color: var(--foreground);

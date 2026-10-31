@@ -20,7 +20,8 @@
  * of shadcn's own pairings fall short; the tokens stay verbatim and the
  * check prints them as warnings.
  *
- * Of alder-ui's own tokens only the page widths remain (--al-width-*).
+ * Of alder-ui's own tokens only the page widths and the border width remain
+ * (--al-width-*, --al-border-width).
  * Components keep private properties under --_al-.
  */
 
@@ -121,4 +122,5 @@
   --al-width-narrow: 40rem;
   --al-width-normal: 56rem;
   --al-width-wide: 80rem;
+  --al-border-width: 1px;
 }

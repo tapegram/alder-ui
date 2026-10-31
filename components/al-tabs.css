@@ -66,10 +66,10 @@ al-tabs > [role="tablist"] > [role="tab"] {
   block-size: calc(100% - 1px);
   margin: 0;
   padding: 0.25rem 0.5rem;
-  border: 1px solid transparent;
+  border: var(--al-border-width) solid transparent;
   border-radius: var(--radius-md);
   background: transparent;
-  color: color-mix(in oklab, var(--foreground) 60%, transparent);
+  color: var(--muted-foreground);
   font-family: inherit;
   font-size: 0.875rem;
   font-weight: 500;
@@ -188,7 +188,7 @@ al-tabs > al-tab > label {
   position: relative;
   padding: 0.25rem 0.5rem;
   border-radius: var(--radius-md);
-  color: color-mix(in oklab, var(--foreground) 60%, transparent);
+  color: var(--muted-foreground);
   font-weight: 500;
   cursor: pointer;
 }

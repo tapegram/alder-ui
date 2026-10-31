@@ -54,7 +54,7 @@ al-input input {
   height: 2.25rem;
   padding: 0.25rem 0.75rem;
   margin: 0;
-  border: 1px solid var(--_al-border);
+  border: var(--al-border-width) solid var(--_al-border);
   border-radius: var(--radius-md);
   background: transparent;
   color: var(--foreground);

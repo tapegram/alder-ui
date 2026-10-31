@@ -37,7 +37,7 @@ al-menu {
   padding: 0.25rem;
   overflow-x: hidden;
   overflow-y: auto;
-  border: 1px solid var(--border);
+  border: var(--al-border-width) solid var(--border);
   border-radius: var(--radius-md);
   background: var(--popover);
   color: var(--popover-foreground);
@@ -119,6 +119,13 @@ al-menu > [data-variant="destructive"] > svg {
 al-menu > [data-variant="destructive"]:is(:hover, :focus-visible) {
   background: color-mix(in oklab, var(--destructive) 10%, transparent);
   color: var(--destructive);
+}
+
+/* Dark hover text is --foreground, not shadcn's text-destructive: --destructive on its own
+   20% tint fails AA in some themes (Catppuccin, Paper). The icon follows the text. */
+.dark al-menu > [data-variant="destructive"]:is(:hover, :focus-visible),
+.dark al-menu > [data-variant="destructive"]:is(:hover, :focus-visible) > svg {
+  color: var(--foreground);
 }
 
 .dark al-menu > [data-variant="destructive"]:is(:hover, :focus-visible) {

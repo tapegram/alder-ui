@@ -37,7 +37,7 @@ README is the short version.
 
 `al.css` is the whole library (tokens and every component, inside
 `@layer al`). Copy it from a tagged release, or link the raw file at a tag
-(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.4.2/al.css`). See every
+(`https://raw.githubusercontent.com/tapegram/alder-ui/v0.5.0/al.css`). See every
 element, variant and state in both themes at
 <https://tapegram.github.io/alder-ui/> (the root `index.html`, built from the
 demos), or one element per page in `demo/`.
@@ -48,6 +48,23 @@ Elements have no outer margin, as in shadcn. Space siblings with
 `al-stack` (`sm` 0.5rem, `md` 1rem, `lg` 1.5rem, `xl` 2.5rem). An app's
 Layout wraps page content in `<al-stack gap="lg">`; inside `al-page`,
 prose keeps shadcn's Typography rhythm.
+
+### Upgrading to v0.5.0
+
+`--al-border-width` is new, default `1px`, and every component border uses
+it, so a theme can thicken them. Four small changes keep the themes at
+AA, so existing apps look slightly different:
+
+- The `al-button` link variant's text is `--foreground` (the hover underline
+  is `--primary`).
+- Inactive `al-tabs` triggers use `--muted-foreground`. In light mode this
+  replaces `--foreground` at 60%; in dark mode it already was
+  `--muted-foreground`, so nothing changes there.
+- In dark mode the hover of the ghost button, the non-current pagination
+  links and the alert dismiss button paints `--accent` at 100% (was 50%); the
+  current-page link keeps its `--input` at 50% hover fill.
+- In dark mode a hovered or focused destructive `al-menu` item's text and icon
+  use `--foreground` (was `--destructive`) on the 20% red tint.
 
 ### Upgrading to v0.4.2
 
@@ -189,6 +206,52 @@ Notes:
   `al-`.
 - **Accessible by default.** Real labels, visible `:focus-visible` rings in
   `--ring`, and WCAG AA contrast for every variant in both themes.
+
+## Themes
+
+Five starting themes ship as data under `themes/<name>/`: `zinc` (the
+default, identical to `tokens.css`), `brutal`, `catppuccin`, `paper` and
+`pebble`. Pick one in the showcase's theme select (stored in
+`localStorage.dsTheme`). Each theme directory holds four files, in the
+[Design Tokens Community Group](https://www.designtokens.org/) 2025.10
+format:
+
+- `theme.resolver.json`: a resolver with a `base` set and a `scheme`
+  modifier whose `light` and `dark` contexts load the colour files.
+- `base.tokens.json`: the 15 theme-wide tokens (radius, the three page
+  widths, fonts, shadows, `al-border-width`).
+- `light.tokens.json` and `dark.tokens.json`: the 32 colours of each scheme.
+
+`catppuccin/` also carries its MIT `LICENSE`.
+
+**Token names.** A token's name is its CSS custom property without the `--`:
+`color.primary-foreground` is `--primary-foreground`. Every token has a
+one-sentence `$description`.
+
+**Key order is load-bearing.** Keep the keys in the order the files already
+use. Alder reads file order to build its token table, so reordering changes
+what it generates. The check fails on a different order.
+
+**Add a theme.**
+
+1. Copy `themes/zinc/` to `themes/<name>/`, edit the values, and set the
+   `name` and `description` in its `theme.resolver.json` (the select and
+   `alder theme use` show them).
+2. Add the name to `THEMES` in `test/check.py` and in `scripts/showcase.py`
+   (a test keeps the two lists equal).
+3. Run `python3 test/check.py` and tune each failure by the AA rule:
+   (a) swap the pair's foreground to the theme's dark or light text colour;
+   (b) move the background's oklch L by at most ±0.08 and C by at most ±0.03.
+   Never change a hue.
+4. Run `python3 scripts/build.py` to rebuild the showcase.
+
+**What the check enforces** (the `themes` section of `test/check.py`): the
+exact token set, in key order; the types; a description on every token;
+Zinc's values equal to `tokens.css`; and, for every non-zinc theme with no
+waivers, WCAG AA (4.5:1) for each text pairing in `PAIRS` in
+`test/check.py` and each `al-button` variant (including hover and field-fill states). Non-text pairings
+(field borders, focus rings, the alert dismiss icon) need 3:1, and a miss is a
+WARN, not a failure. A pairing no component draws is not checked.
 
 ## Migrating from v0.3.x
 

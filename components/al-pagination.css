@@ -143,11 +143,9 @@ al-pagination > [slot="next"]::after {
   mask: var(--_al-icon-chevron-right) center / contain no-repeat;
 }
 
-.dark al-pagination > a,
-.dark al-pagination > [slot="prev"],
-.dark al-pagination > [slot="next"] {
-  --_al-hover: color-mix(in oklab, var(--accent) 50%, transparent);
-}
+/* shadcn's dark:hover:bg-accent/50 is dropped: --accent-foreground on half-strength accent
+   over a dark page fails AA in some themes (Brutal), so dark hover paints --accent
+   at 100%, like the ghost button. */
 
 /* active link: outline: border bg-background shadow-xs hover:bg-accent
    hover:text-accent-foreground dark:border-input dark:bg-input/30
@@ -155,7 +153,7 @@ al-pagination > [slot="next"]::after {
 al-pagination > a[aria-current="page"] {
   --_al-bg: var(--background);
   --_al-hover: var(--accent);
-  border-width: 1px;
+  border-width: var(--al-border-width);
   box-shadow: 0 0 transparent, 0 0 transparent, 0 0 transparent, 0 0 transparent, var(--shadow-xs);
 }
 

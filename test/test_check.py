@@ -3,8 +3,11 @@
     python3 -m unittest discover -s test -p 'test_*.py'
 """
 import copy
+import json
 import pathlib
+import shutil
 import sys
+import tempfile
 import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -96,6 +99,19 @@ class TokenScanTest(unittest.TestCase):
         self.assertEqual(check.al_definitions("/* --al-z: 1 */ a{color:red}"), set())
 
 
+class BorderWidthTest(unittest.TestCase):
+    def test_border_literal_flagged(self):
+        self.assertEqual(len(check.border_literals(".x{border:1px solid var(--border)}")), 1)
+        for css in (".x{border:var(--al-border-width) solid var(--border)}",
+                    ".x{outline-width:1px}", ".x{block-size:1px}",
+                    "hr{height:1px;border-width:0}",
+                    ".x{block-size:calc(100% - 1px)}", ".x{border-width:0}"):
+            self.assertEqual(check.border_literals(css), [], css)
+
+    def test_al_tokens_allows_border_width(self):
+        self.assertIn("--al-border-width", check.AL_TOKENS)
+
+
 class SelectorTest(unittest.TestCase):
     def setUp(self):
         self.saved = list(check.FAILURES)
@@ -158,6 +174,155 @@ class FocusGuardTest(unittest.TestCase):
         self.assertFalse(check.unguarded_focus("a:focus-visible{outline:1px solid red}"))
         self.assertFalse(check.unguarded_focus("a:hover{outline:none}"))
         self.assertFalse(check.unguarded_focus("/* a:focus{outline:none} */ a{color:red}"))
+
+
+class ThemesCheckTest(unittest.TestCase):
+    """check_themes over a copy of themes/zinc, mutated one way per test."""
+
+    def setUp(self):
+        check.FAILURES.clear()
+        check.WARNINGS.clear()
+        self.tmp = pathlib.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.theme = self.tmp / "themes" / "zinc"
+        shutil.copytree(check.ROOT / "themes" / "zinc", self.theme)
+        saved = check.THEMES
+        check.THEMES = ["zinc"]
+        self.addCleanup(setattr, check, "THEMES", saved)
+
+    def load(self, name):
+        return json.loads((self.theme / name).read_text())
+
+    def save(self, name, data):
+        (self.theme / name).write_text(json.dumps(data, indent=2))
+
+    def run_check(self):
+        check.FAILURES.clear()
+        n = check.check_themes(self.tmp, check.load_tokens())
+        return n, list(check.FAILURES)
+
+    def assertFails(self, *needles):
+        _, fails = self.run_check()
+        self.assertTrue(any(all(n in f for n in needles) for f in fails), (needles, fails))
+
+    def test_themes_zinc_passes(self):
+        n, fails = self.run_check()
+        self.assertEqual((n, fails), (1, []))
+
+    def test_themes_missing_token_named(self):
+        d = self.load("light.tokens.json")
+        del d["color"]["sidebar-ring"]
+        self.save("light.tokens.json", d)
+        self.assertFails("--sidebar-ring", "light")
+
+    def test_themes_wrong_type(self):
+        d = self.load("base.tokens.json")
+        d["radius"]["$type"] = "color"
+        self.save("base.tokens.json", d)
+        self.assertFails("radius")
+
+    def test_themes_unresolved_alias(self):
+        d = self.load("light.tokens.json")
+        d["color"]["ring"]["$value"] = "{color.nope}"
+        self.save("light.tokens.json", d)
+        self.assertFails("color.nope")
+
+    def test_themes_order(self):
+        d = self.load("light.tokens.json")
+        c = d["color"]
+        items = list(c.items())
+        i, j = [k for k, (n, _) in enumerate(items) if n in ("primary", "secondary")]
+        items[i], items[j] = items[j], items[i]
+        d["color"] = dict(items)
+        self.save("light.tokens.json", d)
+        self.assertFails("order")
+
+    def test_themes_bad_json(self):
+        p = self.theme / "light.tokens.json"
+        p.write_text(p.read_text().rstrip().rstrip("}") + ",\n}\n")
+        _, fails = self.run_check()
+        self.assertTrue(any("light.tokens.json" in f and "line" in f for f in fails), fails)
+
+    def test_themes_zinc_value_drift(self):
+        d = self.load("light.tokens.json")
+        d["color"]["primary"]["$value"]["components"][0] = 0.3
+        self.save("light.tokens.json", d)
+        self.assertFails("--primary")
+
+    def test_themes_zinc_alpha_equivalent(self):
+        d = self.load("dark.tokens.json")
+        self.assertEqual(d["color"]["border"]["$value"]["alpha"], 0.1)
+        n, fails = self.run_check()
+        self.assertEqual(fails, [])
+
+    def test_themes_missing_description(self):
+        d = self.load("light.tokens.json")
+        del d["color"]["card"]["$description"]
+        self.save("light.tokens.json", d)
+        self.assertFails("light.tokens.json", "card")
+
+    def test_themes_unknown_dir(self):
+        shutil.copytree(self.theme, self.tmp / "themes" / "mystery")
+        self.assertFails("mystery")
+
+    def test_themes_listed_but_missing_fails(self):
+        check.THEMES = check.THEMES + ["ghost"]
+        self.assertFails("ghost", "missing")
+
+    def copy_as(self, name):
+        dst = self.tmp / "themes" / name
+        shutil.move(self.theme, dst)
+        self.theme = dst
+        saved = check.THEMES
+        check.THEMES = [name]
+        self.addCleanup(setattr, check, "THEMES", saved)
+
+    def test_themes_no_spec_gap_waivers(self):
+        self.copy_as("paper")
+        # zinc's own muted-foreground on muted is 4.34:1 (a tokens.css gap); the copy stands in for a
+        # theme that passes, so give it a white muted (and a dark destructive: zinc's is 3.99:1 on
+        # its own hover tint, a second tokens.css gap)
+        d = self.load("light.tokens.json")
+        d["color"]["destructive"]["$value"] = {"colorSpace": "oklch", "components": [0.4, 0.15, 27]}
+        d["color"]["muted"]["$value"] = {"colorSpace": "oklch", "components": [1, 0, 0]}
+        self.save("light.tokens.json", d)
+        saved = dict(check.SPEC_GAPS)
+        self.addCleanup(lambda: (check.SPEC_GAPS.clear(), check.SPEC_GAPS.update(saved)))
+        # a gap that passes in this theme is not a stale-entry failure
+        check.SPEC_GAPS[("al-button primary", "light")] = "x"
+        check.SPEC_GAPS[("no such pairing", "light")] = "x"
+        _, fails = self.run_check()
+        self.assertEqual(fails, [])
+        self.assertEqual(check.WARNINGS and [w for w in check.WARNINGS if "stale" in w or "SPEC_GAPS" in w], [])
+        # a gapped pairing that fails is a FAIL, not a WARN
+        d = self.load("light.tokens.json")
+        d["color"]["muted-foreground"]["$value"] = d["color"]["muted"]["$value"]
+        d["color"]["primary-foreground"]["$value"] = d["color"]["primary"]["$value"]
+        self.save("light.tokens.json", d)
+        check.WARNINGS.clear()
+        _, fails = self.run_check()
+        self.assertTrue(any("paper: al-button primary in light" in f for f in fails), fails)
+        self.assertFalse(any("shadcn" in w and "paper" in w for w in check.WARNINGS), check.WARNINGS)
+
+    def test_themes_contrast_labelled(self):
+        copy_dir = self.tmp / "themes" / "zinc-copy"
+        shutil.move(self.theme, copy_dir)
+        saved = check.THEMES
+        check.THEMES = ["zinc-copy"]
+        self.addCleanup(setattr, check, "THEMES", saved)
+        self.theme = copy_dir
+        d = self.load("light.tokens.json")
+        d["color"]["muted-foreground"]["$value"] = d["color"]["muted"]["$value"]
+        self.save("light.tokens.json", d)
+        check.FAILURES.clear()
+        check.check_themes(self.tmp, check.load_tokens())
+        self.assertTrue(any(f.startswith("contrast: zinc-copy:") for f in check.FAILURES), check.FAILURES)
+
+
+class ThemesPresentTest(unittest.TestCase):
+    def test_themes_all_five_present(self):
+        have = sorted(p.name for p in (check.ROOT / "themes").iterdir() if p.is_dir())
+        self.assertEqual(have, sorted(check.THEMES))
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ al-badge {
   gap: 0.25rem;
   overflow: hidden;
   padding: 0.125rem 0.5rem;
-  border: 1px solid transparent;
+  border: var(--al-border-width) solid transparent;
   border-radius: calc(infinity * 1px);
   background: var(--primary);
   color: var(--primary-foreground);

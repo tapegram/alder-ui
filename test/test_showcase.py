@@ -21,6 +21,25 @@ class ShowcaseTest(unittest.TestCase):
         for n in showcase.ORDER:
             self.assertIn('<section id="%s" class="ds-sec">' % n, html)
 
+    def test_theme_blocks(self):
+        sys.path.insert(0, str(ROOT / "test"))
+        import check
+        import dtcg
+        self.assertEqual(showcase.THEMES, check.THEMES)
+        html = showcase.build()
+        self.assertEqual(showcase.theme_css("zinc"), "")
+        for n in showcase.THEMES[1:]:
+            self.assertIn("html.theme-%s{" % n, html)
+            self.assertIn("html.theme-%s.dark{" % n, html)
+            self.assertEqual(showcase.theme_css(n).count("{"), 2)
+        self.assertNotIn("html.theme-zinc", html)
+        opts = re.search(r'<select id="ds-theme"[^>]*>(.*?)</select>', html, re.S).group(1)
+        found = re.findall(r'<option value="([a-z]+)" title="([^"]*)"[^>]*>([^<]*)</option>', opts)
+        self.assertEqual([f[0] for f in found], showcase.THEMES)
+        for (n, title, label) in found:
+            t = dtcg.load_theme(str(ROOT / "themes" / n))
+            self.assertEqual((label, title), (t.name, t.description))
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -17,12 +17,19 @@ Checks:
                base.css, typography.css; every var(--x) is defined
   tokens       tokens.css has shadcn's names (Ref section 1) in light and
                dark, --radius 0.625rem, .dark/.light only (no data-theme, no
-               media query); --al-width-* are the only --al- tokens left
+               media query); --al-width-* and --al-border-width are the only
+               --al- tokens left; no border declaration uses a literal 1px
   contrast     WCAG AA for each text pairing the components draw (4.5:1,
                a failure; a verbatim shadcn gap in SPEC_GAPS is a WARN) and
                each border and ring (3:1, a WARN only), light and dark,
                computed from tokens.css; al-button's pairs (resting and
                hover) are derived from its CSS
+  themes       each themes/<name>/ (a DTCG theme dir, see scripts/dtcg.py) loads;
+               its token names are exactly tokens.css's (base: theme-wide
+               tokens; light and dark: the 32 colours), in alder's table
+               order; every value converts and every token has a
+               $description; the theme passes the contrast table; zinc's
+               values equal tokens.css's
   demos        each page links ../al.css, uses only declared attributes, values
                and slots, shows every variant/size/state of its element;
                index.html links every page
@@ -41,6 +48,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "test"))
 import build  # noqa: E402
 import colour  # noqa: E402
+import dtcg  # noqa: E402
 
 FAILURES = []
 WARNINGS = []
@@ -584,8 +592,8 @@ SHADCN = ["background", "foreground", "card", "card-foreground", "popover", "pop
           "chart-1", "chart-2", "chart-3", "chart-4", "chart-5",
           "sidebar", "sidebar-foreground", "sidebar-primary", "sidebar-primary-foreground",
           "sidebar-accent", "sidebar-accent-foreground", "sidebar-border", "sidebar-ring"]
-# The only alder-ui tokens left: the page widths.
-AL_TOKENS = {"--al-width-narrow", "--al-width-normal", "--al-width-wide"}
+# The only alder-ui tokens left: the page widths and the border width.
+AL_TOKENS = {"--al-width-narrow", "--al-width-normal", "--al-width-wide", "--al-border-width"}
 
 
 def decls(body):
@@ -650,8 +658,12 @@ def button_pairs():
 # pairings the components draw. 4.5 is text (a failure below it); 3.0 is a
 # border or ring (a WARN below it, never a failure).
 MUTED_50 = "color-mix(in oklab, var(--muted) 50%, transparent)"
+INPUT_30 = "color-mix(in oklab, var(--input) 30%, transparent)"
+INPUT_50 = "color-mix(in oklab, var(--input) 50%, transparent)"
+DESTRUCTIVE_10 = "color-mix(in oklab, var(--destructive) 10%, transparent)"
+DESTRUCTIVE_20 = "color-mix(in oklab, var(--destructive) 20%, transparent)"
 RING_50 = "color-mix(in oklab, var(--ring) 50%, transparent)"
-TABS_FG = Themed(("color-mix(in oklab, var(--foreground) 60%, transparent)", "muted-foreground"))
+TABS_FG = "muted-foreground"
 PAIRS = [
     ("body text, active tab, outline badge, fields", "foreground", "background", 4.5),
     ("al-card, al-alert, al-devpanel", "card-foreground", "card", 4.5),
@@ -659,11 +671,17 @@ PAIRS = [
     ("al-badge secondary", "secondary-foreground", "secondary", 4.5),
     ("al-badge destructive", "--color-white",
      Themed(("destructive", "color-mix(in oklab, var(--destructive) 60%, transparent)")), 4.5),
-    ("accent hover (pagination, menu, devpanel, dialog close)", "accent-foreground", "accent", 4.5),
-    ("help, placeholder, caption, page N of M", "muted-foreground", "background", 4.5),
+    ("accent hover (pagination, menu, devpanel, dialog close; dark ghost and pagination hover are solid)", "accent-foreground", "accent", 4.5),
+    ("help, caption, page N of M", "muted-foreground", "background", 4.5),
+    # al-input, al-textarea, al-select: bg-transparent in light (on the page), bg-input/30 in dark
+    ("placeholder on a field", "muted-foreground", Themed(("background", INPUT_30)), 4.5),
+    ("field text on its fill", "foreground", Themed(("background", INPUT_30)), 4.5),
+    ("al-select hover", "foreground", Themed(("background", INPUT_50)), 4.5),
+    ("al-pagination active link hover", "accent-foreground", Themed(("accent", INPUT_50)), 4.5),
+    ("al-alert dismiss icon hover (non-text)", "accent-foreground", "accent", 3.0),
     ("muted text on card (card and alert descriptions, devpanel tabs)", "muted-foreground", "card", 4.5),
-    # al-tabs: an inactive trigger is text-foreground/60, dark:text-muted-foreground, on the
-    # list's bg-muted (default) or on the page (line, bg-transparent)
+    # al-tabs: an inactive trigger is text-muted-foreground (shadcn's text-foreground/60 fails AA
+    # in some themes), on the list's bg-muted (default) or on the page (line, bg-transparent)
     ("al-tabs trigger", TABS_FG, "muted", 4.5),
     ("al-tabs line trigger", TABS_FG, "background", 4.5),
     ("al-table striped row", "foreground", MUTED_50, 4.5),
@@ -674,6 +692,9 @@ PAIRS = [
     ("popover, al-menu, al-dialog", "popover-foreground", "popover", 4.5),
     ("al-toast", "popover-foreground", "popover", 4.5),
     ("al-menu destructive item", "destructive", "popover", 4.5),
+    # hover/focus fill is destructive/10 (light) or /20 (dark), drawn over --popover
+    # (dark hover text is --foreground, the light one stays --destructive)
+    ("al-menu destructive item hover", Themed(("destructive", "foreground")), Themed((DESTRUCTIVE_10, DESTRUCTIVE_20)), 4.5, "popover"),
     ("al-tooltip", "background", "foreground", 4.5),
     ("field border (non-text)", "input", "background", 3.0),
     ("menu keyboard focus outline (non-text)", "muted-foreground", "popover", 3.0),
@@ -690,6 +711,8 @@ SPEC_GAP_REASON = "verbatim shadcn token; spec \u00a74.2 fidelity"
 # fidelity (spec section 4.2) and printed as WARN, not failed (ruling R7).
 # Keyed (use, theme).
 SPEC_GAPS = {
+    ("al-menu destructive item hover", "light"): "zinc's verbatim --destructive on destructive/10 over the popover is 3.99:1 (shadcn's own pairing)",
+    ("al-tabs trigger", "light"): "zinc's verbatim --muted-foreground on --muted is 4.34:1; the trigger now uses --muted-foreground so every theme passes",
 }
 
 
@@ -704,6 +727,18 @@ def tok(name, theme=None):
 def al_definitions(css):
     """The --al-* custom properties defined anywhere in css (comments stripped), at any nesting."""
     return set(re.findall(r"(--al-[\w-]+)\s*:", strip_comments(css)))
+
+
+BORDER_DECL = re.compile(
+    r"(?<![\w-])border(?:-(?:top|right|bottom|left|block|inline)(?:-(?:start|end))?)?(?:-width)?\s*:\s*([^;}]*)")
+
+
+def border_literals(css):
+    """Border declarations (border, border-<side>, border-width,
+    border-<side>-width) whose value holds a literal 1px; they take
+    var(--al-border-width) instead."""
+    return [m.group(0).strip() for m in BORDER_DECL.finditer(strip_comments(css))
+            if re.search(r"(?<![\w.-])1px(?![\w-])", m.group(1))]
 
 
 def check_tokens(light, dark, common):
@@ -731,6 +766,8 @@ def check_tokens(light, dark, common):
         for name in sorted(set(re.findall(r"var\((--al-[\w-]+)", css))):
             if name not in AL_TOKENS:
                 fail("tokens", "%s uses removed token %s" % (p.name, name))
+        for decl in border_literals(css):
+            fail("tokens", "%s: %s (use var(--al-border-width))" % (p.name, decl))
 
 
 def theme_envs(light, dark, common):
@@ -738,33 +775,150 @@ def theme_envs(light, dark, common):
     return (("light", {**common, **light}), ("dark", {**common, **light, **dark}))
 
 
-def contrast_table(light, dark, common):
+def contrast_table(light, dark, common, where="tokens.css", gaps=None):
+    """gaps: apply SPEC_GAPS (shadcn's verbatim shortfalls); by default only
+    for the tokens.css run, so a theme is held to the full ratios."""
+    if gaps is None:
+        gaps = where == "tokens.css"
+    spec_gaps = SPEC_GAPS if gaps else {}
     rows = []
-    for use, fg, bg, need in button_pairs() + PAIRS:
+    for use, fg, bg, need, *surface in button_pairs() + PAIRS:
+        surface = tok(surface[0]) if surface else "var(--background)"
         row = [use, tok(fg), tok(bg), need]
         for theme, vals in theme_envs(light, dark, common):
             fg_t, bg_t = tok(fg, theme), tok(bg, theme)
             try:
-                r = colour.contrast(fg_t, bg_t, vals)
+                r = colour.contrast(fg_t, bg_t, vals, surface)
             except (KeyError, ValueError) as e:
-                fail("contrast", "%s (%s): %s" % (use, theme, e))
+                fail("contrast", "%s: %s (%s): %s" % (where, use, theme, e))
                 r = 0.0
             if r < need:
-                msg = "%s in %s: %s on %s is %.2f:1, needs %.1f:1" % (use, theme, fg_t, bg_t, r, need)
+                msg = "%s: %s in %s: %s on %s is %.2f:1, needs %.1f:1" % (where, use, theme, fg_t, bg_t, r, need)
                 if need < 4.5 and use not in NON_TEXT_FAIL:
                     WARNINGS.append("contrast: %s (non-text)" % msg)
-                elif (use, theme) in SPEC_GAPS:
-                    WARNINGS.append("contrast: %s (%s)" % (msg, SPEC_GAPS[(use, theme)]))
+                elif (use, theme) in spec_gaps:
+                    WARNINGS.append("contrast: %s (%s)" % (msg, spec_gaps[(use, theme)]))
                 else:
                     fail("contrast", msg)
-            elif (use, theme) in SPEC_GAPS and need >= 4.5:
-                fail("contrast", "stale SPEC_GAPS entry: %s in %s now passes (%.2f:1); delete it" % (use, theme, r))
+            elif (use, theme) in spec_gaps and need >= 4.5:
+                fail("contrast", "%s: stale SPEC_GAPS entry: %s in %s now passes (%.2f:1); delete it" % (where, use, theme, r))
             row.append(r)
         rows.append(row)
-    for use, theme in sorted(SPEC_GAPS):
+    for use, theme in sorted(spec_gaps):
         if not any(r[0] == use for r in rows):
-            fail("contrast", "SPEC_GAPS names %r, which is not a pairing" % use)
+            fail("contrast", "%s: SPEC_GAPS names %r, which is not a pairing" % (where, use))
     return rows
+
+
+# ---------------------------------------------------------------- themes
+
+THEME_ORDER = {
+    "base": ["radius", "radius-sm", "radius-md", "radius-lg", "radius-xl",
+             "al-width-narrow", "al-width-normal", "al-width-wide", "font-sans", "font-mono",
+             "shadow-xs", "shadow-sm", "shadow-md", "shadow-lg", "al-border-width"],
+    # alder's table order, not tokens.css's block order
+    "colours": SHADCN[:],
+}
+THEMES = ["zinc", "brutal", "catppuccin", "paper", "pebble"]
+# Derived in tokens.css with calc(); a theme states them as plain dimensions.
+DERIVED_RADII = {"--radius-sm", "--radius-md", "--radius-lg", "--radius-xl"}
+COLOUR_TOL = 0.5 / 255
+
+
+def theme_expected(tokens):
+    """The token names a theme must declare: (base, colours)."""
+    light, dark, common = tokens
+    base = ({k for k in common if k not in ("--color-white", "--color-black")}) | {"--radius"}
+    return base, set(dark)
+
+
+def same_atom(a, b):
+    a, b = a.strip().strip('"'), b.strip().strip('"')
+    if a == b:
+        return True
+    if "(" in a or "(" in b or a.startswith("#") or b.startswith("#"):
+        try:
+            ca, cb = colour.parse(a, {}), colour.parse(b, {})
+        except (KeyError, ValueError):
+            return False
+        return all(abs(x - y) <= COLOUR_TOL for x, y in zip(ca, cb))
+    ma, mb = (re.fullmatch(r"(-?[\d.]+)(px|rem)?", x) for x in (a, b))
+    if ma and mb:
+        zero = float(ma.group(1)) == 0 and float(mb.group(1)) == 0
+        return zero or (float(ma.group(1)) == float(mb.group(1))
+                        and (ma.group(2) or "px") == (mb.group(2) or "px"))
+    return False
+
+
+def same_value(a, b):
+    """CSS values a and b mean the same: colours within half a byte per channel
+    and alpha, dimensions as number + unit (0 equals 0px), lists and shadow
+    layers item by item."""
+    la, lb = split_top(a), split_top(b)
+    if len(la) != len(lb):
+        return False
+    for x, y in zip(la, lb):
+        ta, tb = split_top(x, " "), split_top(y, " ")
+        if len(ta) != len(tb) or not all(same_atom(p, q) for p, q in zip(ta, tb)):
+            return False
+    return True
+
+
+def check_theme(name, theme, tokens, expected):
+    light_css, dark_css, common_css = tokens
+    base_names, colour_names = expected
+    for label, got, want, order in (("base", theme.base, base_names, THEME_ORDER["base"]),
+                                    ("light", theme.light, colour_names, THEME_ORDER["colours"]),
+                                    ("dark", theme.dark, colour_names, THEME_ORDER["colours"])):
+        for n in sorted(want - set(got)):
+            fail("themes", "%s: %s lacks %s" % (name, label, n))
+        for n in sorted(set(got) - want):
+            fail("themes", "%s: %s has unknown token %s" % (name, label, n))
+        if set(got) == want and list(got) != ["--" + n for n in order]:
+            fail("themes", "%s: %s tokens are out of order (alder reads them in file order); expected %s"
+                 % (name, label, ", ".join(order)))
+    try:
+        common, light, dark = dtcg.resolved(theme)
+    except dtcg.DTCGError as e:
+        fail("themes", "%s: %s" % (name, e))
+        return
+    if name != "zinc":
+        # --color-white/--color-black belong to every theme, not to its token files
+        fixed = {k: common_css[k] for k in ("--color-white", "--color-black") if k in common_css}
+        contrast_table(light, dark, {**fixed, **common}, where=name)
+        return
+    # zinc's contrast is tokens.css's: the parity check below proves the values equal
+    for label, got, want in (("base", common, {**common_css, "--radius": light_css.get("--radius")}),
+                             ("light", light, light_css), ("dark", dark, dark_css)):
+        for n, v in got.items():
+            if n in DERIVED_RADII or n not in want:
+                continue
+            if not same_value(v, want[n]):
+                fail("themes", "zinc: %s %s is %s, tokens.css has %s" % (label, n, v, want[n]))
+
+
+def check_themes(root, tokens):
+    """Check every themes/<name>/ under root; returns how many were checked."""
+    tdir = root / "themes"
+    expected = theme_expected(tokens)
+    if tdir.is_dir():
+        for p in sorted(tdir.iterdir()):
+            if p.is_dir() and p.name not in THEMES:
+                fail("themes", "themes/%s is not in THEMES (%s)" % (p.name, ", ".join(THEMES)))
+    count = 0
+    for name in THEMES:
+        d = tdir / name
+        if not d.is_dir():
+            fail("themes", "themes/%s is listed in THEMES but missing" % name)
+            continue
+        count += 1
+        try:
+            theme = dtcg.load_theme(d)
+        except dtcg.DTCGError as e:
+            fail("themes", "%s: %s" % (name, e))
+            continue
+        check_theme(name, theme, tokens, expected)
+    return count
 
 
 # ---------------------------------------------------------------- demos
@@ -953,6 +1107,7 @@ def main(argv):
     check_icons()
     check_tokens(light, dark, common)
     rows = contrast_table(light, dark, common)
+    themes = check_themes(ROOT, (light, dark, common))
     check_demos(els)
     check_dialog_shape()
     check_tabs_nojs()
@@ -972,8 +1127,8 @@ def main(argv):
             print("FAIL", f)
         print("%d failure(s)" % len(FAILURES))
         return 1
-    print("ok: manifest, css, tokens-only, tokens, contrast (%d pairs x 2 themes), demos (%d pages), bundle"
-          % (len(rows), len(list((ROOT / "demo").glob("*.html")))))
+    print("ok: manifest, css, tokens-only, tokens, contrast (%d pairs x 2 themes), themes (%d), demos (%d pages), bundle"
+          % (len(rows), themes, len(list((ROOT / "demo").glob("*.html")))))
     return 0
 
 
