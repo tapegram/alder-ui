@@ -86,7 +86,8 @@ al-button[variant="secondary"] {
   --_al-hover-fg: var(--secondary-foreground);
 }
 
-/* ghost: hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 */
+/* ghost: hover:bg-accent hover:text-accent-foreground. Deliberately no dark:hover:bg-accent/50
+   (shadcn has it): half-strength accent under accent-foreground fails AA in dark themes */
 al-button[variant="ghost"] {
   --_al-bg: transparent;
   --_al-fg: var(--foreground);
@@ -94,16 +95,14 @@ al-button[variant="ghost"] {
   --_al-hover-fg: var(--accent-foreground);
 }
 
-.dark al-button[variant="ghost"] {
-  --_al-hover: color-mix(in oklab, var(--accent) 50%, transparent);
-}
-
-/* link: text-primary underline-offset-4 hover:underline */
+/* link: underline-offset-4 hover:underline. Deliberately foreground text with the
+   underline in --primary (shadcn's text-primary fails AA when a theme's primary is
+   light, e.g. a yellow or coral on a near-white page) */
 al-button[variant="link"] {
   --_al-bg: transparent;
-  --_al-fg: var(--primary);
+  --_al-fg: var(--foreground);
   --_al-hover: transparent;
-  --_al-hover-fg: var(--primary);
+  --_al-hover-fg: var(--foreground);
 }
 
 /* xs: h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5
@@ -251,6 +250,7 @@ al-button > :is(button, a):hover {
 al-button[variant="link"]:not(:has(> :is(button, a))):hover,
 al-button[variant="link"] > :is(button, a):hover {
   text-decoration: underline;
+  text-decoration-color: var(--primary);
 }
 
 /* focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50

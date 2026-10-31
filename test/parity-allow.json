@@ -18,6 +18,10 @@
     "toast/destructive/default": "toast/error/default"
   },
   "allow": [
+    {"ref": "button/link/default", "prop": "color", "reason": "deliberate AA fix across themes: link text is --foreground, not shadcn's text-primary (a light primary such as Brutal's yellow or Pebble's coral on a near-white page fails 4.5:1); the --primary colour moves to the underline"},
+    {"ref": "button/link/default", "prop": "text-decoration", "reason": "deliberate AA fix across themes: the hover underline is drawn in --primary (shadcn's inherits the text colour) so the theme colour still marks the link"},
+    {"ref": "button/ghost/default", "prop": "background-color", "reason": "deliberate AA fix across themes: the dark ghost hover paints --accent at 100%, not shadcn's dark:hover:bg-accent/50, because --accent-foreground on half-strength accent over a dark page fails 4.5:1 in Brutal"},
+    {"ref": "tabs/trigger/default", "prop": "color", "reason": "deliberate AA fix across themes: an inactive trigger is --muted-foreground, not shadcn's text-foreground/60 (about 2.7:1 to 4:1 in Catppuccin Latte and Pebble)"},
     {"ref": "alert/*/icon", "prop": "background-color", "reason": "structural: the twin draws a Lucide icon as a mask over a currentColor background (an ::after); shadcn's is an inline svg with a transparent background and currentColor strokes. The glyph colour is the same, text-current"},
     {"ref": "alert/*/icon", "prop": "box-*", "reason": "structural: the twin's icon and title are ::after and ::before, which have no bounding box the harness can read (width and height of the icon are compared and match; the title's line-height and height match too)"},
     {"ref": "alert/*/title", "prop": "box-*", "reason": "structural: same as the icon above; the title is the ::before"},
