@@ -6,11 +6,19 @@ the token swatches) has styles of its own.
 
 scripts/build.py writes it; test/check.py fails when it is out of date.
 """
+import html
 import json
 import pathlib
 import re
+import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "scripts"))
+import dtcg  # noqa: E402
+
+# The themes the select offers, in order; test_showcase asserts this equals
+# check.THEMES (check.py imports from scripts/, so it cannot be imported here).
+THEMES = ["zinc", "brutal", "catppuccin", "paper", "pebble"]
 
 # The demo pages in index order; parity.html is a test fixture, not a demo.
 ORDER = ["button", "input", "textarea", "select", "checkbox", "table", "card",
@@ -18,7 +26,9 @@ ORDER = ["button", "input", "textarea", "select", "checkbox", "table", "card",
          "menu", "tabs", "toast", "tooltip", "devpanel"]
 
 THEME = ('<script>try{document.documentElement.classList.toggle("dark",localStorage.theme==="dark"'
-         '||(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches))}catch(e){}</script>')
+         '||(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches));'
+         'var t=localStorage.dsTheme;if(%s.indexOf(t)>0)document.documentElement.classList.add("theme-"+t)}catch(e){}</script>'
+         % json.dumps(THEMES, separators=(",", ":")))
 
 CHROME = """\
 .ds-top{position:sticky;top:0;z-index:5;background:var(--background);border-bottom:1px solid var(--border);padding:10px max(16px, env(safe-area-inset-left, 0px))}
@@ -30,6 +40,27 @@ CHROME = """\
 .ds-sw{display:flex;flex-direction:column;gap:6px;min-width:0}
 .ds-sw span{height:44px;border-radius:var(--radius);border:1px solid var(--border)}
 .ds-sw code{font-size:11px;overflow-wrap:anywhere}"""
+
+
+def theme_css(name):
+    """The showcase's blocks for one theme: custom properties only, scoped to
+    html.theme-<name> (light, with the theme's base) and html.theme-<name>.dark.
+    Zinc is the stylesheet's own default, so it has none."""
+    if name == "zinc":
+        return ""
+    common, light, dark = dtcg.resolved(dtcg.load_theme(str(ROOT / "themes" / name)))
+    block = lambda sel, props: "%s{%s}" % (sel, "".join("%s:%s;" % kv for kv in props.items()))
+    return (block("html.theme-%s" % name, {**common, **light})
+            + block("html.theme-%s.dark" % name, dark))
+
+
+def theme_select():
+    opts = ""
+    for n in THEMES:
+        t = dtcg.load_theme(str(ROOT / "themes" / n))
+        opts += '<option value="%s" title="%s">%s</option>' % (n, html.escape(t.description), html.escape(t.name))
+    return ('<al-select label="Theme"><label>Theme<select id="ds-theme" onchange="setTheme(this.value)">%s</select></label></al-select>'
+            % opts)
 
 
 def colour_tokens():
@@ -79,13 +110,17 @@ def build():
 <script type="module" src="al.js"></script>
 <script>
 function toggleTheme(){var d=document.documentElement.classList.toggle("dark");try{localStorage.theme=d?"dark":"light"}catch(e){}}
+function setTheme(n){var c=document.documentElement.classList;c.forEach(function(x){if(x.indexOf("theme-")===0)c.remove(x)});if(n!=="zinc")c.add("theme-"+n);try{localStorage.dsTheme=n}catch(e){}}
 </script>
 <style>
 %(chrome)s
 </style>
+<style id="ds-themes">
+%(themes)s
+</style>
 </head>
 <body>
-<div class="ds-top"><al-stack gap="sm"><al-stack direction="row" gap="sm"><strong>alder-ui %(v)s</strong><al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button></al-stack><nav class="ds-nav"><a href="#tokens">tokens</a>%(nav)s</nav></al-stack></div>
+<div class="ds-top"><al-stack gap="sm"><al-stack direction="row" gap="sm"><strong>alder-ui %(v)s</strong><al-button variant="outline" size="sm"><button type="button" onclick="toggleTheme()">Toggle theme</button></al-button>%(select)s</al-stack><nav class="ds-nav"><a href="#tokens">tokens</a>%(nav)s</nav></al-stack></div>
 <al-page>
 <al-stack gap="lg">
 <h1>alder-ui %(v)s</h1>
@@ -93,7 +128,9 @@ function toggleTheme(){var d=document.documentElement.classList.toggle("dark");t
 <section id="tokens" class="ds-sec"><al-stack gap="md"><h2>Colour tokens</h2><p>shadcn's canonical neutral theme, verbatim oklch values. Re-theme by pasting a shadcn or tweakcn export after <code>al.css</code>.</p><div class="ds-grid">%(swatches)s</div></al-stack></section>
 %(sections)s</al-stack>
 </al-page>
+<script>try{var s=document.getElementById("ds-theme"),t=localStorage.dsTheme;if(%(known)s.indexOf(t)>0)s.value=t}catch(e){}</script>
 </body>
 </html>
-""" % {"v": version, "theme": THEME, "chrome": CHROME, "nav": nav, "swatches": swatches,
+""" % {"v": version, "theme": THEME, "known": json.dumps(THEMES), "chrome": CHROME, "select": theme_select(),
+       "themes": "\n".join(theme_css(n) for n in THEMES[1:]), "nav": nav, "swatches": swatches,
        "sections": "".join(s for _, s in parts)}

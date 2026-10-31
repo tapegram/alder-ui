@@ -114,5 +114,52 @@ class ThemeTest(unittest.TestCase):
         self.assertColour(self.style("#light-card", "background-color"), "oklch(1 0 0)")
 
 
+    def test_showcase_theme_switch(self):
+        errors = []
+        page = self.browser.new_page()
+        page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)
+        page.on("pageerror", lambda e: errors.append(str(e)))
+        url = self.url.replace("demo/button.html", "index.html")
+        page.goto(url)
+        page.evaluate("localStorage.clear()")
+        page.goto(url)
+        var = "name => getComputedStyle(document.documentElement).getPropertyValue(name).trim()"
+        zinc = page.evaluate(var, "--background")
+        page.select_option("#ds-theme", "paper")
+        paper = page.evaluate(var, "--background")
+        self.assertNotEqual(paper, zinc)
+        page.evaluate("document.documentElement.classList.add('dark')")
+        paper_dark = page.evaluate(var, "--background")
+        self.assertNotEqual(paper_dark, paper)
+        sys.path.insert(0, str(ROOT / "scripts"))
+        import dtcg
+        want = dtcg.resolved(dtcg.load_theme(str(ROOT / "themes" / "paper")))[2]["--background"]
+        self.assertColour(paper_dark, want)
+        page.select_option("#ds-theme", "brutal")
+        self.assertColour(page.evaluate("document.querySelector('al-card') && getComputedStyle(document.querySelector('al-card')).getPropertyValue('--border')"), "#ffffff")
+        shadow = page.evaluate("""() => {
+            const e = document.createElement('div');
+            e.style.boxShadow = 'var(--shadow-sm)';
+            document.body.append(e);
+            const v = getComputedStyle(e).boxShadow;
+            e.remove();
+            return v;
+        }""")
+        self.assertIn("rgb(255, 255, 255)", shadow)
+        page.evaluate("localStorage.theme = 'dark'; localStorage.dsTheme = 'paper'")
+        page.reload()
+        cls = page.evaluate("document.documentElement.className.split(/\\s+/)")
+        self.assertIn("dark", cls)
+        self.assertIn("theme-paper", cls)
+        self.assertEqual(page.eval_on_selector("#ds-theme", "e => e.value"), "paper")
+        self.assertColour(page.evaluate(var, "--background"), want)
+        page.evaluate("localStorage.dsTheme = 'gone'")
+        page.reload()
+        cls = page.evaluate("document.documentElement.className.split(/\\s+/)")
+        self.assertFalse([c for c in cls if c.startswith("theme-")])
+        self.assertEqual(errors, [])
+        page.close()
+
+
 if __name__ == "__main__":
     unittest.main()
