@@ -693,7 +693,8 @@ PAIRS = [
     ("al-toast", "popover-foreground", "popover", 4.5),
     ("al-menu destructive item", "destructive", "popover", 4.5),
     # hover/focus fill is destructive/10 (light) or /20 (dark), drawn over --popover
-    ("al-menu destructive item hover", "destructive", Themed((DESTRUCTIVE_10, DESTRUCTIVE_20)), 4.5, "popover"),
+    # (dark hover text is --foreground, the light one stays --destructive)
+    ("al-menu destructive item hover", Themed(("destructive", "foreground")), Themed((DESTRUCTIVE_10, DESTRUCTIVE_20)), 4.5, "popover"),
     ("al-tooltip", "background", "foreground", 4.5),
     ("field border (non-text)", "input", "background", 3.0),
     ("menu keyboard focus outline (non-text)", "muted-foreground", "popover", 3.0),

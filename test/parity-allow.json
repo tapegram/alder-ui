@@ -42,6 +42,7 @@
     {"ref": "toast/*", "prop": "font-family", "reason": "standing (R5): sonner sets its own system font stack on the toaster; alder-ui forbids literal font families in components, so al-toast inherits Geist"},
     {"ref": "menu/item/open", "prop": "outline", "reason": "a11y #15: keyboard focus draws a 2px solid muted-foreground outline (offset -2px) so the focused item is not only a faint fill; shadcn computes 1px none. Hover keeps outline-style none"},
     {"ref": "menu/item-destructive/open", "prop": "outline", "reason": "a11y #15: same as menu/item/open, the focused destructive item draws the 2px outline too"},
+    {"ref": "menu/item-destructive/open", "prop": "color", "reason": "deliberate AA fix across themes: in dark the hovered or focused destructive item's text is --foreground, not shadcn's text-destructive, because --destructive on its own 20% tint fails 4.5:1 in Catppuccin and Paper"},
     {"ref": "dialog/title/open", "prop": "padding", "reason": "a11y #15: a dismissible dialog's title keeps 1rem of padding-inline-end so a long title wraps before the close button (shadcn's title has none and runs under it)"}
   ]
 }
