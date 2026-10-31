@@ -272,6 +272,11 @@ class ThemesCheckTest(unittest.TestCase):
 
     def test_themes_no_spec_gap_waivers(self):
         self.copy_as("paper")
+        # zinc's own muted-foreground on muted is 4.34:1 (a tokens.css gap); the copy stands in for a
+        # theme that passes, so give it a white muted
+        d = self.load("light.tokens.json")
+        d["color"]["muted"]["$value"] = {"colorSpace": "oklch", "components": [1, 0, 0]}
+        self.save("light.tokens.json", d)
         saved = dict(check.SPEC_GAPS)
         self.addCleanup(lambda: (check.SPEC_GAPS.clear(), check.SPEC_GAPS.update(saved)))
         # a gap that passes in this theme is not a stale-entry failure
@@ -303,6 +308,12 @@ class ThemesCheckTest(unittest.TestCase):
         check.FAILURES.clear()
         check.check_themes(self.tmp, check.load_tokens())
         self.assertTrue(any(f.startswith("contrast: zinc-copy:") for f in check.FAILURES), check.FAILURES)
+
+
+class ThemesPresentTest(unittest.TestCase):
+    def test_themes_all_five_present(self):
+        have = sorted(p.name for p in (check.ROOT / "themes").iterdir() if p.is_dir())
+        self.assertEqual(have, sorted(check.THEMES))
 
 
 if __name__ == "__main__":
