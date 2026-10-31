@@ -2315,13 +2315,10 @@ al-alert > .al-alert-dismiss::before {
   mask: var(--_al-icon-x) center / contain no-repeat;
 }
 
+/* dark hover paints --accent at 100% too (not half-strength): AA in every theme, like the ghost button */
 al-alert > .al-alert-dismiss:hover {
   background: var(--accent);
   color: var(--accent-foreground);
-}
-
-.dark al-alert > .al-alert-dismiss:hover {
-  background: color-mix(in oklab, var(--accent) 50%, transparent);
 }
 
 al-alert > .al-alert-dismiss:focus-visible {
@@ -2503,11 +2500,9 @@ al-pagination > [slot="next"]::after {
   mask: var(--_al-icon-chevron-right) center / contain no-repeat;
 }
 
-.dark al-pagination > a,
-.dark al-pagination > [slot="prev"],
-.dark al-pagination > [slot="next"] {
-  --_al-hover: color-mix(in oklab, var(--accent) 50%, transparent);
-}
+/* shadcn's dark:hover:bg-accent/50 is dropped: --accent-foreground on half-strength accent
+   over a dark page fails AA in some themes (Brutal), so dark hover paints --accent
+   at 100%, like the ghost button. */
 
 /* active link: outline: border bg-background shadow-xs hover:bg-accent
    hover:text-accent-foreground dark:border-input dark:bg-input/30

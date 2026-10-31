@@ -206,13 +206,10 @@ al-alert > .al-alert-dismiss::before {
   mask: var(--_al-icon-x) center / contain no-repeat;
 }
 
+/* dark hover paints --accent at 100% too (not half-strength): AA in every theme, like the ghost button */
 al-alert > .al-alert-dismiss:hover {
   background: var(--accent);
   color: var(--accent-foreground);
-}
-
-.dark al-alert > .al-alert-dismiss:hover {
-  background: color-mix(in oklab, var(--accent) 50%, transparent);
 }
 
 al-alert > .al-alert-dismiss:focus-visible {

@@ -238,10 +238,11 @@ def ratio_rgb(a, b):
     return (hi + 0.05) / (lo + 0.05)
 
 
-def contrast(fg, bg, env):
+def contrast(fg, bg, env, surface="var(--background)"):
     """Contrast of fg on bg, both CSS colours; translucent colours are
-    composited over the theme's --background first."""
-    base = parse("var(--background)", env)
+    composited over surface (the theme's --background unless a pairing
+    names another, such as --popover)."""
+    base = parse(surface, env)
     b = over(parse(bg, env), base)
     return ratio_rgb(over(parse(fg, env), b), b)
 

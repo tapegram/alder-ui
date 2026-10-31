@@ -133,12 +133,13 @@
     },
     "muted-foreground": {
       "$value": {
-        "colorSpace": "oklch",
+        "colorSpace": "srgb",
         "components": [
-          0.75,
-          0,
-          0
-        ]
+          1.0,
+          1.0,
+          1.0
+        ],
+        "hex": "#ffffff"
       },
       "$description": "The colour of secondary text and placeholders."
     },
@@ -202,13 +203,12 @@
     },
     "input": {
       "$value": {
-        "colorSpace": "srgb",
+        "colorSpace": "oklch",
         "components": [
-          1.0,
-          1.0,
-          1.0
-        ],
-        "hex": "#ffffff"
+          0.94,
+          0,
+          0
+        ]
       },
       "$description": "The border colour of form controls."
     },

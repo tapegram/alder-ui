@@ -218,7 +218,7 @@
         "value": 1,
         "unit": "px"
       },
-      "$description": "The thickness of every border and divider."
+      "$description": "The thickness of component borders (separators keep 1px)."
     }
   }
 }

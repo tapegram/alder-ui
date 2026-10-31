@@ -658,6 +658,10 @@ def button_pairs():
 # pairings the components draw. 4.5 is text (a failure below it); 3.0 is a
 # border or ring (a WARN below it, never a failure).
 MUTED_50 = "color-mix(in oklab, var(--muted) 50%, transparent)"
+INPUT_30 = "color-mix(in oklab, var(--input) 30%, transparent)"
+INPUT_50 = "color-mix(in oklab, var(--input) 50%, transparent)"
+DESTRUCTIVE_10 = "color-mix(in oklab, var(--destructive) 10%, transparent)"
+DESTRUCTIVE_20 = "color-mix(in oklab, var(--destructive) 20%, transparent)"
 RING_50 = "color-mix(in oklab, var(--ring) 50%, transparent)"
 TABS_FG = "muted-foreground"
 PAIRS = [
@@ -667,8 +671,14 @@ PAIRS = [
     ("al-badge secondary", "secondary-foreground", "secondary", 4.5),
     ("al-badge destructive", "--color-white",
      Themed(("destructive", "color-mix(in oklab, var(--destructive) 60%, transparent)")), 4.5),
-    ("accent hover (pagination, menu, devpanel, dialog close)", "accent-foreground", "accent", 4.5),
-    ("help, placeholder, caption, page N of M", "muted-foreground", "background", 4.5),
+    ("accent hover (pagination, menu, devpanel, dialog close; dark ghost and pagination hover are solid)", "accent-foreground", "accent", 4.5),
+    ("help, caption, page N of M", "muted-foreground", "background", 4.5),
+    # al-input, al-textarea, al-select: bg-transparent in light (on the page), bg-input/30 in dark
+    ("placeholder on a field", "muted-foreground", Themed(("background", INPUT_30)), 4.5),
+    ("field text on its fill", "foreground", Themed(("background", INPUT_30)), 4.5),
+    ("al-select hover", "foreground", Themed(("background", INPUT_50)), 4.5),
+    ("al-pagination active link hover", "accent-foreground", Themed(("accent", INPUT_50)), 4.5),
+    ("al-alert dismiss icon hover (non-text)", "accent-foreground", "accent", 3.0),
     ("muted text on card (card and alert descriptions, devpanel tabs)", "muted-foreground", "card", 4.5),
     # al-tabs: an inactive trigger is text-muted-foreground (shadcn's text-foreground/60 fails AA
     # in some themes), on the list's bg-muted (default) or on the page (line, bg-transparent)
@@ -682,6 +692,8 @@ PAIRS = [
     ("popover, al-menu, al-dialog", "popover-foreground", "popover", 4.5),
     ("al-toast", "popover-foreground", "popover", 4.5),
     ("al-menu destructive item", "destructive", "popover", 4.5),
+    # hover/focus fill is destructive/10 (light) or /20 (dark), drawn over --popover
+    ("al-menu destructive item hover", "destructive", Themed((DESTRUCTIVE_10, DESTRUCTIVE_20)), 4.5, "popover"),
     ("al-tooltip", "background", "foreground", 4.5),
     ("field border (non-text)", "input", "background", 3.0),
     ("menu keyboard focus outline (non-text)", "muted-foreground", "popover", 3.0),
@@ -698,6 +710,7 @@ SPEC_GAP_REASON = "verbatim shadcn token; spec \u00a74.2 fidelity"
 # fidelity (spec section 4.2) and printed as WARN, not failed (ruling R7).
 # Keyed (use, theme).
 SPEC_GAPS = {
+    ("al-menu destructive item hover", "light"): "zinc's verbatim --destructive on destructive/10 over the popover is 3.99:1 (shadcn's own pairing)",
     ("al-tabs trigger", "light"): "zinc's verbatim --muted-foreground on --muted is 4.34:1; the trigger now uses --muted-foreground so every theme passes",
 }
 
@@ -768,12 +781,13 @@ def contrast_table(light, dark, common, where="tokens.css", gaps=None):
         gaps = where == "tokens.css"
     spec_gaps = SPEC_GAPS if gaps else {}
     rows = []
-    for use, fg, bg, need in button_pairs() + PAIRS:
+    for use, fg, bg, need, *surface in button_pairs() + PAIRS:
+        surface = tok(surface[0]) if surface else "var(--background)"
         row = [use, tok(fg), tok(bg), need]
         for theme, vals in theme_envs(light, dark, common):
             fg_t, bg_t = tok(fg, theme), tok(bg, theme)
             try:
-                r = colour.contrast(fg_t, bg_t, vals)
+                r = colour.contrast(fg_t, bg_t, vals, surface)
             except (KeyError, ValueError) as e:
                 fail("contrast", "%s: %s (%s): %s" % (where, use, theme, e))
                 r = 0.0
