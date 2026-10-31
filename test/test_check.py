@@ -3,8 +3,11 @@
     python3 -m unittest discover -s test -p 'test_*.py'
 """
 import copy
+import json
 import pathlib
+import shutil
 import sys
+import tempfile
 import unittest
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
@@ -171,6 +174,107 @@ class FocusGuardTest(unittest.TestCase):
         self.assertFalse(check.unguarded_focus("a:focus-visible{outline:1px solid red}"))
         self.assertFalse(check.unguarded_focus("a:hover{outline:none}"))
         self.assertFalse(check.unguarded_focus("/* a:focus{outline:none} */ a{color:red}"))
+
+
+class ThemesCheckTest(unittest.TestCase):
+    """check_themes over a copy of themes/zinc, mutated one way per test."""
+
+    def setUp(self):
+        check.FAILURES.clear()
+        check.WARNINGS.clear()
+        self.tmp = pathlib.Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.tmp, True)
+        self.theme = self.tmp / "themes" / "zinc"
+        shutil.copytree(check.ROOT / "themes" / "zinc", self.theme)
+
+    def load(self, name):
+        return json.loads((self.theme / name).read_text())
+
+    def save(self, name, data):
+        (self.theme / name).write_text(json.dumps(data, indent=2))
+
+    def run_check(self):
+        check.FAILURES.clear()
+        n = check.check_themes(self.tmp, check.load_tokens())
+        return n, list(check.FAILURES)
+
+    def assertFails(self, *needles):
+        _, fails = self.run_check()
+        self.assertTrue(any(all(n in f for n in needles) for f in fails), (needles, fails))
+
+    def test_themes_zinc_passes(self):
+        n, fails = self.run_check()
+        self.assertEqual((n, fails), (1, []))
+
+    def test_themes_missing_token_named(self):
+        d = self.load("light.tokens.json")
+        del d["color"]["sidebar-ring"]
+        self.save("light.tokens.json", d)
+        self.assertFails("--sidebar-ring", "light")
+
+    def test_themes_wrong_type(self):
+        d = self.load("base.tokens.json")
+        d["radius"]["$type"] = "color"
+        self.save("base.tokens.json", d)
+        self.assertFails("radius")
+
+    def test_themes_unresolved_alias(self):
+        d = self.load("light.tokens.json")
+        d["color"]["ring"]["$value"] = "{color.nope}"
+        self.save("light.tokens.json", d)
+        self.assertFails("color.nope")
+
+    def test_themes_order(self):
+        d = self.load("light.tokens.json")
+        c = d["color"]
+        items = list(c.items())
+        i, j = [k for k, (n, _) in enumerate(items) if n in ("primary", "secondary")]
+        items[i], items[j] = items[j], items[i]
+        d["color"] = dict(items)
+        self.save("light.tokens.json", d)
+        self.assertFails("order")
+
+    def test_themes_bad_json(self):
+        p = self.theme / "light.tokens.json"
+        p.write_text(p.read_text().rstrip().rstrip("}") + ",\n}\n")
+        _, fails = self.run_check()
+        self.assertTrue(any("light.tokens.json" in f and "line" in f for f in fails), fails)
+
+    def test_themes_zinc_value_drift(self):
+        d = self.load("light.tokens.json")
+        d["color"]["primary"]["$value"]["components"][0] = 0.3
+        self.save("light.tokens.json", d)
+        self.assertFails("--primary")
+
+    def test_themes_zinc_alpha_equivalent(self):
+        d = self.load("dark.tokens.json")
+        self.assertEqual(d["color"]["border"]["$value"]["alpha"], 0.1)
+        n, fails = self.run_check()
+        self.assertEqual(fails, [])
+
+    def test_themes_missing_description(self):
+        d = self.load("light.tokens.json")
+        del d["color"]["card"]["$description"]
+        self.save("light.tokens.json", d)
+        self.assertFails("light.tokens.json", "card")
+
+    def test_themes_unknown_dir(self):
+        shutil.copytree(self.theme, self.tmp / "themes" / "mystery")
+        self.assertFails("mystery")
+
+    def test_themes_contrast_labelled(self):
+        copy_dir = self.tmp / "themes" / "zinc-copy"
+        shutil.move(self.theme, copy_dir)
+        saved = check.THEMES
+        check.THEMES = ["zinc-copy"]
+        self.addCleanup(setattr, check, "THEMES", saved)
+        self.theme = copy_dir
+        d = self.load("light.tokens.json")
+        d["color"]["muted-foreground"]["$value"] = d["color"]["muted"]["$value"]
+        self.save("light.tokens.json", d)
+        check.FAILURES.clear()
+        check.check_themes(self.tmp, check.load_tokens())
+        self.assertTrue(any(f.startswith("contrast: zinc-copy:") for f in check.FAILURES), check.FAILURES)
 
 
 if __name__ == "__main__":

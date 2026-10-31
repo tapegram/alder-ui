@@ -24,6 +24,12 @@ Checks:
                each border and ring (3:1, a WARN only), light and dark,
                computed from tokens.css; al-button's pairs (resting and
                hover) are derived from its CSS
+  themes       each themes/<name>/ (a DTCG theme dir, see scripts/dtcg.py) loads;
+               its token names are exactly tokens.css's (base: theme-wide
+               tokens; light and dark: the 32 colours), in alder's table
+               order; every value converts and every token has a
+               $description; the theme passes the contrast table; zinc's
+               values equal tokens.css's
   demos        each page links ../al.css, uses only declared attributes, values
                and slots, shows every variant/size/state of its element;
                index.html links every page
@@ -42,6 +48,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "test"))
 import build  # noqa: E402
 import colour  # noqa: E402
+import dtcg  # noqa: E402
 
 FAILURES = []
 WARNINGS = []
@@ -753,7 +760,7 @@ def theme_envs(light, dark, common):
     return (("light", {**common, **light}), ("dark", {**common, **light, **dark}))
 
 
-def contrast_table(light, dark, common):
+def contrast_table(light, dark, common, where="tokens.css"):
     rows = []
     for use, fg, bg, need in button_pairs() + PAIRS:
         row = [use, tok(fg), tok(bg), need]
@@ -762,10 +769,10 @@ def contrast_table(light, dark, common):
             try:
                 r = colour.contrast(fg_t, bg_t, vals)
             except (KeyError, ValueError) as e:
-                fail("contrast", "%s (%s): %s" % (use, theme, e))
+                fail("contrast", "%s: %s (%s): %s" % (where, use, theme, e))
                 r = 0.0
             if r < need:
-                msg = "%s in %s: %s on %s is %.2f:1, needs %.1f:1" % (use, theme, fg_t, bg_t, r, need)
+                msg = "%s: %s in %s: %s on %s is %.2f:1, needs %.1f:1" % (where, use, theme, fg_t, bg_t, r, need)
                 if need < 4.5 and use not in NON_TEXT_FAIL:
                     WARNINGS.append("contrast: %s (non-text)" % msg)
                 elif (use, theme) in SPEC_GAPS:
@@ -773,13 +780,122 @@ def contrast_table(light, dark, common):
                 else:
                     fail("contrast", msg)
             elif (use, theme) in SPEC_GAPS and need >= 4.5:
-                fail("contrast", "stale SPEC_GAPS entry: %s in %s now passes (%.2f:1); delete it" % (use, theme, r))
+                fail("contrast", "%s: stale SPEC_GAPS entry: %s in %s now passes (%.2f:1); delete it" % (where, use, theme, r))
             row.append(r)
         rows.append(row)
     for use, theme in sorted(SPEC_GAPS):
         if not any(r[0] == use for r in rows):
-            fail("contrast", "SPEC_GAPS names %r, which is not a pairing" % use)
+            fail("contrast", "%s: SPEC_GAPS names %r, which is not a pairing" % (where, use))
     return rows
+
+
+# ---------------------------------------------------------------- themes
+
+THEME_ORDER = {
+    "base": ["radius", "radius-sm", "radius-md", "radius-lg", "radius-xl",
+             "al-width-narrow", "al-width-normal", "al-width-wide", "font-sans", "font-mono",
+             "shadow-xs", "shadow-sm", "shadow-md", "shadow-lg", "al-border-width"],
+    # alder's table order, not tokens.css's block order
+    "colours": SHADCN[:],
+}
+THEMES = ["zinc", "brutal", "catppuccin", "paper", "pebble"]
+# Derived in tokens.css with calc(); a theme states them as plain dimensions.
+DERIVED_RADII = {"--radius-sm", "--radius-md", "--radius-lg", "--radius-xl"}
+COLOUR_TOL = 0.5 / 255
+
+
+def theme_expected(tokens):
+    """The token names a theme must declare: (base, colours)."""
+    light, dark, common = tokens
+    base = ({k for k in common if k not in ("--color-white", "--color-black")}) | {"--radius"}
+    return base, set(dark)
+
+
+def same_atom(a, b):
+    a, b = a.strip().strip('"'), b.strip().strip('"')
+    if a == b:
+        return True
+    if "(" in a or "(" in b or a.startswith("#") or b.startswith("#"):
+        try:
+            ca, cb = colour.parse(a, {}), colour.parse(b, {})
+        except (KeyError, ValueError):
+            return False
+        return all(abs(x - y) <= COLOUR_TOL for x, y in zip(ca, cb))
+    ma, mb = (re.fullmatch(r"(-?[\d.]+)(px|rem)?", x) for x in (a, b))
+    if ma and mb:
+        zero = float(ma.group(1)) == 0 and float(mb.group(1)) == 0
+        return zero or (float(ma.group(1)) == float(mb.group(1))
+                        and (ma.group(2) or "px") == (mb.group(2) or "px"))
+    return False
+
+
+def same_value(a, b):
+    """CSS values a and b mean the same: colours within half a byte per channel
+    and alpha, dimensions as number + unit (0 equals 0px), lists and shadow
+    layers item by item."""
+    la, lb = split_top(a), split_top(b)
+    if len(la) != len(lb):
+        return False
+    for x, y in zip(la, lb):
+        ta, tb = split_top(x, " "), split_top(y, " ")
+        if len(ta) != len(tb) or not all(same_atom(p, q) for p, q in zip(ta, tb)):
+            return False
+    return True
+
+
+def check_theme(name, theme, tokens, expected):
+    light_css, dark_css, common_css = tokens
+    base_names, colour_names = expected
+    for label, got, want, order in (("base", theme.base, base_names, THEME_ORDER["base"]),
+                                    ("light", theme.light, colour_names, THEME_ORDER["colours"]),
+                                    ("dark", theme.dark, colour_names, THEME_ORDER["colours"])):
+        for n in sorted(want - set(got)):
+            fail("themes", "%s: %s lacks %s" % (name, label, n))
+        for n in sorted(set(got) - want):
+            fail("themes", "%s: %s has unknown token %s" % (name, label, n))
+        if set(got) == want and list(got) != ["--" + n for n in order]:
+            fail("themes", "%s: %s tokens are out of order (alder reads them in file order); expected %s"
+                 % (name, label, ", ".join(order)))
+    try:
+        common, light, dark = dtcg.resolved(theme)
+    except dtcg.DTCGError as e:
+        fail("themes", "%s: %s" % (name, e))
+        return
+    # --color-white/--color-black belong to every theme, not to its token files
+    fixed = {k: common_css[k] for k in ("--color-white", "--color-black") if k in common_css}
+    contrast_table(light, dark, {**fixed, **common}, where=name)
+    if name != "zinc":
+        return
+    for label, got, want in (("base", common, {**common_css, "--radius": light_css.get("--radius")}),
+                             ("light", light, light_css), ("dark", dark, dark_css)):
+        for n, v in got.items():
+            if n in DERIVED_RADII or n not in want:
+                continue
+            if not same_value(v, want[n]):
+                fail("themes", "zinc: %s %s is %s, tokens.css has %s" % (label, n, v, want[n]))
+
+
+def check_themes(root, tokens):
+    """Check every themes/<name>/ under root; returns how many were checked."""
+    tdir = root / "themes"
+    expected = theme_expected(tokens)
+    if tdir.is_dir():
+        for p in sorted(tdir.iterdir()):
+            if p.is_dir() and p.name not in THEMES:
+                fail("themes", "themes/%s is not in THEMES (%s)" % (p.name, ", ".join(THEMES)))
+    count = 0
+    for name in THEMES:
+        d = tdir / name
+        if not d.is_dir():
+            continue
+        count += 1
+        try:
+            theme = dtcg.load_theme(d)
+        except dtcg.DTCGError as e:
+            fail("themes", "%s: %s" % (name, e))
+            continue
+        check_theme(name, theme, tokens, expected)
+    return count
 
 
 # ---------------------------------------------------------------- demos
@@ -968,6 +1084,7 @@ def main(argv):
     check_icons()
     check_tokens(light, dark, common)
     rows = contrast_table(light, dark, common)
+    themes = check_themes(ROOT, (light, dark, common))
     check_demos(els)
     check_dialog_shape()
     check_tabs_nojs()
@@ -987,8 +1104,8 @@ def main(argv):
             print("FAIL", f)
         print("%d failure(s)" % len(FAILURES))
         return 1
-    print("ok: manifest, css, tokens-only, tokens, contrast (%d pairs x 2 themes), demos (%d pages), bundle"
-          % (len(rows), len(list((ROOT / "demo").glob("*.html")))))
+    print("ok: manifest, css, tokens-only, tokens, contrast (%d pairs x 2 themes), themes (%d), demos (%d pages), bundle"
+          % (len(rows), themes, len(list((ROOT / "demo").glob("*.html")))))
     return 0
 
 
