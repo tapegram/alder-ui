@@ -186,6 +186,9 @@ class ThemesCheckTest(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.tmp, True)
         self.theme = self.tmp / "themes" / "zinc"
         shutil.copytree(check.ROOT / "themes" / "zinc", self.theme)
+        saved = check.THEMES
+        check.THEMES = ["zinc"]
+        self.addCleanup(setattr, check, "THEMES", saved)
 
     def load(self, name):
         return json.loads((self.theme / name).read_text())
@@ -262,6 +265,10 @@ class ThemesCheckTest(unittest.TestCase):
         shutil.copytree(self.theme, self.tmp / "themes" / "mystery")
         self.assertFails("mystery")
 
+    def test_themes_listed_but_missing_fails(self):
+        check.THEMES = check.THEMES + ["ghost"]
+        self.assertFails("ghost", "missing")
+
     def copy_as(self, name):
         dst = self.tmp / "themes" / name
         shutil.move(self.theme, dst)
@@ -273,8 +280,10 @@ class ThemesCheckTest(unittest.TestCase):
     def test_themes_no_spec_gap_waivers(self):
         self.copy_as("paper")
         # zinc's own muted-foreground on muted is 4.34:1 (a tokens.css gap); the copy stands in for a
-        # theme that passes, so give it a white muted
+        # theme that passes, so give it a white muted (and a dark destructive: zinc's is 3.99:1 on
+        # its own hover tint, a second tokens.css gap)
         d = self.load("light.tokens.json")
+        d["color"]["destructive"]["$value"] = {"colorSpace": "oklch", "components": [0.4, 0.15, 27]}
         d["color"]["muted"]["$value"] = {"colorSpace": "oklch", "components": [1, 0, 0]}
         self.save("light.tokens.json", d)
         saved = dict(check.SPEC_GAPS)

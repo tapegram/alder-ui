@@ -5,6 +5,7 @@ token's name (last path segment) is its CSS custom property without the `--`.
 Stdlib only.
 """
 import json
+import math
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -44,6 +45,8 @@ def _read(path, file):
         return json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError:
         raise DTCGError(f"{file}: file not found")
+    except (OSError, UnicodeDecodeError) as e:
+        raise DTCGError(f"{file}: cannot read: {e}")
     except json.JSONDecodeError as e:
         raise DTCGError(f"{file}: line {e.lineno}: {e.msg}")
 
@@ -66,8 +69,8 @@ def _refs(node, where):
 
 
 def _fmt(n):
-    if isinstance(n, bool) or not isinstance(n, (int, float)):
-        raise ValueError(f"not a number: {n!r}")
+    if isinstance(n, bool) or not isinstance(n, (int, float)) or not math.isfinite(n):
+        raise ValueError(f"not a finite number: {n!r}")
     if n == int(n):
         return str(int(n))
     return repr(float(n))

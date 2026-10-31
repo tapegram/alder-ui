@@ -908,6 +908,7 @@ def check_themes(root, tokens):
     for name in THEMES:
         d = tdir / name
         if not d.is_dir():
+            fail("themes", "themes/%s is listed in THEMES but missing" % name)
             continue
         count += 1
         try:

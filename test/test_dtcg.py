@@ -122,6 +122,27 @@ class LoadTest(unittest.TestCase):
         self.assertIn("light.tokens.json", str(cm.exception))
         self.assertIn("line", str(cm.exception))
 
+    def test_non_finite_number_is_a_dtcg_error(self):
+        for bad in ("Infinity", "NaN"):
+            d = make(raw={"light.tokens.json": '{"color": {"$type": "color", "background": {"$description": "x", '
+                         '"$value": {"colorSpace": "oklch", "components": [%s, 0, 0]}}}}' % bad})
+            with self.assertRaises(dtcg.DTCGError) as cm:
+                dtcg.load_theme(d)
+            self.assertIn("light.tokens.json", str(cm.exception), bad)
+
+    def test_unreadable_file_names_file(self):
+        d = make(raw={})
+        (d / "light.tokens.json").write_bytes(b"\xff\xfe\x00 not utf-8 \x80")
+        with self.assertRaises(dtcg.DTCGError) as cm:
+            dtcg.load_theme(d)
+        self.assertIn("light.tokens.json", str(cm.exception))
+        d2 = make()
+        (d2 / "light.tokens.json").unlink()
+        (d2 / "light.tokens.json").mkdir()  # a directory: OSError (IsADirectoryError)
+        with self.assertRaises(dtcg.DTCGError) as cm:
+            dtcg.load_theme(d2)
+        self.assertIn("light.tokens.json", str(cm.exception))
+
     def test_order_preserved(self):
         names = ["zeta", "alpha", "mid", "beta"]
         d = make(light={"color": {"$type": "color", **{n: tok(oklch(0.5, 0, 0)) for n in names}}})
