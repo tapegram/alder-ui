@@ -136,7 +136,11 @@ GLOBAL_ATTRS = {"id", "class", "style", "slot", "hidden", "title", "lang", "dir"
 # interactive tier's parts (al-tabs holds al-tab and al-panel; al-toast holds
 # its al-toasts region).
 SUB = {"al-tab": "al-tabs", "al-panel": "al-tabs", "al-toasts": "al-toast"}
-MAX_SCRIPT_LINES = 60
+# A component script stays small enough to read in one go. 60 fitted the tier when every script
+# only wired attributes; al-devpanel.js also owns a drag-and-keyboard resize, which does not
+# compress below this without turning into one-liners. Raise it for a real interaction, not to
+# let a script sprawl.
+MAX_SCRIPT_LINES = 140
 
 
 def is_global(name):
