@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>al-devpanel, docked</title>
+<script>try{document.documentElement.classList.toggle("dark",localStorage.theme==="dark"||(!("theme" in localStorage)&&matchMedia("(prefers-color-scheme: dark)").matches))}catch(e){}</script>
+<link rel="stylesheet" href="../../al.css">
+<script type="module" src="../../al.js"></script>
+</head>
+<body>
+<al-page>
+<h1>al-devpanel, docked</h1>
+<p>A short page with the panel as the body's last child, where Alder renders it: the panel docks to the bottom of the window, whatever the page's height, and the grip grows it upward.</p>
+<p>The main demo (demo/devpanel.html) embeds panels in the page instead, where they stay in the flow.</p>
+</al-page>
+<al-devpanel id="docked">
+  <nav><button type="button" aria-controls="d-sql">SQL (1)</button><button type="button" aria-controls="d-state">State</button></nav>
+  <section id="d-sql"><pre>SELECT id, title FROM posts;</pre></section>
+  <section id="d-state"><code>{"page": "home"}</code></section>
+</al-devpanel>
+</body>
+</html>
